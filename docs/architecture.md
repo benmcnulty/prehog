@@ -62,13 +62,16 @@ other than "no replays ever show up in PostHog." This is the single most
 likely production-only failure for this project — the local emulator has
 no CSP enforcement gap to reveal it.
 
-**Why this is guarded by a test, not just this doc:** `firebase.json` is
-listed in the host repo's root `.gitignore`, so this exact header value is
-versioned in no git repository. `tests/prehog.spec.js` (in the host repo)
-asserts the *served* `Content-Security-Policy` response header contains
-`worker-src 'self' blob:`. If someone regenerates `firebase.json` from a
-template and drops it, that test fails instead of Session Replay silently
-going dark in production.
+**Why this is guarded by a test, not just this doc:** `firebase.json`
+matches a pattern in the host repo's root `.gitignore`, but it was already
+tracked before that pattern was added, so ignore rules don't apply to it —
+edits to it are versioned normally, in the host repo's git history.
+The test exists anyway as a second, independent guard: `tests/prehog.spec.js`
+(in the host repo) asserts the *served* `Content-Security-Policy` response
+header contains `worker-src 'self' blob:`. If someone regenerates
+`firebase.json` from a template, or the deployed value drifts from what's
+committed for any other reason, that test fails instead of Session Replay
+silently going dark in production.
 
 ## Deployment
 

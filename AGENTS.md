@@ -100,5 +100,7 @@ The host's `firebase.json` Content-Security-Policy must declare
 itself loads from `cdn.jsdelivr.net`, already allowed for other site
 dependencies, so no PostHog-specific `script-src` entry is needed) — see
 `docs/architecture.md` for the exact required header delta. If PostHog
-events silently stop working in production, check the CSP first; it is
-gitignored in the host repo and the single most likely thing to drift.
+events silently stop working in production, check the CSP first — it's
+versioned in the host repo, but production headers can still drift from
+what's committed, which is what `tests/prehog.spec.js`'s CSP assertion
+guards against.
