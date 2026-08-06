@@ -81,6 +81,7 @@
         api_host: POSTHOG_HOST,
         defaults: '2026-05-30',
         capture_pageview: true,  // single static page — 'history_change' would never fire here
+        capture_exceptions: true, // unhandled errors / unhandled promise rejections only — this page has no console.error call sites worth capturing separately
         respect_dnt: true,
         persistence: 'localStorage+cookie',
         session_recording: {

@@ -86,6 +86,15 @@ most once per visitor. Optional, dismissible, no gate on content. Exact
 question wording is set in the PostHog dashboard (not in this repo, per
 PostHog's Surveys product model) so it can be iterated without a deploy.
 
+## Exception capture
+
+`capture_exceptions: true`, scoped to unhandled exceptions and unhandled
+promise rejections only — `console.error` capture is left off, since this
+page has no `console.error` call sites worth turning into tracked events.
+Answers one question: did anyone hit a JavaScript error in production that
+Playwright's local test run didn't catch? See `docs/decisions.md` for why
+this was added after initially being declined for MVP.
+
 ## What is deliberately not collected
 
 Names, email addresses, free-text input, precise/IP-derived geolocation
