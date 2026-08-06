@@ -70,13 +70,20 @@ dark in production.
 
 ## Deployment
 
-No environment variables, no secrets in this repo. The PostHog project
-token is injected at the host-site layer via
-`window.__PREHOG_CONFIG__ = { posthogToken: '...' }`, set in a small inline
-script the host adds to `public/prehog/index.html`'s `<head>` (this repo's
-own `index.html` ships with `analytics.js` reading an empty token, which
-resolves to a documented, harmless no-op — see `analytics.js` header
-comment and `README.md`).
+No build step, so there's no injection point between "committed" and
+"served" — whatever's in this repo's `index.html` is what's live. That's
+fine here: a PostHog **project API key** (the `posthogToken` value) is a
+client-side, write-only identifier by design — the same value ships inside
+every PostHog browser SDK on every site that uses one, and PostHog's own
+docs embed it directly in the snippet. It is not a secret and doesn't need
+server-side injection.
+
+Until a real project exists, `window.__PREHOG_CONFIG__` is left unset in
+`index.html` and `analytics.js` reads an empty `posthogToken`, which
+resolves to a documented, harmless no-op (see `analytics.js` header
+comment and `README.md`). Once a PostHog project is created, the token is
+set directly in `index.html`'s `<head>` and committed like any other
+content change — no separate secrets pipeline required.
 
 Rollback is simple by construction: `/prehog` is purely additive. Removing
 the submodule mount and redeploying `firebase deploy --only hosting`
