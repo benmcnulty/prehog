@@ -51,3 +51,25 @@ Function reverse-proxy would add operational surface (a new endpoint, a new
 failure mode, cold starts) with no corresponding benefit for a page at this
 scale. Worth revisiting only if ad-blocker interference with direct
 PostHog domains becomes a measured problem.
+
+## Live event capture can't be verified through headless Playwright
+
+PostHog's SDK includes bot/automation filtering that checks
+`navigator.webdriver` (true for every browser automation tool, including
+Playwright) alongside other headless-Chromium fingerprints, and silently
+drops `.capture()` calls for anything it flags. This was confirmed directly
+against the real project during setup: `posthog.init()`, the `/flags/`
+handshake, and PostHog's own dynamically-loaded feature scripts all
+succeeded with real network requests and a 200 response — only the actual
+event-capture call never produced a request, and it stopped exactly when
+`navigator.webdriver` was true.
+
+This is the SDK behaving correctly, not a bug to work around. It does mean
+`tests/prehog.spec.js`'s analytics assertions run against a stubbed
+`window.posthog` (see `window.__PREHOG_TEST_STUB__` in `analytics.js`) by
+necessity, not just for speed — a real-SDK equivalent test would silently
+pass for the wrong reason (bot-filtered, not delivered) or require
+defeating PostHog's own anti-bot protection, which isn't something a test
+suite should be doing. Confirming true production delivery means checking
+PostHog's Activity/Live Events view from an actual, non-automated browser
+after deploy — there's no way to fully substitute for that from CI.

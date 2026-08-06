@@ -53,6 +53,11 @@
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
   <!-- Inline slide init: set data-slide from URL hash before CSS renders, so a deep link never flashes slide 1 -->
   <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');if(ids.indexOf(h)!==-1)document.documentElement.setAttribute('data-slide',h)}catch(e){}})()</script>
+  <!-- PostHog project config: read by analytics.js. Not a secret — PostHog
+       project API keys are client-side, write-only identifiers by design.
+       See docs/architecture.md for why this is set here directly rather
+       than injected by a build step. -->
+  <script>window.__PREHOG_CONFIG__ = { posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o', posthogHost: 'https://us.i.posthog.com' };</script>
 
   <link rel="stylesheet" href="/prehog/prehog.css">
 </head>

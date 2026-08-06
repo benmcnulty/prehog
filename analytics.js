@@ -28,7 +28,7 @@
   // tag, so this page's behavior can't change out from under it on a day
   // nobody touched this repo. Bump deliberately.
   var POSTHOG_SDK_URL = PREHOG_CONFIG.posthogSdkUrl
-    || 'https://cdn.jsdelivr.net/npm/posthog-js@1.413.3/dist/array.full.js';
+    || 'https://cdn.jsdelivr.net/npm/posthog-js@1.413.3/dist/module.js';
 
   var seenSlides = new Set();
   var startedAt = Date.now();
@@ -38,25 +38,29 @@
     else document.addEventListener('DOMContentLoaded', fn);
   }
 
-  // Loads PostHog's own published "array.full.js" bundle (the same
-  // self-contained build their /static/array.js endpoint serves, published
-  // to npm as posthog-js) from jsDelivr, which the host site's CSP already
-  // allows in script-src — no snippet reconstruction, no extra CSP entry.
-  // The bundle attaches `window.posthog` itself once it finishes loading.
+  // Loads PostHog's own published ES module build (posthog-js's
+  // dist/module.js — the same package used by `import posthog from
+  // "posthog-js"`) from jsDelivr, which the host site's CSP already allows
+  // in script-src. A dynamic import() is used rather than a classic
+  // `<script src>` tag: module.js uses `export default`, which is a syntax
+  // error outside an actual module context, but dynamic import() works
+  // from any script. This sidesteps PostHog's array.js/array.full.js
+  // "snippet" bootstrap entirely — that format expects a specific
+  // pre-existing window.posthog queue-stub shape that isn't documented
+  // anywhere reproducible, which is what broke the two earlier attempts
+  // at this (see git history). The ESM default export is unambiguous: it's
+  // always a ready-to-use PostHog instance with a real .init() method.
   function loadSnippet(cb) {
     if (window.posthog && typeof window.posthog.init === 'function') { cb(); return; }
 
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.src = POSTHOG_SDK_URL;
-    script.onload = cb;
-    script.onerror = function () {
-      console.warn('[prehog] PostHog script failed to load; analytics disabled for this session.');
-    };
-    var firstScript = document.getElementsByTagName('script')[0];
-    firstScript.parentNode.insertBefore(script, firstScript);
+    import(/* webpackIgnore: true */ POSTHOG_SDK_URL)
+      .then(function (module) {
+        window.posthog = module.default;
+        cb();
+      })
+      .catch(function (err) {
+        console.warn('[prehog] PostHog module failed to load; analytics disabled for this session.', err);
+      });
   }
 
   function initPostHog() {

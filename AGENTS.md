@@ -95,11 +95,13 @@ without network mocking is probably breaking invariant #2.
 This repo is mounted as a git submodule at `benlive.tv`'s `public/prehog/`.
 It depends on two scripts it does not vendor: `/js/theme-toggle.js` and
 `/js/nav-toggle.js`, both absolute-pathed against the host site's domain.
-The host's `firebase.json` Content-Security-Policy must declare
-`worker-src 'self' blob:` for Session Replay to function (the PostHog SDK
-itself loads from `cdn.jsdelivr.net`, already allowed for other site
-dependencies, so no PostHog-specific `script-src` entry is needed) — see
-`docs/architecture.md` for the exact required header delta. If PostHog
+The host's `firebase.json` Content-Security-Policy must allow
+`https://us-assets.i.posthog.com` in `script-src` (the SDK's initial module
+loads from `cdn.jsdelivr.net`, but it dynamically fetches feature bundles —
+config, surveys, exception autocapture — from PostHog's own asset CDN at
+runtime regardless) and declare `worker-src 'self' blob:` for Session
+Replay to function — see `docs/architecture.md` for the exact required
+header delta. If PostHog
 events silently stop working in production, check the CSP first — it's
 versioned in the host repo, but production headers can still drift from
 what's committed, which is what `tests/prehog.spec.js`'s CSP assertion
