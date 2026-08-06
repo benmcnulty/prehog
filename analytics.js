@@ -24,6 +24,12 @@
   var POSTHOG_TOKEN = PREHOG_CONFIG.posthogToken || '';
   var POSTHOG_HOST = PREHOG_CONFIG.posthogHost || 'https://us.i.posthog.com';
 
+  // Pinned to a specific published version rather than an unpinned "latest"
+  // tag, so this page's behavior can't change out from under it on a day
+  // nobody touched this repo. Bump deliberately.
+  var POSTHOG_SDK_URL = PREHOG_CONFIG.posthogSdkUrl
+    || 'https://cdn.jsdelivr.net/npm/posthog-js@1.413.3/dist/array.full.js';
+
   var seenSlides = new Set();
   var startedAt = Date.now();
 
@@ -32,19 +38,25 @@
     else document.addEventListener('DOMContentLoaded', fn);
   }
 
+  // Loads PostHog's own published "array.full.js" bundle (the same
+  // self-contained build their /static/array.js endpoint serves, published
+  // to npm as posthog-js) from jsDelivr, which the host site's CSP already
+  // allows in script-src — no snippet reconstruction, no extra CSP entry.
+  // The bundle attaches `window.posthog` itself once it finishes loading.
   function loadSnippet(cb) {
-    /* eslint-disable */
-    !function (t, e) {
-      var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) {
-        function g(t, e) { var o = e.split('.'); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } }
-        (p = t.createElement('script')).type = 'text/javascript', p.crossOrigin = 'anonymous', p.async = !0, p.src = s.api_host.replace('.i.posthog.com', '-assets.i.posthog.com') + '/static/array.js', (r = t.getElementsByTagName('script')[0]).parentNode.insertBefore(p, r);
-        var u = e; for (void 0 !== a ? u = e[a] = [] : a = 'posthog', u.people = u.people || []; u.people.toString = function () { return u.toString(1) + '.people (stub)' };
-          n = ('capture identifyIdentify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId').split(' '), o = 0; o < n.length; o++) g(u, n[o]);
-        e._i.push([i, s, a])
-      }, e.__SV = 1)
-    }(document, window.posthog || []);
-    /* eslint-enable */
-    cb();
+    if (window.posthog && typeof window.posthog.init === 'function') { cb(); return; }
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.src = POSTHOG_SDK_URL;
+    script.onload = cb;
+    script.onerror = function () {
+      console.warn('[prehog] PostHog script failed to load; analytics disabled for this session.');
+    };
+    var firstScript = document.getElementsByTagName('script')[0];
+    firstScript.parentNode.insertBefore(script, firstScript);
   }
 
   function initPostHog() {
@@ -86,45 +98,52 @@
   }
 
   function wireEvents() {
-    document.addEventListener('prehog:slidechange', function (e) {
-      var d = e.detail;
-      if (seenSlides.has(d.id)) return; // prehog_slide_viewed fires at most once per slide per session
-      seenSlides.add(d.id);
-      capture('prehog_slide_viewed', {
-        slide_id: d.id,
-        slide_index: d.index,
-        entry_method: d.entryMethod
-      });
+    var handlers = {
+      'prehog:slidechange': function (d) {
+        if (seenSlides.has(d.id)) return; // prehog_slide_viewed fires at most once per slide per session
+        seenSlides.add(d.id);
+        capture('prehog_slide_viewed', {
+          slide_id: d.id,
+          slide_index: d.index,
+          entry_method: d.entryMethod
+        });
+      },
+      'prehog:navused': function (d) {
+        capture('prehog_navigation_used', {
+          method: d.method,
+          direction: d.direction,
+          from: d.from,
+          to: d.to
+        });
+      },
+      'prehog:transparencyopen': function (d) {
+        capture('prehog_measurement_panel_opened', { slide_id: d.slideId });
+      },
+      'prehog:outbound': function (d) {
+        capture('prehog_outbound_clicked', {
+          destination: d.destination,
+          label: d.label,
+          slide_id: d.slideId
+        });
+      },
+      'prehog:completed': function (d) {
+        capture('prehog_completed', {
+          slides_seen: d.slidesSeen,
+          duration_ms: Date.now() - startedAt
+        });
+      }
+    };
+
+    // prehog.js may have already emitted events (e.g. the initial slide
+    // view on load) before this script attached any listeners — drain that
+    // buffer first, synchronously, before subscribing to live events.
+    (window.__prehogEvents || []).forEach(function (item) {
+      var handler = handlers[item.name];
+      if (handler) handler(item.detail);
     });
 
-    document.addEventListener('prehog:navused', function (e) {
-      var d = e.detail;
-      capture('prehog_navigation_used', {
-        method: d.method,
-        direction: d.direction,
-        from: d.from,
-        to: d.to
-      });
-    });
-
-    document.addEventListener('prehog:transparencyopen', function (e) {
-      capture('prehog_measurement_panel_opened', { slide_id: e.detail.slideId });
-    });
-
-    document.addEventListener('prehog:outbound', function (e) {
-      var d = e.detail;
-      capture('prehog_outbound_clicked', {
-        destination: d.destination,
-        label: d.label,
-        slide_id: d.slideId
-      });
-    });
-
-    document.addEventListener('prehog:completed', function (e) {
-      capture('prehog_completed', {
-        slides_seen: e.detail.slidesSeen,
-        duration_ms: Date.now() - startedAt
-      });
+    Object.keys(handlers).forEach(function (name) {
+      document.addEventListener(name, function (e) { handlers[name](e.detail); });
     });
   }
 

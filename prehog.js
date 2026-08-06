@@ -35,9 +35,19 @@
 
   var currentIndex = 0;
   var seenSlideIds = {}; // used only to decide 'entry_method' framing locally; analytics.js does its own dedup
+  var completedEmitted = false; // 'prehog:completed' fires at most once per session, landing on the last slide repeatedly must not re-fire it
 
+  // analytics.js is a deferred script that runs *after* prehog.js, so the
+  // very first slidechange (fired synchronously on load, before analytics.js
+  // has attached any listeners) would otherwise be missed entirely. Every
+  // emitted event is buffered here in addition to being dispatched live;
+  // analytics.js drains the buffer once on startup, then listens normally.
+  // prehog.js still knows nothing about PostHog — this is a generic queue.
+  window.__prehogEvents = window.__prehogEvents || [];
   function emit(name, detail) {
-    document.dispatchEvent(new CustomEvent(name, { detail: detail || {} }));
+    var payload = detail || {};
+    window.__prehogEvents.push({ name: name, detail: payload });
+    document.dispatchEvent(new CustomEvent(name, { detail: payload }));
   }
 
   function indexFromHash() {
@@ -88,7 +98,8 @@
       }
     }
 
-    if (index === SLIDE_IDS.length - 1) {
+    if (index === SLIDE_IDS.length - 1 && !completedEmitted) {
+      completedEmitted = true;
       emit('prehog:completed', { slidesSeen: Object.keys(seenSlideIds).length });
     }
   }

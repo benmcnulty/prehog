@@ -34,21 +34,23 @@ provenance *is* part of what it's demonstrating.
 
 ## Required Content-Security-Policy delta
 
-`benlive.tv`'s `firebase.json` defines a strict CSP. Two pieces are already
-sufficient for PostHog and don't need to change:
+`benlive.tv`'s `firebase.json` defines a strict CSP. `analytics.js` loads
+PostHog's official published `posthog-js` bundle
+(`dist/array.full.js`, pinned to a specific version) from `cdn.jsdelivr.net`
+rather than PostHog's own asset CDN — deliberately, so no PostHog-specific
+`script-src` entry is needed at all:
 
+- `script-src` already allows `https://cdn.jsdelivr.net` for other site
+  dependencies, so the PostHog bundle loads with **zero script-src change**.
 - `connect-src` already includes a bare `https:`, so PostHog's ingestion
-  endpoint (`https://us.i.posthog.com`) is allowed with no edit.
-- `script-src` already includes `'unsafe-inline'`, so the inline bootstrap
-  snippet in `analytics.js` is allowed to run.
+  endpoint (`https://us.i.posthog.com`) is allowed with no edit either.
 
-Two pieces are **missing** and must be added:
+Exactly one piece is **missing** and must be added:
 
 ```diff
   script-src 'self' 'unsafe-inline' 'unsafe-eval'
     https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com
-    https://code.jquery.com https://www.gstatic.com https://apis.google.com
-+   https://us-assets.i.posthog.com;
+    https://code.jquery.com https://www.gstatic.com https://apis.google.com;
 + worker-src 'self' blob:;
 ```
 
@@ -64,9 +66,9 @@ no CSP enforcement gap to reveal it.
 listed in the host repo's root `.gitignore`, so this exact header value is
 versioned in no git repository. `tests/prehog.spec.js` (in the host repo)
 asserts the *served* `Content-Security-Policy` response header contains
-both additions. If someone regenerates `firebase.json` from a template and
-drops the delta, that test fails instead of Session Replay silently going
-dark in production.
+`worker-src 'self' blob:`. If someone regenerates `firebase.json` from a
+template and drops it, that test fails instead of Session Replay silently
+going dark in production.
 
 ## Deployment
 

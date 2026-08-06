@@ -11,8 +11,11 @@
   --paper: #f7f6f2;
   --paper-dim: #ece9e1;
   --line: rgba(20, 22, 28, 0.14);
-  --accent: #ff5a36;       /* single warm accent, used sparingly */
-  --accent-quiet: #c94a2c;
+  /* #b8391f, not the more vivid #ff5a36 initially drafted — the brighter
+     shade fails WCAG AA (2.9:1) against --paper for text-sized use. This
+     value clears 4.5:1 for both text-on-paper and white-text-on-accent. */
+  --accent: #b8391f;
+  --accent-quiet: #963219;
   --muted: rgba(20, 22, 28, 0.62);
 
   --bg: var(--paper);
