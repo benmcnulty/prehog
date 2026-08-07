@@ -12,14 +12,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <title>prehog — Ben McNulty × PostHog Context Engineering</title>
-  <meta name="description" content="A responsive, instrumented presentation making the case for Ben McNulty as PostHog's next Context Engineer — and PostHog's first real implementation on benlive.tv.">
+  <meta name="description" content="Ben McNulty's application for PostHog's Context Engineer role: relevant work, working product analytics, and source code.">
   <meta name="author" content="Ben McNulty">
   <link rel="canonical" href="https://benlive.tv/prehog/">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://benlive.tv/prehog/">
   <meta property="og:title" content="prehog — Ben McNulty × PostHog Context Engineering">
-  <meta property="og:description" content="Context before employment. A small, inspectable system: presentation, PostHog implementation, and application in one artifact.">
+  <meta property="og:description" content="A concise application for PostHog's Context Engineer role, with relevant work and a working PostHog implementation.">
   <meta property="og:image" content="https://benlive.tv/img/social/og-prehog.jpg">
   <meta property="og:site_name" content="Ben McNulty Portfolio">
   <meta property="og:locale" content="en_US">
@@ -27,7 +27,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://benlive.tv/prehog/">
   <meta name="twitter:title" content="prehog — Ben McNulty × PostHog Context Engineering">
-  <meta name="twitter:description" content="Context before employment. A small, inspectable system: presentation, PostHog implementation, and application in one artifact.">
+  <meta name="twitter:description" content="A concise application for PostHog's Context Engineer role, with relevant work and a working PostHog implementation.">
   <meta name="twitter:image" content="https://benlive.tv/img/social/og-prehog.jpg">
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -45,7 +45,7 @@
     "url": "https://benlive.tv/prehog/",
     "author": { "@type": "Person", "name": "Ben McNulty", "url": "https://benlive.tv/about/" },
     "about": "Context Engineering, PostHog implementation, application artifact",
-    "description": "A responsive, instrumented presentation making the case for Ben McNulty as PostHog's next Context Engineer."
+    "description": "Ben McNulty's application for PostHog's Context Engineer role."
   }
   </script>
 
@@ -106,48 +106,14 @@
     </div>
   </nav>
 
-  <div class="deck-chrome" role="group" aria-label="Presentation controls">
-    <div class="deck-progress" role="progressbar" aria-label="Presentation progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1">
-      <div class="deck-progress-bar" data-progress-bar></div>
-      <div class="deck-progress-timer" data-progress-timer></div>
-    </div>
-    <ol class="deck-dots" data-dots>
-      <!-- populated redundantly in markup for no-JS legibility; JS reuses these as nav -->
-      <li><button type="button" class="deck-dot" data-dot="intro" aria-label="Go to slide 1: PREHOG"><span>1</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="posthog" aria-label="Go to slide 2: Why PostHog"><span>2</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="context" aria-label="Go to slide 3: Why Context Engineering"><span>3</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="how" aria-label="Go to slide 4: How I Work"><span>4</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="evidence" aria-label="Go to slide 5: Evidence"><span>5</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="learning" aria-label="Go to slide 6: Learning PostHog"><span>6</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="humans-agents" aria-label="Go to slide 7: Context for Humans and Agents"><span>7</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="why-now" aria-label="Go to slide 8: Why Me, Why Now"><span>8</span></button></li>
-      <li><button type="button" class="deck-dot" data-dot="inspect" aria-label="Go to slide 9: Inspect the Work"><span>9</span></button></li>
-    </ol>
-    <div class="deck-controls" role="group" aria-label="Slide navigation">
-      <button type="button" class="deck-nav-btn" data-action="prev" aria-label="Previous slide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <span class="deck-position" data-position aria-hidden="true">1 / 9</span>
-      <button type="button" class="deck-nav-btn" data-action="next" aria-label="Next slide">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-      </button>
-      <div class="deck-playback" data-playback aria-live="off">
-        <button type="button" class="deck-playback-btn" data-action="toggle-playback" aria-pressed="false" aria-label="Pause automatic slide advance">
-          <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 5l12 7-12 7V5z" stroke-linejoin="round"/></svg>
-          <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
   <main id="main-content" class="deck" data-role="deck">
 
     <section class="slide" id="intro" data-slide="intro" aria-labelledby="intro-heading">
       <div class="slide-inner">
         <p class="eyebrow">01 · An application, opened like a product</p>
         <h1 id="intro-heading" class="slide-title slide-title-hero">PREHOG</h1>
-        <p class="slide-lede">Context before employment.</p>
-        <p class="slide-body">This is my application for the Context Engineer role on PostHog's Wizard &amp; Docs team — and it's also the first thing I've shipped with PostHog installed. One small system, doing both jobs at once.</p>
+        <p class="slide-lede">Context before credentials.</p>
+        <p class="slide-body">I built this presentation for the Context Engineer role on PostHog's Wizard &amp; Docs team. It is also my first production implementation of PostHog.</p>
         <div class="slide-actions">
           <button type="button" class="btn btn-primary btn-glass" data-action="next"><span>Begin<span aria-hidden="true"> →</span></span></button>
         </div>
@@ -158,8 +124,8 @@
       <div class="slide-inner slide-inner-split">
         <div class="slide-text">
           <p class="eyebrow">02 · Why PostHog</p>
-          <h2 id="posthog-heading" class="slide-title">A working style, not a logo</h2>
-          <p class="slide-body">Every place I've done my best work shares a shape: ship in the open, keep context legible instead of hoarding it, and let real usage settle arguments instead of opinion. PostHog's engineering culture is that shape, in public.</p>
+          <h2 id="posthog-heading" class="slide-title">Why PostHog</h2>
+          <p class="slide-body">I value teams that write decisions down, ship useful work, and learn from real usage. That is the engineering culture I see in PostHog.</p>
           <ul class="trait-list">
             <li>Autonomy, not process theater</li>
             <li>Context that's written down, not tribal</li>
@@ -211,9 +177,9 @@
       <div class="slide-inner slide-inner-split slide-inner-split-reverse">
         <div class="slide-text">
           <p class="eyebrow">03 · Why Context Engineering</p>
-          <h2 id="context-heading" class="slide-title">Five disciplines, one center</h2>
-          <p class="slide-body">Context Engineering isn't a pivot for me — it's the name for the point where the disciplines I already practice converge. Software engineering, reliability, interaction design, technical communication, and AI workflow engineering all answer the same question: <em>what does the next reader — human or agent — actually need to know?</em></p>
-          <p class="slide-body slide-body-callout">Five things I already do. One name for the center they share.</p>
+          <h2 id="context-heading" class="slide-title">Where my work meets</h2>
+          <p class="slide-body">Software engineering, reliability, interaction design, technical communication, and AI workflow engineering all rely on clear context. My work sits where those disciplines meet.</p>
+          <p class="slide-body slide-body-callout">Make the next step clear for the person or system doing the work.</p>
           <div class="slide-actions">
             <a class="btn btn-secondary" href="https://benlive.tv/about/">See the evidence on /about<span aria-hidden="true"> →</span></a>
           </div>
@@ -246,8 +212,8 @@
       <div class="slide-inner slide-inner-split">
         <div class="slide-text">
           <p class="eyebrow">04 · How I work</p>
-          <h2 id="how-heading" class="slide-title">A loop, not a waterfall</h2>
-          <p class="slide-body">This deck was built by running the loop on itself: understand the role, structure the narrative, build the shell, instrument it, test the flows, watch what the data said, refine, document the decisions — including the ones I chose not to make.</p>
+          <h2 id="how-heading" class="slide-title">How I work</h2>
+          <p class="slide-body">I start by understanding the problem, then structure the work, build it, test it, observe the result, and document what changed. This presentation followed that same process.</p>
         </div>
         <figure class="slide-figure" aria-hidden="true">
           <svg class="illo" viewBox="0 0 360 360" data-animate-draw>
@@ -271,25 +237,25 @@
     <section class="slide" id="evidence" data-slide="evidence" aria-labelledby="evidence-heading">
       <div class="slide-inner">
         <p class="eyebrow">05 · Evidence</p>
-        <h2 id="evidence-heading" class="slide-title">Three artifacts, not a gallery</h2>
-        <p class="slide-body">Selected because each one answers the same question: why is this relevant to Context Engineering?</p>
+        <h2 id="evidence-heading" class="slide-title">Relevant work</h2>
+        <p class="slide-body">Three projects that show how I approach context, systems, and documentation.</p>
         <div class="evidence-grid">
           <article class="evidence-card" data-tag="infra">
             <h3>localcrew</h3>
-            <p class="evidence-meta">Local-first orchestration harness</p>
-            <p>Pools Ollama and OpenAI endpoints across a LAN into one addressable inference network — systems thinking about context and compute, not just prompt text.</p>
+            <p class="evidence-meta">Local inference orchestration</p>
+            <p>A local-first harness that connects Ollama and OpenAI endpoints across a LAN into one usable inference network.</p>
             <a class="evidence-link" href="https://github.com/benmcnulty/localcrew" target="_blank" rel="noopener" data-outbound="localcrew">View source<span aria-hidden="true"> ↗</span></a>
           </article>
           <article class="evidence-card" data-tag="practice">
             <h3>stay-ahead</h3>
-            <p class="evidence-meta">Techniques for agent-supported development</p>
-            <p>A public, working notebook on turning documentation into something an agent can actually use — the thesis this role is built on, practiced before I knew the role existed.</p>
+            <p class="evidence-meta">Agent-assisted development notes</p>
+            <p>A working notebook on writing documentation that an agent can use while a team builds and maintains software.</p>
             <a class="evidence-link" href="https://github.com/benmcnulty/stay-ahead" target="_blank" rel="noopener" data-outbound="stay-ahead">View source<span aria-hidden="true"> ↗</span></a>
           </article>
           <article class="evidence-card" data-tag="recursive">
             <h3>prehog</h3>
-            <p class="evidence-meta">This page, reviewing itself</p>
-            <p>Instrumented, tested with Playwright, and documented for both readers — a README for you, an AGENTS.md for the next coding agent that opens this repo.</p>
+            <p class="evidence-meta">Instrumented application project</p>
+            <p>A small PostHog implementation with Playwright coverage, a reviewer-facing README, and structured context for coding agents.</p>
             <a class="evidence-link" href="https://github.com/benmcnulty/prehog" target="_blank" rel="noopener" data-outbound="prehog-repo">View source<span aria-hidden="true"> ↗</span></a>
           </article>
         </div>
@@ -299,8 +265,8 @@
     <section class="slide" id="learning" data-slide="learning" aria-labelledby="learning-heading">
       <div class="slide-inner">
         <p class="eyebrow">06 · Learning PostHog through implementation</p>
-        <h2 id="learning-heading" class="slide-title">Analytics begins with questions</h2>
-        <p class="slide-body">This page is my first production PostHog install. Before any event was named, I wrote down what I actually wanted to know. The event model below is deliberately small — and you can watch it happen live.</p>
+        <h2 id="learning-heading" class="slide-title">What I am measuring</h2>
+        <p class="slide-body">This is my first production PostHog install. I started with a short list of questions, then added only the events needed to answer them.</p>
         <div class="qa-table" role="table" aria-label="Questions this page's analytics are designed to answer">
           <div class="qa-row qa-row-head" role="row">
             <span role="columnheader">Question</span>
@@ -322,8 +288,8 @@
       <div class="slide-inner slide-inner-split">
         <div class="slide-text">
           <p class="eyebrow">07 · Context for humans and agents</p>
-          <h2 id="humans-agents-heading" class="slide-title">One source, two readers</h2>
-          <p class="slide-body">This repository models what it claims: the same underlying context — architecture notes, decisions, analytics rules — is written once and shaped twice. A <code>README.md</code> narrates it for you. An <code>AGENTS.md</code> structures it for the next coding agent that opens this repo.</p>
+          <h2 id="humans-agents-heading" class="slide-title">Documentation for people and agents</h2>
+          <p class="slide-body">The project keeps its architecture notes, decisions, and analytics rules in the repository. The <code>README.md</code> gives a reviewer the story; <code>AGENTS.md</code> gives a coding agent the working context.</p>
           <div class="slide-actions">
             <a class="btn btn-secondary" href="https://github.com/benmcnulty/prehog/blob/main/AGENTS.md" target="_blank" rel="noopener" data-outbound="agents-md">Read AGENTS.md<span aria-hidden="true"> ↗</span></a>
           </div>
@@ -356,15 +322,15 @@
     <section class="slide" id="why-now" data-slide="why-now" aria-labelledby="why-now-heading">
       <div class="slide-inner">
         <p class="eyebrow">08 · Why me, why now</p>
-        <h2 id="why-now-heading" class="slide-title">Not a pivot — a convergence</h2>
-        <p class="slide-body slide-body-large">I want a role where engineering, explanation, reliability, and AI-assisted delivery are the same job, not four separate ones. Ten-plus years of full-stack work, QA automation, internal documentation systems, and AI workflow engineering have pointed at the same center the whole time — this page and <a href="https://benlive.tv/about/">/about</a> are the evidence, not the adjectives.</p>
+        <h2 id="why-now-heading" class="slide-title">Why this role</h2>
+        <p class="slide-body slide-body-large">I have spent more than ten years building full-stack products, QA automation, documentation systems, and AI-assisted workflows. This role brings those strengths together. <a href="https://benlive.tv/about/">My resume</a> has the details.</p>
       </div>
     </section>
 
     <section class="slide" id="inspect" data-slide="inspect" aria-labelledby="inspect-heading">
       <div class="slide-inner">
         <p class="eyebrow">09 · Inspect the work</p>
-        <h2 id="inspect-heading" class="slide-title">Source, not just slides</h2>
+        <h2 id="inspect-heading" class="slide-title">Take a look</h2>
         <div class="inspect-grid">
           <a class="inspect-card" href="https://github.com/benmcnulty/prehog" target="_blank" rel="noopener" data-outbound="inspect-repo">
             <span class="inspect-label">GitHub</span>
@@ -384,12 +350,36 @@
           </a>
         </div>
         <div class="slide-actions">
-          <p class="slide-fine">Thanks for reading this deeply. A short, real, dismissible survey may show up here — it's the only feedback interaction on this page.</p>
+          <p class="slide-fine">A short feedback survey may appear here after you finish the presentation.</p>
         </div>
       </div>
     </section>
 
   </main>
+
+  <div class="deck-chrome" role="group" aria-label="Presentation controls">
+    <div class="deck-progress" role="progressbar" aria-label="Presentation progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1">
+      <div class="deck-progress-bar" data-progress-bar></div>
+      <div class="deck-progress-timer" data-progress-timer></div>
+    </div>
+    <ol class="deck-dots" data-dots>
+      <li><button type="button" class="deck-dot" data-dot="intro" aria-label="Go to slide 1: PREHOG"><span>1</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="posthog" aria-label="Go to slide 2: Why PostHog"><span>2</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="context" aria-label="Go to slide 3: Where My Work Meets"><span>3</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="how" aria-label="Go to slide 4: How I Work"><span>4</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="evidence" aria-label="Go to slide 5: Relevant Work"><span>5</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="learning" aria-label="Go to slide 6: What I Am Measuring"><span>6</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="humans-agents" aria-label="Go to slide 7: Documentation for People and Agents"><span>7</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="why-now" aria-label="Go to slide 8: Why This Role"><span>8</span></button></li>
+      <li><button type="button" class="deck-dot" data-dot="inspect" aria-label="Go to slide 9: Take a Look"><span>9</span></button></li>
+    </ol>
+    <div class="deck-controls" role="group" aria-label="Slide navigation">
+      <button type="button" class="deck-nav-btn" data-action="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="deck-position" data-position aria-hidden="true">1 / 9</span>
+      <button type="button" class="deck-nav-btn" data-action="next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="deck-playback" data-playback aria-live="off"><button type="button" class="deck-playback-btn" data-action="toggle-playback" aria-pressed="false" aria-label="Pause automatic slide advance"><svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 5l12 7-12 7V5z" stroke-linejoin="round"/></svg><svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke-linecap="round"/></svg></button></div>
+    </div>
+  </div>
 
   <!-- Transparency panel: the self-referential "what does this page measure" disclosure,
        extended with a live log of the actual events this session has captured. -->
@@ -459,7 +449,7 @@
       </button>
     </div>
     <div class="container footer-meta">
-      <p class="footer-tagline">prehog — an inspectable application artifact.</p>
+      <p class="footer-tagline">Built as an application for PostHog.</p>
       <p class="footer-copy">&copy; 2026 Ben McNulty</p>
     </div>
   </footer>
