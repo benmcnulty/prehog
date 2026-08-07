@@ -4,7 +4,7 @@
    v2: links benlive.tv's actual shared design system directly from the
    document head rather than maintaining a parallel token set. This reverses the original
    "must render standalone when cloned" rationale — this repo already
-   depends on host-only scripts (/js/theme-toggle.js, /js/nav-toggle.js,
+   depends on host-only scripts (/js/nav-toggle.js,
    /js/animation-observer.js) with documented graceful degradation when
    opened outside benlive.tv; extending that same acknowledged host
    coupling to CSS is consistent, not a new kind of compromise. See
@@ -21,20 +21,17 @@
   --fg-faint: var(--text-muted);
   --border-panel: color-mix(in oklch, var(--border) 60%, var(--text-secondary) 40%);
 
-  /* prehog's own accent within the shared palette — orange, not the
-     site's default green/blue pairing — gives this page its own identity
-     without inventing new colors. --accent is for BACKGROUNDS only
-     (buttons, dots, the skip-link) — verified ≥4.5:1 against the
-     near-black/white text placed on it in both themes. --accent-text is
-     the separate token for accent color used AS text: the raw
-     --accent-orange (a light oklch(75%,...) tone, tuned for legibility on
-     dark surfaces) fails WCAG AA as small text on this page's light-theme
-     background, so it gets a dedicated darker override there. Using the
-     wrong one for the wrong purpose is the actual failure mode — don't
-     conflate them again. */
-  --accent: var(--accent-orange);
-  --accent-text: var(--accent-orange);
+  /* The interface and diagrams share one optimistic spectrum. The aliases
+     come from the host palette so dark/light and HDR tuning stay centralized. */
+  --accent: var(--accent-cyan);
+  --accent-text: var(--accent-cyan);
   --accent-quiet: color-mix(in oklch, var(--accent-text) 75%, var(--text-secondary) 25%);
+  --art-cyan: var(--accent-cyan);
+  --art-blue: var(--accent-blue);
+  --art-violet: var(--accent-purple);
+  --art-pink: color-mix(in oklch, var(--accent-purple) 58%, var(--accent-red) 42%);
+  --art-green: var(--accent-green);
+  --art-yellow: var(--accent-yellow);
 
   --font-display: 'Iowan Old Style', 'Georgia', 'Times New Roman', serif;
   --font-ui: -apple-system, 'Inter', 'Segoe UI', system-ui, sans-serif;
@@ -55,18 +52,11 @@
   --nav-shell-height: clamp(4.9rem, calc(4rem + 2.4vh), 5.75rem);
 }
 
-/* --accent-text overrides: the shared --accent-orange token measures
-   4.4:1 on this page's dark background and ~2.9:1 on its light one — both
-   fail WCAG AA for small text (needs 4.5:1). These values are verified
-   against the actual rendered pixel colors, not assumed from the oklch
-   source values. See the --accent-text comment above for why this needs
-   to be a separate token from --accent (which stays the raw site color —
-   it's only ever used as a background here, where it passes). */
 html[data-theme='dark'] {
-  --accent-text: #ff7a52; /* 5.97:1 on --bg-dark */
+  --accent-text: #62e8f3;
 }
 html[data-theme='light'] {
-  --accent-text: #b8391f; /* 5.51:1 on --bg-dark's light override */
+  --accent-text: #006d80;
   --border-panel: color-mix(in oklch, var(--border) 60%, var(--text-primary) 20%);
 }
 
@@ -74,7 +64,10 @@ html[data-theme='light'] {
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 8% 18%, color-mix(in oklch, var(--art-cyan) 10%, transparent) 0, transparent 31rem),
+    radial-gradient(circle at 92% 70%, color-mix(in oklch, var(--art-violet) 9%, transparent) 0, transparent 35rem),
+    var(--bg);
   color: var(--fg);
   font-family: var(--font-ui);
   line-height: 1.55;
@@ -148,7 +141,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   padding-inline: 0.6rem; transition: background-color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
 }
 .deck-dot[aria-current='true'] {
-  background: var(--accent); border-color: var(--accent); color: #14100c; font-weight: 600;
+  background: var(--prism-gradient-112); border-color: var(--art-cyan); color: #10151b; font-weight: 700;
   transform: scale(1.08);
 }
 .deck-controls {
@@ -222,10 +215,10 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   position: relative; isolation: isolate; contain: paint;
   overflow: hidden; overflow: clip;
   background: linear-gradient(140deg,
-    color-mix(in oklch, var(--bg-dark) 92%, var(--accent-orange) 8%) 0%,
-    color-mix(in oklch, var(--bg-dark) 80%, var(--accent-orange) 20%) 60%,
-    color-mix(in oklch, var(--bg-dark) 65%, var(--accent-orange) 35%) 100%);
-  border: 1.5px solid color-mix(in oklch, var(--accent-orange) 45%, transparent);
+    color-mix(in oklch, var(--bg-dark) 88%, var(--art-cyan) 12%) 0%,
+    color-mix(in oklch, var(--bg-dark) 76%, var(--art-blue) 24%) 55%,
+    color-mix(in oklch, var(--bg-dark) 62%, var(--art-violet) 38%) 100%);
+  border: 1.5px solid color-mix(in oklch, var(--art-cyan) 55%, transparent);
   box-shadow:
     0 1px 0 0 rgba(255,255,255,0.1) inset,
     0 -2px 4px 0 rgba(0,0,0,0.35) inset,
@@ -245,7 +238,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .btn-glass > * { position: relative; z-index: 1; }
 .btn-glass:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklch, var(--accent-orange) 65%, transparent);
+  border-color: color-mix(in oklch, var(--art-cyan) 78%, transparent);
   box-shadow:
     0 1px 0 0 rgba(255,255,255,0.14) inset,
     0 -2px 4px 0 rgba(0,0,0,0.3) inset,
@@ -254,20 +247,71 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 }
 .btn-glass:hover::after { opacity: 0.5; animation-duration: 3.6s; }
 
-/* ---------- SVG illustrations ---------- */
-.slide-figure { display: flex; justify-content: center; }
+/* ---------- SVG key art ---------- */
+.slide-figure {
+  position: relative; display: flex; justify-content: center; min-width: 0;
+}
+.art-card {
+  --art-card-a: var(--art-cyan);
+  --art-card-b: var(--art-violet);
+  isolation: isolate;
+  padding: clamp(0.35rem, 1.7vw, 1.1rem);
+  border: 1px solid color-mix(in oklch, var(--art-card-a) 30%, var(--border));
+  border-radius: clamp(1.1rem, 2vw, 1.6rem);
+  background:
+    radial-gradient(circle at 24% 20%, color-mix(in oklch, var(--art-card-a) 18%, transparent), transparent 44%),
+    radial-gradient(circle at 80% 78%, color-mix(in oklch, var(--art-card-b) 15%, transparent), transparent 48%),
+    linear-gradient(145deg, color-mix(in oklch, var(--bg-raised) 92%, transparent), color-mix(in oklch, var(--bg) 88%, transparent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklch, white 10%, transparent),
+    0 22px 55px color-mix(in oklch, var(--art-card-b) 9%, transparent);
+}
+.art-card-product { --art-card-a: var(--art-cyan); --art-card-b: var(--art-pink); }
+.art-card-convergence { --art-card-a: var(--art-green); --art-card-b: var(--art-violet); }
+.art-card-loop { --art-card-a: var(--art-cyan); --art-card-b: var(--art-pink); }
+.art-card-collaboration { --art-card-a: var(--art-cyan); --art-card-b: var(--art-green); }
 .illo { width: 100%; max-width: 420px; height: auto; overflow: visible; color: var(--fg); }
 .illo-large { max-width: 480px; }
+.illo :is(path, circle, rect, polygon) { vector-effect: non-scaling-stroke; }
+.art-tone-cyan { --tone: var(--art-cyan); }
+.art-tone-blue { --tone: var(--art-blue); }
+.art-tone-violet { --tone: var(--art-violet); }
+.art-tone-pink { --tone: var(--art-pink); }
+.art-tone-green { --tone: var(--art-green); }
+.art-tone-yellow { --tone: var(--art-yellow); }
+.art-line {
+  fill: none; stroke: var(--tone); stroke-width: 2.1; stroke-linecap: round;
+  opacity: 0.82;
+}
+.art-orbit {
+  fill: none; stroke: var(--tone); stroke-width: 0.9; stroke-dasharray: 2 8;
+  opacity: 0.25;
+}
+.art-orbit-wide { stroke-dasharray: 1 12; opacity: 0.17; }
+.art-halo { fill: color-mix(in oklch, var(--tone) 11%, transparent); stroke: none; }
+.art-halo-large { fill: color-mix(in oklch, var(--tone) 8%, transparent); }
 /* paint-order stroke trick: a background-colored halo behind each label so
    text stays legible where it crosses connecting lines, without needing
    individually hand-sized background rects per label. */
 .node-label {
-  font-family: var(--font-mono); font-size: 10.5px; font-weight: 650; fill: var(--fg-muted);
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; fill: var(--fg);
   paint-order: stroke fill; stroke: var(--bg); stroke-width: 4.5px; stroke-linejoin: round;
 }
-.node-label-core { fill: var(--accent-quiet); font-weight: 700; font-size: 10px; }
-.node-fill { fill: color-mix(in oklch, var(--accent) 22%, transparent); }
-.node-fill-core { fill: color-mix(in oklch, var(--accent) 34%, transparent); }
+.node-label-core { fill: var(--fg); font-weight: 800; font-size: 10px; }
+.node-fill, .node-fill-core {
+  fill: color-mix(in oklch, var(--tone, var(--accent)) 24%, var(--bg-raised));
+  stroke: var(--tone, var(--accent)); stroke-width: 2;
+}
+.node-fill-core { fill: color-mix(in oklch, var(--tone, var(--accent)) 38%, var(--bg-raised)); stroke-width: 2.4; }
+.converge-core {
+  fill: color-mix(in oklch, var(--tone) 28%, var(--bg-raised));
+  stroke: var(--tone); stroke-width: 2.5; stroke-linejoin: round;
+}
+.loop-kicker, .loop-center-label {
+  font-family: var(--font-mono); text-anchor: middle; fill: var(--fg-muted);
+  letter-spacing: 0.16em; font-size: 9px; font-weight: 700;
+}
+.loop-center-label { fill: var(--accent-text); font-size: 15px; letter-spacing: 0.2em; }
 
 /* pathLength="100" is set on every animated shape in the markup, so this
    single dasharray/offset works correctly regardless of actual geometry —
@@ -297,7 +341,8 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 @keyframes pop-in { to { opacity: 1; transform: scale(1); } }
 
 .loop-ring {
-  stroke-dasharray: 4 6; opacity: 0.5; transform-box: fill-box; transform-origin: center;
+  fill: none; stroke: url(#work-loop-gradient); stroke-width: 2.2;
+  stroke-dasharray: 4 7; opacity: 0.82; transform-box: fill-box; transform-origin: center;
   will-change: transform;
   animation: loop-orbit 24s linear infinite;
 }
@@ -432,46 +477,10 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 }
 .survey-thanks { text-align: center; padding: var(--space-md) 0; }
 
-/* ---------- Footer ----------
-   Copied verbatim from landing.css's footer block (landing.css:1805-1980)
-   rather than importing landing.css wholesale, to avoid pulling in
-   unrelated hero/marketing CSS. Keep in sync by hand if the source page's
-   footer styling changes. */
-.site-footer .container { container-type: inline-size; container-name: footer; }
-.site-footer { padding-block: var(--space-lg); border-block-start: 1px solid var(--border); margin-top: var(--space-xl); }
-.footer-content { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-md); margin-block-end: var(--space-md); }
-@container footer (max-width: 480px) {
-  .footer-content { grid-template-columns: 1fr; justify-items: center; text-align: center; }
-}
-.footer-links { display: flex; flex-wrap: wrap; gap: var(--space-md); }
-.footer-links a {
-  color: var(--text-secondary); text-decoration: none; font-size: var(--font-sm);
-  transition: color var(--duration-fast); min-block-size: var(--touch-target-min);
-  display: inline-flex; align-items: center;
-}
-.footer-links a:hover { color: var(--primary); }
-.theme-toggle {
-  display: inline-flex; align-items: center; justify-content: center; position: relative;
-  inline-size: var(--touch-target-comfortable); block-size: var(--touch-target-comfortable);
-  padding: 0; border-radius: var(--radius-full); border: 1px solid var(--border);
-  background: rgba(15, 23, 42, 0.35); color: var(--text-secondary); font-size: var(--font-sm); cursor: pointer;
-  transition: color var(--duration-fast) ease, border-color var(--duration-fast) ease, background var(--duration-fast) ease;
-}
-html[data-theme="light"] .theme-toggle { background: rgba(255, 255, 255, 0.8); }
-.theme-toggle:hover { color: var(--text-primary); border-color: rgba(16, 185, 129, 0.3); }
-.theme-toggle-icon { display: inline-flex; position: relative; width: 18px; height: 18px; }
-.theme-toggle-icon svg { position: absolute; inset: 0; width: 18px; height: 18px; transition: opacity 0.2s ease, transform 0.2s ease; }
-.theme-toggle-icon .icon-sun { opacity: 0; transform: rotate(-90deg); }
-html[data-theme="light"] .theme-toggle-icon .icon-sun { opacity: 1; transform: rotate(0deg); }
-html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: rotate(90deg); }
-.theme-toggle-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-.footer-copy { color: var(--text-muted); font-size: var(--font-xs); text-align: center; }
-.footer-tagline { color: var(--text-secondary); font-size: var(--font-sm); font-style: italic; margin-block-end: var(--space-xs); text-align: center; }
-.footer-meta { display: flex; flex-direction: column; align-items: center; }
-
 /* ---------- Slide transitions (paged mode) ---------- */
 .js-paged .slide {
   position: absolute; inset: 0; display: flex; min-height: 0; width: 100%;
+  align-items: flex-start; align-items: safe center;
   overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
   visibility: hidden; pointer-events: none; opacity: 0;
   transform: translate3d(0, 16px, 0) scale(0.992);
@@ -542,8 +551,6 @@ body.js-paged {
   grid-row: 3; inline-size: min(100%, 1180px); block-size: auto; margin: 0 auto;
   min-inline-size: 0; padding-block-end: max(var(--space-xs), env(safe-area-inset-bottom));
 }
-.js-paged .site-footer { display: none; }
-
 @media (max-height: 720px) {
   .js-paged .slide { padding-block: var(--space-md); }
 }

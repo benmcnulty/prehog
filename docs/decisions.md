@@ -66,9 +66,8 @@ feature-flag write access) — see `AGENTS.md` for the exact key.
 `prehog.css` originally declared itself deliberately self-contained — no
 host-site `/css/core/*` partials — reasoning that the
 repo needed to render correctly when cloned and opened outside
-`benlive.tv`. In practice that was never fully true: the nav and footer
-markup was copied in verbatim from day one, meaning the page already
-depended on the host's *behavior* (via `/js/theme-toggle.js` and
+`benlive.tv`. In practice that was never fully true: the shared nav meant
+the page already depended on the host's *behavior* (via
 `/js/nav-toggle.js`) without depending on its *look*, which produced the
 generic, off-brand visual result flagged in review — the actual site never
 uses its own token system before v2.
@@ -77,13 +76,11 @@ The fix extends the same acknowledged coupling one layer further: link
 `/css/core/_variables.css`, `_gradients.css`, `_animations.css`,
 `_utilities.css`, and `/css/components/_navigation.css` directly from the
 document head, in cascade order. This avoids an `@import` waterfall while
-preserving the same host dependency. The footer CSS is the one
-deliberate exception — copied verbatim rather than importing
-`landing.css` wholesale, to avoid pulling in unrelated hero/marketing
-rules for a footer block that's a small, stable, well-isolated piece of
-CSS. Standalone-clone legibility is preserved differently now: the code
-and comments explain what's happening and why, even where the visual
-result depends on the host's stylesheets being present.
+preserving the same host dependency. The presentation does not render the
+site footer; its controller is deliberately the persistent bottom edge.
+Standalone-clone legibility is preserved differently now: the code and
+comments explain what's happening and why, even where the visual result
+depends on the host's stylesheets being present.
 
 ## Reverse proxy for PostHog ingestion
 

@@ -31,14 +31,12 @@ area × correctness × explainability**, not feature growth.
    ahead of `prehog.css`). Keep them as direct links instead of CSS
    `@import`s so the browser can fetch them in parallel. This reverses an earlier "must
    render standalone when cloned" rule — that framing was aspirational and
-   never actually true once nav/footer markup was copied in verbatim; the
-   repo already depended on host-only scripts (`theme-toggle.js`,
-   `nav-toggle.js`) with documented degradation, so extending that same
-   acknowledged coupling to CSS is consistent, not new. The one exception:
-   the footer CSS block is copied verbatim (commented, with its source
-   noted) rather than importing `landing.css` wholesale, to avoid pulling
-   in unrelated hero/marketing rules — keep that block in sync by hand if
-   the source page's footer styling changes.
+   never actually true once the shared nav was introduced; the repo already
+   depended on host-only scripts (`nav-toggle.js`, `animation-observer.js`)
+   with documented degradation, so extending that same acknowledged
+   coupling to CSS is consistent, not new. This presentation deliberately
+   has no site footer: its persistent deck controller is the bottom edge of
+   the interface.
 5. **No meaning may depend solely on motion.** Every `[data-animate-draw]`
    SVG has a paired `<figcaption class="sr-only">` describing what the
    diagram shows. `prefers-reduced-motion: reduce` must disable all
@@ -128,8 +126,8 @@ without network mocking is probably breaking invariant #2.
 ## Constraints from the host site (`benlive.tv`)
 
 This repo is mounted as a git submodule at `benlive.tv`'s `public/prehog/`.
-It depends on three scripts it does not vendor — `/js/theme-toggle.js`,
-`/js/nav-toggle.js`, `/js/animation-observer.js` — and now also on the
+It depends on two scripts it does not vendor — `/js/nav-toggle.js` and
+`/js/animation-observer.js` — and also on the
 host's directly linked shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
 per invariant #4, all absolute-pathed against the host site's domain.
 The host's `firebase.json` Content-Security-Policy must allow

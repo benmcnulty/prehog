@@ -74,11 +74,11 @@ python3 -m http.server 8080
 ```
 
 When mounted under `benlive.tv`, the page also depends on shared,
-site-level assets it does not vendor itself: three scripts
-(`/js/theme-toggle.js`, `/js/nav-toggle.js`, `/js/animation-observer.js`)
+site-level assets it does not vendor itself: two scripts
+(`/js/nav-toggle.js`, `/js/animation-observer.js`)
 and the document head's directly linked design tokens (`/css/core/*`,
 `/css/components/_navigation.css`). Opening `index.html` outside the site
-will lose theme persistence, mobile nav, and the visual styling — that's
+will lose mobile-nav behavior and the visual styling — that's
 an intentional, documented degradation (see `docs/decisions.md`), not a
 bug, and the content itself stays fully readable regardless.
 
