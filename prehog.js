@@ -23,7 +23,7 @@
   var AUTOPLAY_MAX_MS = 22000;
   var AUTOPLAY_MS_PER_WORD = 60;
   var AUTOPLAY_STORAGE_KEY = 'prehog:autoplay';
-  var SLIDE_LEAVE_MS = 220; // matches .js-paged .slide.is-leaving transition in prehog.css
+  var SLIDE_LEAVE_MS = 380; // lets the overlaid exit transition settle before cleanup
 
   var root = document.documentElement;
   var deck = document.querySelector('[data-role="deck"]');
@@ -75,6 +75,8 @@
     var id = SLIDE_IDS[index];
     currentIndex = index;
 
+    root.setAttribute('data-direction', index < previousIndex ? 'backward' : 'forward');
+
     if (previousEl && previousIndex !== index && method !== 'load' && !reducedMotion) {
       previousEl.classList.add('is-leaving');
       previousEl.classList.remove('is-active');
@@ -83,7 +85,11 @@
 
     slides.forEach(function (slide, i) {
       if (!slide) return;
-      slide.classList.toggle('is-active', i === index);
+      var isCurrent = i === index;
+      if (isCurrent) slide.classList.remove('is-leaving');
+      slide.classList.toggle('is-active', isCurrent);
+      slide.inert = !isCurrent;
+      slide.setAttribute('aria-hidden', isCurrent ? 'false' : 'true');
     });
 
     dots.forEach(function (dot) {
@@ -91,7 +97,7 @@
       dot.setAttribute('aria-current', isCurrent ? 'true' : 'false');
     });
 
-    if (progressBar) progressBar.style.width = (((index + 1) / SLIDE_IDS.length) * 100) + '%';
+    if (progressBar) progressBar.style.transform = 'scaleX(' + ((index + 1) / SLIDE_IDS.length) + ')';
     if (progressWrap) progressWrap.setAttribute('aria-valuenow', String(index + 1));
     if (positionEl) positionEl.textContent = (index + 1) + ' / ' + SLIDE_IDS.length;
     if (prevBtn) prevBtn.disabled = index === 0;
@@ -174,7 +180,7 @@
 
   function clearAutoAdvance() {
     if (autoplayTimerId) { window.clearTimeout(autoplayTimerId); autoplayTimerId = null; }
-    if (progressTimer) { progressTimer.style.transition = 'none'; progressTimer.style.width = '0%'; }
+    if (progressTimer) { progressTimer.style.transition = 'none'; progressTimer.style.transform = 'scaleX(0)'; }
   }
 
   function scheduleAutoAdvance() {
@@ -186,8 +192,8 @@
       // force reflow so the width:0 reset above is committed before the transition starts
       // eslint-disable-next-line no-unused-expressions
       progressTimer.offsetWidth;
-      progressTimer.style.transition = 'width ' + ms + 'ms linear';
-      progressTimer.style.width = '100%';
+      progressTimer.style.transition = 'transform ' + ms + 'ms linear';
+      progressTimer.style.transform = 'scaleX(1)';
     }
     autoplayTimerId = window.setTimeout(function () {
       go(1, 'auto');

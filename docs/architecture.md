@@ -33,6 +33,22 @@ unstyled content before the deck is ready. The small inline deck bootstrap
 sets the opening/deep-linked slide before styles paint; with JavaScript
 disabled it does not run, so all nine sections remain readable in sequence.
 
+## Paged layout and motion
+
+Paged mode is a three-row viewport grid: measured host navigation, a flexible
+slide stage, and an intrinsically sized controller. The controller owns its
+real height (including safe-area padding), so the slide receives exactly the
+remaining space at any viewport or aspect ratio. Dense slides scroll inside
+that stage while navigation remains visible.
+
+Slides are absolutely overlaid inside an isolated stage. Entering and leaving
+slides animate only `transform` and `opacity`, so two slides never re-enter
+layout during a transition. Progress and autoplay indicators use `scaleX()`
+instead of animated width, and the continuously moving loop illustration uses
+SVG transform rotation instead of stroke repainting. Inactive slides are both
+`inert` and `aria-hidden`; the no-JavaScript document keeps every section in
+normal flow.
+
 ## Why not write the page directly into the `public` repo?
 
 Every other static sub-experience on `benlive.tv` (`/ai-lab/`, `/port/`,

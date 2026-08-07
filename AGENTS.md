@@ -72,6 +72,12 @@ area × correctness × explainability**, not feature growth.
    PostHog display conditions — simpler and fully covered by
    `tests/prehog.spec.js` rather than depending on an unverified
    conditions-JSON shape.
+10. **Paged layout is a viewport grid, not fixed-height arithmetic.** The
+    controller is an intrinsic bottom row and the deck is the flexible middle
+    row. Slides overlap absolutely inside the deck and animate with compositor-
+    friendly `transform`/`opacity`; long slides scroll internally. Preserve
+    this contract when changing navigation or transitions so the controller
+    cannot be clipped or pushed below the fold.
 
 ## Commands
 

@@ -47,11 +47,12 @@
   --dur-fast: var(--duration-fast);
   --dur-med: var(--duration-slow);
   --ease: var(--organic-ease-soft);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-settle: cubic-bezier(0.34, 1.22, 0.64, 1);
 
   /* JS-overridden by /js/nav-toggle.js once it measures the real fixed-nav
      height (same fallback pattern as port.css / login.css). */
   --nav-shell-height: clamp(4.9rem, calc(4rem + 2.4vh), 5.75rem);
-  --deck-chrome-height: clamp(6.5rem, 11vh, 7.5rem);
 }
 
 /* --accent-text overrides: the shared --accent-orange token measures
@@ -125,18 +126,20 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 }
 .deck-progress { position: relative; height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; }
 .deck-progress-bar {
-  position: absolute; inset: 0 auto 0 0; height: 100%; width: 11.11%;
+  position: absolute; inset: 0; height: 100%; width: 100%;
   background: var(--prism-gradient-112); background-size: var(--prism-size);
-  transition: width var(--dur-med) var(--ease);
+  transform: scaleX(0.1111); transform-origin: left center;
+  transition: transform 420ms var(--ease-enter); will-change: transform;
 }
 .deck-progress-timer {
-  position: absolute; inset: 0 0 0 auto; height: 100%; width: 0%;
+  position: absolute; inset: 0; height: 100%; width: 100%;
   background: color-mix(in oklch, var(--fg) 30%, transparent);
-  transform-origin: right center; transition: width linear;
+  transform: scaleX(0); transform-origin: right center; transition: transform linear;
+  will-change: transform;
 }
 .deck-dots {
   display: flex; gap: 0.35rem; list-style: none; margin: var(--space-xs) auto 0; padding: 0;
-  max-width: 1180px; overflow-x: auto; scrollbar-width: none;
+  width: 100%; min-width: 0; max-width: 1180px; overflow-x: auto; scrollbar-width: none;
 }
 .deck-dots::-webkit-scrollbar { display: none; }
 .deck-dot {
@@ -181,7 +184,11 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   font-size: clamp(3.5rem, 14vw, 8rem); letter-spacing: -0.02em; font-weight: 800;
   background: var(--prism-gradient-118); background-size: var(--prism-size); background-repeat: var(--prism-repeat);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  animation: prismFlow var(--prism-speed-slow) linear infinite;
+  animation: hero-breathe 8s var(--ease) infinite alternate; will-change: filter;
+}
+@keyframes hero-breathe {
+  from { filter: saturate(1) brightness(1); }
+  to { filter: saturate(1.08) brightness(1.04); }
 }
 .slide h1[tabindex='-1']:focus, .slide h2[tabindex='-1']:focus { outline: none; }
 .slide-lede { font-size: clamp(1.2rem, 2.4vw, 1.6rem); color: var(--fg-muted); max-width: var(--measure); }
@@ -290,10 +297,11 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 @keyframes pop-in { to { opacity: 1; transform: scale(1); } }
 
 .loop-ring {
-  stroke-dasharray: 4 6; opacity: 0.5;
+  stroke-dasharray: 4 6; opacity: 0.5; transform-box: fill-box; transform-origin: center;
+  will-change: transform;
   animation: loop-orbit 24s linear infinite;
 }
-@keyframes loop-orbit { to { stroke-dashoffset: -100; } }
+@keyframes loop-orbit { to { transform: rotate(360deg); } }
 
 /* ---------- Evidence / QA table / inspect grid ---------- */
 .evidence-grid { display: grid; gap: var(--space-md); margin-top: var(--space-lg); grid-template-columns: 1fr; }
@@ -463,13 +471,23 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
 
 /* ---------- Slide transitions (paged mode) ---------- */
 .js-paged .slide {
-  display: none; min-height: 0;
-  opacity: 0; transform: translateY(12px);
+  position: absolute; inset: 0; display: flex; min-height: 0; width: 100%;
+  overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
+  visibility: hidden; pointer-events: none; opacity: 0;
+  transform: translate3d(0, 16px, 0) scale(0.992);
+  transition:
+    opacity 280ms ease-in,
+    transform 460ms var(--ease-settle),
+    visibility 0s linear 460ms;
+  contain: layout paint style;
 }
 .js-paged .slide.is-active {
-  display: flex; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
-  scrollbar-gutter: stable; opacity: 1; transform: translateY(0);
-  transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+  visibility: visible; pointer-events: auto; opacity: 1; transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 360ms var(--ease-enter),
+    transform 460ms var(--ease-settle),
+    visibility 0s linear 0s;
+  z-index: 2;
 }
 .js-paged[data-slide='intro'] #intro,
 .js-paged[data-slide='posthog'] #posthog,
@@ -480,19 +498,49 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
 .js-paged[data-slide='humans-agents'] #humans-agents,
 .js-paged[data-slide='why-now'] #why-now,
 .js-paged[data-slide='inspect'] #inspect {
-  display: flex; opacity: 1; transform: translateY(0);
+  visibility: visible; pointer-events: auto; opacity: 1; transform: translate3d(0, 0, 0) scale(1);
 }
 .js-paged .slide.is-leaving {
-  display: flex; opacity: 0; transform: translateY(-12px);
-  transition: opacity 220ms var(--ease), transform 220ms var(--ease);
+  visibility: visible; pointer-events: none; opacity: 0;
+  transform: translate3d(0, -10px, 0) scale(0.996);
+  transition:
+    opacity 260ms ease-in,
+    transform 360ms var(--ease-enter),
+    visibility 0s linear 360ms;
+  z-index: 1;
 }
-body.js-paged { height: 100dvh; overflow: hidden; }
+.js-paged[data-direction='backward'] .slide {
+  transform: translate3d(0, -16px, 0) scale(0.992);
+}
+.js-paged[data-direction='backward'] .slide.is-active,
+.js-paged[data-direction='backward'][data-slide='intro'] #intro,
+.js-paged[data-direction='backward'][data-slide='posthog'] #posthog,
+.js-paged[data-direction='backward'][data-slide='context'] #context,
+.js-paged[data-direction='backward'][data-slide='how'] #how,
+.js-paged[data-direction='backward'][data-slide='evidence'] #evidence,
+.js-paged[data-direction='backward'][data-slide='learning'] #learning,
+.js-paged[data-direction='backward'][data-slide='humans-agents'] #humans-agents,
+.js-paged[data-direction='backward'][data-slide='why-now'] #why-now,
+.js-paged[data-direction='backward'][data-slide='inspect'] #inspect {
+  transform: translate3d(0, 0, 0) scale(1);
+}
+.js-paged[data-direction='backward'] .slide.is-leaving {
+  transform: translate3d(0, 10px, 0) scale(0.996);
+}
+.js-paged .slide.is-active, .js-paged .slide.is-leaving {
+  will-change: transform, opacity; backface-visibility: hidden;
+}
+body.js-paged {
+  display: grid; grid-template-rows: var(--nav-shell-height) minmax(0, 1fr) auto;
+  height: 100dvh; min-height: 100svh; overflow: hidden;
+}
 .js-paged .deck {
-  display: flex; height: calc(100dvh - var(--nav-shell-height) - var(--deck-chrome-height));
-  margin-top: var(--nav-shell-height); min-height: 0; scroll-behavior: auto;
+  position: relative; grid-row: 2; display: block; height: auto;
+  margin-top: 0; min-height: 0; overflow: hidden; isolation: isolate; scroll-behavior: auto;
 }
 .js-paged .deck-chrome {
-  block-size: var(--deck-chrome-height); margin: 0 auto; overflow: hidden;
+  grid-row: 3; inline-size: min(100%, 1180px); block-size: auto; margin: 0 auto;
+  min-inline-size: 0; padding-block-end: max(var(--space-xs), env(safe-area-inset-bottom));
 }
 .js-paged .site-footer { display: none; }
 
