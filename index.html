@@ -105,11 +105,24 @@
     </div>
   </nav>
 
+  <div class="consent-banner" data-consent-banner hidden role="status">
+    <span class="consent-banner-icon" aria-hidden="true">🏴‍☠️</span>
+    <span class="consent-banner-text">
+      <strong>Here there be analytics trackers.</strong>
+      This one page uses PostHog to see how the presentation itself performs.
+      <span class="consent-banner-links">
+        <a href="/">Back to benlive.tv</a>
+        <a href="/prehog/privacy/">What's collected &rarr;</a>
+      </span>
+    </span>
+    <button type="button" class="consent-banner-dismiss" data-consent-dismiss aria-label="Dismiss this notice">&times;</button>
+  </div>
+
   <main id="main-content" class="deck" data-role="deck">
 
     <section class="slide" id="intro" data-slide="intro" aria-labelledby="intro-heading">
       <div class="slide-inner">
-        <p class="eyebrow">01 · A shipped product, not a résumé</p>
+        <p class="eyebrow">01 · A shipped demo, not another résumé</p>
         <h1 id="intro-heading" class="slide-title slide-title-hero">PREHOG</h1>
         <p class="slide-lede">Context before credentials.</p>
         <p class="slide-body">I built this presentation for the Context Engineer role on PostHog's Wizard &amp; Docs team. It is also my first production implementation of PostHog.</p>

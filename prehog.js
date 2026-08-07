@@ -20,8 +20,9 @@
   ];
 
   var AUTOPLAY_MIN_MS = 8000;
-  var AUTOPLAY_MAX_MS = 22000;
-  var AUTOPLAY_MS_PER_WORD = 60;
+  var AUTOPLAY_MAX_MS = 28000;
+  var AUTOPLAY_MS_PER_WORD = 130; // ~180-250wpm effective pace once the floor/diagram bonus are folded in — the old 60ms/word averaged 400+wpm on dense slides, too fast to actually read
+  var AUTOPLAY_DIAGRAM_BONUS_MS = 2200; // slides with an SVG figure need time to look at the art, not just read the copy
   var AUTOPLAY_STORAGE_KEY = 'prehog:autoplay';
   var SLIDE_LEAVE_MS = 380; // lets the overlaid exit transition settle before cleanup
 
@@ -74,6 +75,7 @@
     var previousEl = slides[previousIndex];
     var id = SLIDE_IDS[index];
     currentIndex = index;
+    if (previousIndex !== index) autoplayRemainingMs = null; // a resume-with-remaining-time offer only applies to the slide it was paused on
 
     root.setAttribute('data-direction', index < previousIndex ? 'backward' : 'forward');
 
@@ -155,6 +157,9 @@
   // ---------- Auto-advance ----------
   var autoplayTimerId = null;
   var autoplayPlaying = false;
+  var autoplayDurationMs = 0;
+  var autoplayStartedAt = null;
+  var autoplayRemainingMs = null; // set by pauseAutoplay when it stops mid-countdown; consumed once by the next resumeAutoplay
 
   function wordCount(el) {
     if (!el) return 40;
@@ -165,7 +170,8 @@
 
   function delayForSlide(index) {
     var el = slides[index];
-    var ms = AUTOPLAY_MIN_MS + wordCount(el) * AUTOPLAY_MS_PER_WORD;
+    var hasDiagram = !!(el && el.querySelector('.slide-figure'));
+    var ms = AUTOPLAY_MIN_MS + wordCount(el) * AUTOPLAY_MS_PER_WORD + (hasDiagram ? AUTOPLAY_DIAGRAM_BONUS_MS : 0);
     return Math.max(AUTOPLAY_MIN_MS, Math.min(AUTOPLAY_MAX_MS, ms));
   }
 
@@ -180,14 +186,30 @@
 
   function clearAutoAdvance() {
     if (autoplayTimerId) { window.clearTimeout(autoplayTimerId); autoplayTimerId = null; }
+  }
+
+  function resetProgressTimer() {
     if (progressTimer) { progressTimer.style.transition = 'none'; progressTimer.style.transform = 'scaleX(0)'; }
   }
 
-  function scheduleAutoAdvance() {
+  // Freezes the progress bar at its current visual fill instead of snapping
+  // it back to empty — used on manual pause so the bar holds still rather
+  // than glitching to zero while paused.
+  function freezeProgressTimer() {
+    if (!progressTimer) return;
+    var computed = window.getComputedStyle(progressTimer).transform;
+    progressTimer.style.transition = 'none';
+    progressTimer.style.transform = (computed && computed !== 'none') ? computed : 'scaleX(0)';
+  }
+
+  function scheduleAutoAdvance(msOverride) {
     clearAutoAdvance();
+    resetProgressTimer();
     if (!autoplayPlaying) return;
     if (currentIndex >= SLIDE_IDS.length - 1) return; // stop at the final slide — this is a read-once artifact, not a kiosk loop
-    var ms = delayForSlide(currentIndex);
+    var ms = typeof msOverride === 'number' ? msOverride : delayForSlide(currentIndex);
+    autoplayDurationMs = ms;
+    autoplayStartedAt = Date.now();
     if (progressTimer) {
       // force reflow so the width:0 reset above is committed before the transition starts
       // eslint-disable-next-line no-unused-expressions
@@ -203,6 +225,11 @@
   function pauseAutoplay(method) {
     if (!autoplayPlaying) return;
     setPlaybackUI(false);
+    if (autoplayStartedAt !== null && autoplayDurationMs) {
+      var elapsed = Date.now() - autoplayStartedAt;
+      autoplayRemainingMs = Math.max(600, autoplayDurationMs - elapsed);
+    }
+    freezeProgressTimer();
     clearAutoAdvance();
     try { sessionStorage.setItem(AUTOPLAY_STORAGE_KEY, 'paused'); } catch (e) { /* ignore */ }
     emit('prehog:autoplaytoggled', { method: method, state: 'paused' });
@@ -213,7 +240,9 @@
     setPlaybackUI(true);
     try { sessionStorage.setItem(AUTOPLAY_STORAGE_KEY, 'playing'); } catch (e) { /* ignore */ }
     emit('prehog:autoplaytoggled', { method: method, state: 'playing' });
-    scheduleAutoAdvance();
+    var remaining = autoplayRemainingMs;
+    autoplayRemainingMs = null;
+    scheduleAutoAdvance(remaining === null ? undefined : remaining);
   }
 
   function initAutoplay() {
@@ -300,6 +329,24 @@
       slideId: root.getAttribute('data-slide')
     });
   });
+
+  // Consent/disclosure banner — a plain dismiss-and-remember UI notice, not
+  // an analytics feature itself (it never touches window.posthog), so it
+  // lives here alongside the other generic panel mechanics.
+  var CONSENT_STORAGE_KEY = 'prehog:consent-banner-dismissed';
+  var consentBanner = document.querySelector('[data-consent-banner]');
+  var consentDismiss = document.querySelector('[data-consent-dismiss]');
+  if (consentBanner) {
+    var alreadyDismissed = false;
+    try { alreadyDismissed = localStorage.getItem(CONSENT_STORAGE_KEY) === '1'; } catch (e) { /* ignore */ }
+    if (!alreadyDismissed) consentBanner.hidden = false;
+    if (consentDismiss) {
+      consentDismiss.addEventListener('click', function () {
+        consentBanner.hidden = true;
+        try { localStorage.setItem(CONSENT_STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
+      });
+    }
+  }
 
   // Transparency panel
   var panel = document.querySelector('[data-transparency-panel]');

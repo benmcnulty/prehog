@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#22252b" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+  <meta name="application-name" content="prehog">
+  <meta name="apple-mobile-web-app-title" content="prehog">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <title>Privacy on /prehog — Ben McNulty × PostHog Context Engineering</title>
+  <meta name="description" content="What benlive.tv/prehog collects with PostHog, why, and what it deliberately doesn't.">
+  <meta name="author" content="Ben McNulty">
+  <link rel="canonical" href="https://benlive.tv/prehog/privacy/">
+  <meta name="robots" content="noindex, follow">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://benlive.tv/prehog/privacy/">
+  <meta property="og:title" content="Privacy on /prehog">
+  <meta property="og:description" content="What benlive.tv/prehog collects with PostHog, why, and what it deliberately doesn't.">
+  <meta property="og:site_name" content="Ben McNulty Portfolio">
+  <meta property="og:locale" content="en_US">
+
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Inline theme init: runs synchronously before CSS to prevent FOUC -->
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+
+  <!-- Same shared host stylesheets /prehog/ links, in the same cascade order.
+       No PostHog config/SDK here — this page explains the tracking on
+       /prehog, deliberately without adding any of its own. -->
+  <link rel="stylesheet" href="/css/core/_variables.css">
+  <link rel="stylesheet" href="/css/core/_gradients.css">
+  <link rel="stylesheet" href="/css/core/_animations.css">
+  <link rel="stylesheet" href="/css/core/_utilities.css">
+  <link rel="stylesheet" href="/css/components/_navigation.css">
+  <link rel="stylesheet" href="/prehog/prehog.css">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav>
+    <div class="container nav-content">
+      <a class="logo" href="/" aria-label="Ben Live Human in the Loop">
+        <span class="logo-text">Ben Live</span>
+        <span class="logo-divider" aria-hidden="true">
+          <svg class="logo-divider-icon" viewBox="0 0 32 32" fill="none">
+            <defs>
+              <linearGradient id="logo-divider-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="oklch(75% 0.18 195)" />
+                <stop offset="100%" stop-color="oklch(65% 0.22 245)" />
+              </linearGradient>
+            </defs>
+            <rect x="4" y="6" width="24" height="20" rx="6" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
+            <circle cx="12" cy="15" r="2" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
+            <circle cx="20" cy="15" r="2" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
+            <path d="M12 20h8" stroke="url(#logo-divider-gradient)" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="logo-tagline">Human in the Loop</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="prehog-privacy-nav" aria-label="Toggle menu" aria-haspopup="menu" data-nav-toggle>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <ul class="nav-links" id="prehog-privacy-nav">
+        <li><a href="/prehog/">prehog</a></li>
+        <li><a href="/ai-lab/">AI Lab</a></li>
+        <li><a href="/hire-me/">Hire Me</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main id="main-content" class="privacy-page">
+    <div class="container privacy-page-inner">
+      <p class="eyebrow"><a href="/prehog/">&larr; Back to prehog</a></p>
+      <h1 class="privacy-page-title">Privacy on /prehog</h1>
+      <p class="privacy-page-lede">
+        This one page runs analytics; the rest of benlive.tv deliberately doesn't.
+        Here's exactly what that means.
+      </p>
+
+      <section class="privacy-page-section">
+        <h2>Why this page is different</h2>
+        <p>
+          <a href="/prehog/">benlive.tv/prehog</a> is a working PostHog implementation, built to
+          demonstrate PostHog competence for a job application — so it's the one place on this
+          site instrumented with the PostHog JS SDK. Everywhere else, including
+          <a href="/ai-lab/chat/">AI Lab</a>, stays analytics-free. Scoping it this way keeps that
+          "no analytics" claim honest elsewhere, and keeps the blast radius of adding a
+          third-party script contained to the one page that's explicitly about it.
+        </p>
+      </section>
+
+      <section class="privacy-page-section">
+        <h2>What's collected, and why</h2>
+        <dl class="privacy-page-deflist">
+          <dt>Page views</dt>
+          <dd>PostHog's standard <code>$pageview</code> autocapture, fired once on load. Answers "did anyone open the page."</dd>
+
+          <dt>Slide progress</dt>
+          <dd>Nine small events tied to the deck's own nine sections — which slide is active, how you navigated (click, arrow key, swipe, dot), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, and which evidence links you clicked through to. Each one exists to answer a specific, stated question about whether the presentation itself works — not to build a profile. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
+
+          <dt>Session Replay</dt>
+          <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question — is the slide navigation discoverable on a phone — and is meant to come off once that's answered, not run indefinitely by default.</dd>
+
+          <dt>A short survey</dt>
+          <dd>Shown once, after you reach the final slide: a 1–5 rating and one optional open-text question. The open-text answer is the only free text this page ever collects, and it's masked in Session Replay even though the response itself is recorded as normal survey data.</dd>
+
+          <dt>One feature flag</dt>
+          <dd>Controls whether a live, self-referential event-log panel is visible to a given visitor — a real rollout control, not a fake A/B test with no branch to measure.</dd>
+
+          <dt>JavaScript errors</dt>
+          <dd>Unhandled exceptions and unhandled promise rejections only, so a bug that only shows up on someone's actual phone in production doesn't go unnoticed. Nothing else in the console is captured.</dd>
+
+          <dt>One <code>sessionStorage</code> key</dt>
+          <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it doesn't restart if you navigate within the same tab. It never leaves your browser.</dd>
+        </dl>
+      </section>
+
+      <section class="privacy-page-section">
+        <h2>What's deliberately not collected</h2>
+        <p>
+          No names, no email addresses, no precise or IP-derived location beyond PostHog's default
+          country-level estimate, and no cross-site identity linking — there's no <code>identify()</code>
+          call anywhere in this page's code, so every visitor stays anonymous to it. The only free
+          text collected is the survey's optional open answer, described above, and only if you
+          choose to type one.
+        </p>
+      </section>
+
+      <section class="privacy-page-section">
+        <h2>Where it goes</h2>
+        <p>
+          Events are sent directly to PostHog's US cloud (<code>us.i.posthog.com</code>) under my own
+          PostHog project. See PostHog's own
+          <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
+          for how they handle it on their end. Nothing is sold, shared with third parties for
+          advertising, or used for anything beyond understanding whether this presentation works.
+        </p>
+      </section>
+
+      <section class="privacy-page-section">
+        <h2>Want to see it for yourself?</h2>
+        <p>
+          The "what does this page measure?" panel on <a href="/prehog/#humans-agents">slide 6 of
+          the deck</a> shows a live log of every event your own session has actually sent — including
+          your anonymous <code>distinct_id</code> — when enabled. The event taxonomy, the reasoning
+          behind every product turned on or deliberately left off, and the full source are public in
+          the <a href="https://github.com/benmcnulty/prehog" target="_blank" rel="noopener noreferrer">prehog repository</a>.
+        </p>
+      </section>
+
+      <section class="privacy-page-section privacy-page-footnote">
+        <p>
+          <small>
+            Last updated: August 2026. This page describes <em>/prehog</em> specifically — see
+            <a href="/ai-lab/chat/">AI Lab</a>'s own "Privacy &amp; Data Handling" panel for how that
+            product (which is not instrumented with PostHog) handles data. Questions go to Ben
+            McNulty via <a href="/hire-me/">Hire Me</a>.
+          </small>
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="privacy-page-footer">
+    <div class="container privacy-page-footer-inner">
+      <a href="/" class="btn btn-secondary">&larr; Back to benlive.tv</a>
+      <p class="footer-copy">&copy; 2026 Ben McNulty</p>
+    </div>
+  </footer>
+
+  <script src="/js/nav-toggle.js" defer></script>
+</body>
+</html>
