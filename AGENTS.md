@@ -26,9 +26,10 @@ area × correctness × explainability**, not feature growth.
    document with all nine `<section class="slide">` elements visible in
    order. Do not add a feature whose *only* implementation is JS-gated
    content with no fallback.
-4. **`prehog.css` imports `benlive.tv`'s shared design tokens directly**
-   (`@import url('/css/core/_variables.css')` etc., plus
-   `/css/components/_navigation.css`). This reverses an earlier "must
+4. **`index.html` links `benlive.tv`'s shared design tokens directly**
+   (the ordered `/css/core/*` links plus `/css/components/_navigation.css`,
+   ahead of `prehog.css`). Keep them as direct links instead of CSS
+   `@import`s so the browser can fetch them in parallel. This reverses an earlier "must
    render standalone when cloned" rule — that framing was aspirational and
    never actually true once nav/footer markup was copied in verbatim; the
    repo already depended on host-only scripts (`theme-toggle.js`,
@@ -123,7 +124,7 @@ without network mocking is probably breaking invariant #2.
 This repo is mounted as a git submodule at `benlive.tv`'s `public/prehog/`.
 It depends on three scripts it does not vendor — `/js/theme-toggle.js`,
 `/js/nav-toggle.js`, `/js/animation-observer.js` — and now also on the
-host's shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
+host's directly linked shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
 per invariant #4, all absolute-pathed against the host site's domain.
 The host's `firebase.json` Content-Security-Policy must allow
 `https://us-assets.i.posthog.com` in `script-src` (the SDK's initial module

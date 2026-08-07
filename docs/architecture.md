@@ -24,6 +24,15 @@ the site.
 **Commit order for any change:** `prehog` submodule commit → `public`
 (bumps the submodule ref) → root repo (if tests/config also changed).
 
+## Critical rendering path
+
+`index.html` links the host design-system files directly, in cascade order,
+before it links `prehog.css`. Do not replace these links with CSS `@import`s:
+imports create a dependent stylesheet waterfall on a cold load and can expose
+unstyled content before the deck is ready. The small inline deck bootstrap
+sets the opening/deep-linked slide before styles paint; with JavaScript
+disabled it does not run, so all nine sections remain readable in sequence.
+
 ## Why not write the page directly into the `public` repo?
 
 Every other static sub-experience on `benlive.tv` (`/ai-lab/`, `/port/`,

@@ -1,8 +1,8 @@
 /* ==========================================================================
    prehog.css
 
-   v2: imports benlive.tv's actual shared design system directly, rather
-   than maintaining a parallel token set. This reverses the original
+   v2: links benlive.tv's actual shared design system directly from the
+   document head rather than maintaining a parallel token set. This reverses the original
    "must render standalone when cloned" rationale — this repo already
    depends on host-only scripts (/js/theme-toggle.js, /js/nav-toggle.js,
    /js/animation-observer.js) with documented graceful degradation when
@@ -10,12 +10,6 @@
    coupling to CSS is consistent, not a new kind of compromise. See
    docs/architecture.md and docs/decisions.md for the full reasoning.
    ========================================================================== */
-
-@import url('/css/core/_variables.css');
-@import url('/css/core/_gradients.css');
-@import url('/css/core/_animations.css');
-@import url('/css/core/_utilities.css');
-@import url('/css/components/_navigation.css');
 
 :root {
   /* prehog-specific aliases onto the shared token system, not new colors.
@@ -57,7 +51,6 @@
   /* JS-overridden by /js/nav-toggle.js once it measures the real fixed-nav
      height (same fallback pattern as port.css / login.css). */
   --nav-shell-height: clamp(4.9rem, calc(4rem + 2.4vh), 5.75rem);
-  --deck-chrome-height: 3.4rem;
 }
 
 /* --accent-text overrides: the shared --accent-orange token measures
@@ -154,6 +147,12 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   background: var(--accent); border-color: var(--accent); color: #14100c; font-weight: 600;
   transform: scale(1.08);
 }
+.deck-controls {
+  display: flex; align-items: center; justify-content: center; gap: var(--space-sm);
+  width: fit-content; margin: var(--space-xs) auto 0;
+  background: color-mix(in oklch, var(--bg-raised) 88%, transparent);
+  border: 1px solid var(--border); border-radius: 999px; padding: 0.25rem 0.5rem;
+}
 
 /* ---------- Slides ---------- */
 .deck { display: block; }
@@ -183,6 +182,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   animation: prismFlow var(--prism-speed-slow) linear infinite;
 }
+.slide h1[tabindex='-1']:focus, .slide h2[tabindex='-1']:focus { outline: none; }
 .slide-lede { font-size: clamp(1.2rem, 2.4vw, 1.6rem); color: var(--fg-muted); max-width: var(--measure); }
 .slide-body { max-width: var(--measure); font-size: clamp(1rem, 1.2vw, 1.1rem); }
 .slide-body-large { max-width: 72ch; font-size: clamp(1.15rem, 2vw, 1.5rem); }
@@ -248,14 +248,14 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 
 /* ---------- SVG illustrations ---------- */
 .slide-figure { display: flex; justify-content: center; }
-.illo { width: 100%; max-width: 420px; height: auto; color: var(--fg); }
+.illo { width: 100%; max-width: 420px; height: auto; overflow: visible; color: var(--fg); }
 .illo-large { max-width: 480px; }
 /* paint-order stroke trick: a background-colored halo behind each label so
    text stays legible where it crosses connecting lines, without needing
    individually hand-sized background rects per label. */
 .node-label {
-  font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; fill: var(--fg-muted);
-  paint-order: stroke fill; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round;
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 650; fill: var(--fg-muted);
+  paint-order: stroke fill; stroke: var(--bg); stroke-width: 4.5px; stroke-linejoin: round;
 }
 .node-label-core { fill: var(--accent-quiet); font-weight: 700; font-size: 10px; }
 .node-fill { fill: color-mix(in oklch, var(--accent) 22%, transparent); }
@@ -337,14 +337,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .inspect-label { font-weight: 700; }
 .inspect-detail { font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted); }
 
-/* ---------- Fixed prev/next controls ---------- */
-.deck-controls {
-  position: fixed; bottom: var(--space-sm); left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: var(--space-sm);
-  background: var(--bg-raised); border: 1px solid var(--border); border-radius: 999px;
-  padding: 0.4rem 0.6rem; z-index: var(--z-fixed, 30); box-shadow: var(--shadow-xl);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-}
+/* ---------- Deck-attached prev/next controls ---------- */
 .deck-nav-btn {
   width: var(--touch); height: var(--touch); border-radius: 50%; border: none;
   background: transparent; color: var(--fg); cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -356,16 +349,11 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .deck-nav-btn svg { width: 18px; height: 18px; }
 .deck-position { font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted); min-width: 3.5ch; text-align: center; }
 
-/* Top-right playback control — positioned below the full-width sticky
-   .deck-chrome bar (not just below the nav), with a higher z-index, so
-   .deck-chrome never intercepts clicks on it. */
-.deck-playback {
-  position: fixed; top: calc(var(--nav-shell-height) + var(--deck-chrome-height) + 0.5rem);
-  right: var(--space-md); z-index: calc(var(--z-fixed, 30) + 1);
-}
+/* Playback is part of the deck control group, never a floating overlay. */
+.deck-playback { display: flex; }
 .deck-playback-btn {
-  width: var(--touch); height: var(--touch); border-radius: 50%;
-  border: 1px solid var(--border); background: var(--bg-raised); color: var(--fg);
+  width: calc(var(--touch) * 0.82); height: calc(var(--touch) * 0.82); border-radius: 50%;
+  border: 1px solid var(--border); background: transparent; color: var(--fg);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-md);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
@@ -480,6 +468,17 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
 .js-paged .slide.is-active {
   display: flex; opacity: 1; transform: translateY(0);
   transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+}
+.js-paged[data-slide='intro'] #intro,
+.js-paged[data-slide='posthog'] #posthog,
+.js-paged[data-slide='context'] #context,
+.js-paged[data-slide='how'] #how,
+.js-paged[data-slide='evidence'] #evidence,
+.js-paged[data-slide='learning'] #learning,
+.js-paged[data-slide='humans-agents'] #humans-agents,
+.js-paged[data-slide='why-now'] #why-now,
+.js-paged[data-slide='inspect'] #inspect {
+  display: flex; opacity: 1; transform: translateY(0);
 }
 .js-paged .slide.is-leaving {
   display: flex; opacity: 0; transform: translateY(-12px);

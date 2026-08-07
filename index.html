@@ -51,14 +51,22 @@
 
   <!-- Inline theme init: runs synchronously before CSS to prevent FOUC -->
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
-  <!-- Inline slide init: set data-slide from URL hash before CSS renders, so a deep link never flashes slide 1 -->
-  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');if(ids.indexOf(h)!==-1)document.documentElement.setAttribute('data-slide',h)}catch(e){}})()</script>
+  <!-- Inline deck init: establish the opening slide before CSS paints. With JS
+       disabled this never runs, so the document remains a readable long-form page. -->
+  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');document.documentElement.classList.add('js-paged')}catch(e){}})()</script>
   <!-- PostHog project config: read by analytics.js. Not a secret — PostHog
        project API keys are client-side, write-only identifiers by design.
        See docs/architecture.md for why this is set here directly rather
        than injected by a build step. -->
   <script>window.__PREHOG_CONFIG__ = { posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o', posthogHost: 'https://us.i.posthog.com' };</script>
 
+  <!-- Link shared styles directly so they begin downloading together. Their
+       order is the established host cascade; prehog.css contains local rules only. -->
+  <link rel="stylesheet" href="/css/core/_variables.css">
+  <link rel="stylesheet" href="/css/core/_gradients.css">
+  <link rel="stylesheet" href="/css/core/_animations.css">
+  <link rel="stylesheet" href="/css/core/_utilities.css">
+  <link rel="stylesheet" href="/css/components/_navigation.css">
   <link rel="stylesheet" href="/prehog/prehog.css">
 </head>
 <body>
@@ -98,13 +106,6 @@
     </div>
   </nav>
 
-  <div class="deck-playback" data-playback aria-live="off">
-    <button type="button" class="deck-playback-btn" data-action="toggle-playback" aria-pressed="false" aria-label="Pause automatic slide advance">
-      <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 5l12 7-12 7V5z" stroke-linejoin="round"/></svg>
-      <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke-linecap="round"/></svg>
-    </button>
-  </div>
-
   <div class="deck-chrome" role="group" aria-label="Presentation controls">
     <div class="deck-progress" role="progressbar" aria-label="Presentation progress" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1">
       <div class="deck-progress-bar" data-progress-bar></div>
@@ -122,6 +123,21 @@
       <li><button type="button" class="deck-dot" data-dot="why-now" aria-label="Go to slide 8: Why Me, Why Now"><span>8</span></button></li>
       <li><button type="button" class="deck-dot" data-dot="inspect" aria-label="Go to slide 9: Inspect the Work"><span>9</span></button></li>
     </ol>
+    <div class="deck-controls" role="group" aria-label="Slide navigation">
+      <button type="button" class="deck-nav-btn" data-action="prev" aria-label="Previous slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <span class="deck-position" data-position aria-hidden="true">1 / 9</span>
+      <button type="button" class="deck-nav-btn" data-action="next" aria-label="Next slide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="deck-playback" data-playback aria-live="off">
+        <button type="button" class="deck-playback-btn" data-action="toggle-playback" aria-pressed="false" aria-label="Pause automatic slide advance">
+          <svg class="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 5l12 7-12 7V5z" stroke-linejoin="round"/></svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 
   <main id="main-content" class="deck" data-role="deck">
@@ -374,16 +390,6 @@
     </section>
 
   </main>
-
-  <div class="deck-controls" role="group" aria-label="Slide navigation">
-    <button type="button" class="deck-nav-btn" data-action="prev" aria-label="Previous slide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-    </button>
-    <span class="deck-position" data-position aria-hidden="true">1 / 9</span>
-    <button type="button" class="deck-nav-btn" data-action="next" aria-label="Next slide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-    </button>
-  </div>
 
   <!-- Transparency panel: the self-referential "what does this page measure" disclosure,
        extended with a live log of the actual events this session has captured. -->

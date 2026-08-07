@@ -61,10 +61,10 @@ mechanism controlling whether this feature is live. It has to be created
 manually in the PostHog dashboard (this repo's setup didn't include
 feature-flag write access) — see `AGENTS.md` for the exact key.
 
-## Importing benlive.tv's shared CSS, reversing the earlier "standalone" rule
+## Linking benlive.tv's shared CSS, reversing the earlier "standalone" rule
 
 `prehog.css` originally declared itself deliberately self-contained — no
-`@import` of the host site's `/css/core/*` partials — reasoning that the
+host-site `/css/core/*` partials — reasoning that the
 repo needed to render correctly when cloned and opened outside
 `benlive.tv`. In practice that was never fully true: the nav and footer
 markup was copied in verbatim from day one, meaning the page already
@@ -73,10 +73,11 @@ depended on the host's *behavior* (via `/js/theme-toggle.js` and
 generic, off-brand visual result flagged in review — the actual site never
 uses its own token system before v2.
 
-The fix extends the same acknowledged coupling one layer further: import
+The fix extends the same acknowledged coupling one layer further: link
 `/css/core/_variables.css`, `_gradients.css`, `_animations.css`,
-`_utilities.css`, and `/css/components/_navigation.css` directly, the same
-pattern every other page on the site uses. The footer CSS is the one
+`_utilities.css`, and `/css/components/_navigation.css` directly from the
+document head, in cascade order. This avoids an `@import` waterfall while
+preserving the same host dependency. The footer CSS is the one
 deliberate exception — copied verbatim rather than importing
 `landing.css` wholesale, to avoid pulling in unrelated hero/marketing
 rules for a footer block that's a small, stable, well-isolated piece of

@@ -48,11 +48,11 @@ matter more than tooling weight — is more credible coming from a page with
 no build step.
 
 ```
-index.html      All nine slide sections, in document order (no-JS fallback
-                 renders as a single scrollable page — see prehog.js header
-                 comment for the full progressive-enhancement contract)
-prehog.css      Imports benlive.tv's shared design tokens and nav CSS
-                 directly (see docs/decisions.md for why that changed)
+index.html      All nine slide sections in document order; links benlive.tv's
+                shared tokens/nav CSS in cascade order so they fetch in parallel
+                (no-JS remains a readable scrollable document)
+prehog.css      Local presentation styles built on those host tokens
+                 (see docs/decisions.md for why that changed)
 prehog.js       Presentation controller: paging, transitions, keyboard,
                  swipe, hash routing, auto-advance, focus management, the
                  easter egg. Knows nothing about PostHog.
@@ -76,7 +76,7 @@ python3 -m http.server 8080
 When mounted under `benlive.tv`, the page also depends on shared,
 site-level assets it does not vendor itself: three scripts
 (`/js/theme-toggle.js`, `/js/nav-toggle.js`, `/js/animation-observer.js`)
-and `prehog.css`'s `@import`ed design tokens (`/css/core/*`,
+and the document head's directly linked design tokens (`/css/core/*`,
 `/css/components/_navigation.css`). Opening `index.html` outside the site
 will lose theme persistence, mobile nav, and the visual styling — that's
 an intentional, documented degradation (see `docs/decisions.md`), not a
