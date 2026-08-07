@@ -26,23 +26,51 @@ area × correctness × explainability**, not feature growth.
    document with all nine `<section class="slide">` elements visible in
    order. Do not add a feature whose *only* implementation is JS-gated
    content with no fallback.
-4. **`prehog.css` is self-contained.** It intentionally does not `@import`
-   `benlive.tv`'s shared `/css/core/*` partials, because this repo must
-   render correctly when cloned and opened standalone — reviewers are
-   expected to do exactly that. Do not add a dependency on the host site's
-   global stylesheets.
+4. **`prehog.css` imports `benlive.tv`'s shared design tokens directly**
+   (`@import url('/css/core/_variables.css')` etc., plus
+   `/css/components/_navigation.css`). This reverses an earlier "must
+   render standalone when cloned" rule — that framing was aspirational and
+   never actually true once nav/footer markup was copied in verbatim; the
+   repo already depended on host-only scripts (`theme-toggle.js`,
+   `nav-toggle.js`) with documented degradation, so extending that same
+   acknowledged coupling to CSS is consistent, not new. The one exception:
+   the footer CSS block is copied verbatim (commented, with its source
+   noted) rather than importing `landing.css` wholesale, to avoid pulling
+   in unrelated hero/marketing rules — keep that block in sync by hand if
+   the source page's footer styling changes.
 5. **No meaning may depend solely on motion.** Every `[data-animate-draw]`
    SVG has a paired `<figcaption class="sr-only">` describing what the
    diagram shows. `prefers-reduced-motion: reduce` must disable all
-   animation without hiding any content.
-6. **Event names are the public API of `analytics.js`.** The five
-   `prehog_*` custom events are documented in `docs/analytics.md`. Renaming,
-   adding, or removing one requires updating that doc and
-   `tests/prehog.spec.js` in the same change — do not let them drift.
+   animation without hiding any content — including SVG SMIL `<animate>`
+   elements (`[data-idle-pulse]`), which `animation-play-state` and CSS
+   classes do **not** affect; `prehog.js` removes them from the DOM
+   directly when `prefers-reduced-motion` is set.
+6. **Event names are the public API of `analytics.js`.** The seven
+   `prehog_*` custom events (plus the standard PostHog `survey shown` /
+   `survey sent` / `survey dismissed` triad) are documented in
+   `docs/analytics.md`. Renaming, adding, or removing one requires updating
+   that doc and `tests/prehog.spec.js` in the same change — do not let them
+   drift.
 7. **`prehog_slide_viewed` fires at most once per slide per browser
    session.** Deduplication happens in `analytics.js` via an in-memory
    `Set`, not in PostHog. This is tested; do not remove the guard to
    "simplify" the code.
+8. **The recursive live-event-log panel is gated behind the
+   `prehog-recursive-panel` feature flag**, checked via
+   `posthog.onFeatureFlags` / `isFeatureEnabled` in `analytics.js`. It
+   defaults to hidden until that flag is created in the PostHog dashboard —
+   this is intentional (a genuine, inspectable rollout control, not fake
+   decoration; see `docs/decisions.md`). Don't make it unconditionally
+   visible without updating that reasoning.
+9. **The Survey shown on the final slide is a real PostHog Survey object**
+   (type `"api"`, created via PostHog's Surveys API — not PostHog's default
+   popover). `analytics.js` renders it with the site's own CSS and submits
+   responses via the documented manual `survey sent` capture pattern so
+   they land in PostHog's own Surveys reporting UI. Timing (only after
+   `prehog_completed`) is decided client-side in `analytics.js`, not via
+   PostHog display conditions — simpler and fully covered by
+   `tests/prehog.spec.js` rather than depending on an unverified
+   conditions-JSON shape.
 
 ## Commands
 
@@ -93,8 +121,10 @@ without network mocking is probably breaking invariant #2.
 ## Constraints from the host site (`benlive.tv`)
 
 This repo is mounted as a git submodule at `benlive.tv`'s `public/prehog/`.
-It depends on two scripts it does not vendor: `/js/theme-toggle.js` and
-`/js/nav-toggle.js`, both absolute-pathed against the host site's domain.
+It depends on three scripts it does not vendor — `/js/theme-toggle.js`,
+`/js/nav-toggle.js`, `/js/animation-observer.js` — and now also on the
+host's shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
+per invariant #4, all absolute-pathed against the host site's domain.
 The host's `firebase.json` Content-Security-Policy must allow
 `https://us-assets.i.posthog.com` in `script-src` (the SDK's initial module
 loads from `cdn.jsdelivr.net`, but it dynamically fetches feature bundles —

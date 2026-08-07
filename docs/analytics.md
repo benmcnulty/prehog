@@ -70,6 +70,28 @@ no custom `prehog_viewed` event is defined, to avoid duplicating it.
 | **Privacy** | No content, only counts and durations |
 | **Test** | Navigate to the final slide via `Home` then repeated `ArrowRight`; assert exactly one `prehog_completed` with `slides_seen: 9` |
 
+### `prehog_autoplay_toggled`
+
+| | |
+|---|---|
+| **Trigger** | The deck's automatic slide advance is paused or resumed — by the user clicking the top-right control, or automatically disabled once at load under `prefers-reduced-motion` |
+| **Properties** | `method` (`manual` \| `auto`), `state` (`playing` \| `paused`) |
+| **Question answered** | Does anyone let the deck run itself, or does everyone immediately take control? |
+| **Autocapture overlap** | None — autocapture sees the button click but not the resulting playback state |
+| **Privacy** | None |
+| **Test** | Click the playback button, assert the event and that the state alternates correctly on repeated clicks |
+
+### `prehog_easter_egg_found`
+
+| | |
+|---|---|
+| **Trigger** | The hidden key-sequence easter egg is triggered for the first time this session |
+| **Properties** | `slide_id` (where it was found) |
+| **Question answered** | Does anyone read closely enough — the deck, the repo, or both — to find something not advertised on the page? A soft signal of engagement depth, nothing more |
+| **Autocapture overlap** | None |
+| **Privacy** | None |
+| **Test** | Trigger the sequence twice; assert exactly one capture despite the visual replaying both times |
+
 ## Session Replay
 
 Scoped to `/prehog` only, `maskAllInputs: true`,
@@ -77,14 +99,48 @@ Scoped to `/prehog` only, `maskAllInputs: true`,
 written-down question: **is the slide navigation model discoverable on a
 phone, or do mobile visitors get stuck?** If replay review answers that
 question conclusively, replay should be turned off rather than left running
-by default — see `docs/decisions.md`.
+by default — see `docs/decisions.md`. The masking config is no longer
+theoretical: the survey's free-text `<textarea>` carries `data-ph-mask`
+directly, so an open-ended answer is never visible in a recording even
+though the response text is captured as normal event data.
 
 ## Survey
 
-One two-question survey, targeted at the `prehog_completed` event, shown at
-most once per visitor. Optional, dismissible, no gate on content. Exact
-question wording is set in the PostHog dashboard (not in this repo, per
-PostHog's Surveys product model) so it can be iterated without a deploy.
+A real PostHog Survey (type `"api"`, created via PostHog's Surveys API —
+not their default popover), rendered with this page's own CSS instead of
+PostHog's UI. Two questions: a 1–5 rating and one open-text follow-up.
+Shown at most once per visitor, only after `prehog_completed` fires —
+that gate is decided client-side in `analytics.js`
+(`posthog.getActiveMatchingSurveys`), not via PostHog display conditions,
+so the timing logic is fully covered by `tests/prehog.spec.js` instead of
+depending on an unverified conditions-JSON shape. Standard PostHog survey
+lifecycle events, captured with the documented manual-response pattern so
+responses appear in PostHog's own Surveys reporting UI:
+
+| Event | Trigger | Key properties |
+|---|---|---|
+| `survey shown` | Rendered after `prehog_completed` | `$survey_id`, `$survey_questions` |
+| `survey sent` | Both questions answered and submitted | `$survey_id`, `$survey_questions`, `$survey_response_0` (rating), `$survey_response_1` (open text) |
+| `survey dismissed` | Closed without submitting | `$survey_id`, `$survey_questions` |
+
+PostHog's own per-person targeting flag (auto-created alongside the survey)
+prevents it from being shown again to someone who already dismissed or
+responded — enforced server-side, not by this repo's code.
+
+## The recursive live-event-log panel
+
+Gated behind the `prehog-recursive-panel` feature flag (see
+`docs/decisions.md` for why this is a real flag, not decoration). When
+enabled for a visitor, the transparency panel (slide 6) gains a live list of
+every `prehog_*` and `survey *` event this session has actually sent to
+PostHog, with a relative timestamp, plus a chip showing that session's
+anonymous `distinct_id`. It reads directly off the same in-memory log
+`analytics.js`'s `capture()` wrapper already keeps — no new event, no new
+data collection, just a render layer making the existing capture stream
+visible to the person it's about. This is the demonstration, not a
+description, of slide 6's claim that analytics begins with questions: the
+question "what is this page sending about me, right now" gets an answer
+you can watch update live.
 
 ## Exception capture
 
@@ -97,7 +153,11 @@ this was added after initially being declined for MVP.
 
 ## What is deliberately not collected
 
-Names, email addresses, free-text input, precise/IP-derived geolocation
-beyond PostHog's default country-level `$geoip_country_name`, and no
-cross-site identity linking (no `identify()` call anywhere in this repo —
-every visitor is anonymous).
+Names, email addresses, precise/IP-derived geolocation beyond PostHog's
+default country-level `$geoip_country_name`, and no cross-site identity
+linking (no `identify()` call anywhere in this repo — every visitor is
+anonymous). The one piece of free text this page ever collects is the
+survey's optional open-answer question, which exists specifically because
+someone chose to type it into a labeled feedback box — not incidental
+capture — and is masked in Session Replay even though it's present in the
+event data.

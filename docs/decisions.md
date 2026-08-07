@@ -9,8 +9,8 @@ were evaluated and declined. The judgment is part of the artifact.
 |---|---|---|
 | **Product Analytics** | Implemented | Baseline requirement — the whole project is about turning questions into a small event model. |
 | **Session Replay** | Implemented, scoped + masked | Real diagnostic question: is slide navigation discoverable on mobile. Turned on for this page only, with `maskAllInputs: true`. Should be turned off once that question is answered, not left running indefinitely. |
-| **Surveys** | Implemented, minimal | One two-question, dismissible, end-of-deck prompt. Chosen over a longer survey specifically to demonstrate restraint — a single well-placed question beats a form. |
-| **Feature Flags** | Declined | There is no rollout happening on this page — it's a single static deck shown identically to everyone. Creating a flag with no real branch behind it would be exactly the "fake experiment for résumé optics" this project explicitly tries to avoid. Revisit only if a genuine A/B question emerges (e.g., testing two different intro copy variants pre-launch). |
+| **Surveys** | Implemented, minimal, real | A real Survey object (type `"api"`, two questions: 1–5 rating + open text), created via PostHog's Surveys API and custom-rendered in this page's own CSS rather than PostHog's default popover. Chosen over a longer survey specifically to demonstrate restraint — a single well-placed exchange beats a form. Display timing is decided client-side (after `prehog_completed`) rather than via PostHog conditions — see `docs/analytics.md`. |
+| **Feature Flags** | Implemented, one flag, narrow | Reverses an earlier "declined" call. The original reasoning (no rollout happening, a flag with no real branch is the "fake experiment for résumé optics" this project explicitly avoids) still holds for A/B-style flags. What changed: the recursive live-event-log panel (§ below) is a genuine candidate for a real rollout control — something worth being able to turn on for specific visitors without a redeploy — and `prehog-recursive-panel` is exactly that, not a fake variant test. Still declined: anything resembling an A/B experiment, since there's no hypothesis with enough traffic to reach significance on a single-page artifact. |
 | **Experiments** | Declined, same reasoning as Feature Flags | No hypothesis with enough traffic to reach significance exists for a single-page job-application artifact. |
 | **Web Analytics** | Declined | Would duplicate Product Analytics' pageview/session data for this use case with a different UI. Not enough distinct value to justify a second product surface for one page. |
 | **Error Tracking** | Implemented, narrow | Revised from an earlier "declined for MVP" call. The original reasoning (no server-side logic to fail, Playwright already catches regressions faster than a dashboard) still holds for *development-time* bugs. What it missed: production has no Playwright running — a runtime error on someone's actual phone during the actual application review is exactly the kind of failure this project can't afford to be blind to, and `capture_exceptions: true` on the SDK already loaded on this page costs nothing to enable (no new dependency, no new product surface, one boolean). Scoped narrowly: unhandled exceptions and unhandled promise rejections only, not `console.error` capture — this page has no console.error call sites worth turning into tracked events. Full PostHog Error Tracking (issue grouping, alerting workflows) is still out of scope; this is just "don't fly blind in production." |
@@ -42,6 +42,47 @@ attribution that's much easier to query than reconstructing intent from
 autocaptured DOM selectors — and outbound engagement (does anyone actually
 open the repo, does anyone continue to `/about`) is the single most
 important signal this whole project exists to produce.
+
+## The recursive live-event-log panel, and why it needs a real flag
+
+The brief for this project asked for a self-referential layer — a way for
+the page's own PostHog implementation to show up *in* the page, not just
+run quietly behind it. The panel added to slide 6 (a live list of every
+event this session has actually sent, plus the session's anonymous
+`distinct_id`) is that layer. It reads entirely off data `analytics.js`
+already produces — no new collection, just visibility.
+
+Gating it behind `prehog-recursive-panel` rather than shipping it
+unconditionally does two things at once: it's a genuine, inspectable use of
+Feature Flags (see the table above), and it means the panel's visibility
+can be dialed in production — turned on for review, or for specific
+visitors — without a redeploy. The flag isn't decorative; it's the actual
+mechanism controlling whether this feature is live. It has to be created
+manually in the PostHog dashboard (this repo's setup didn't include
+feature-flag write access) — see `AGENTS.md` for the exact key.
+
+## Importing benlive.tv's shared CSS, reversing the earlier "standalone" rule
+
+`prehog.css` originally declared itself deliberately self-contained — no
+`@import` of the host site's `/css/core/*` partials — reasoning that the
+repo needed to render correctly when cloned and opened outside
+`benlive.tv`. In practice that was never fully true: the nav and footer
+markup was copied in verbatim from day one, meaning the page already
+depended on the host's *behavior* (via `/js/theme-toggle.js` and
+`/js/nav-toggle.js`) without depending on its *look*, which produced the
+generic, off-brand visual result flagged in review — the actual site never
+uses its own token system before v2.
+
+The fix extends the same acknowledged coupling one layer further: import
+`/css/core/_variables.css`, `_gradients.css`, `_animations.css`,
+`_utilities.css`, and `/css/components/_navigation.css` directly, the same
+pattern every other page on the site uses. The footer CSS is the one
+deliberate exception — copied verbatim rather than importing
+`landing.css` wholesale, to avoid pulling in unrelated hero/marketing
+rules for a footer block that's a small, stable, well-isolated piece of
+CSS. Standalone-clone legibility is preserved differently now: the code
+and comments explain what's happening and why, even where the visual
+result depends on the host's stylesheets being present.
 
 ## Reverse proxy for PostHog ingestion
 
