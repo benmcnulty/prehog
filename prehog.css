@@ -51,7 +51,7 @@
   /* JS-overridden by /js/nav-toggle.js once it measures the real fixed-nav
      height (same fallback pattern as port.css / login.css). */
   --nav-shell-height: clamp(4.9rem, calc(4rem + 2.4vh), 5.75rem);
-  --deck-chrome-height: clamp(7rem, 13vh, 8.5rem);
+  --deck-chrome-height: clamp(6.5rem, 11vh, 7.5rem);
 }
 
 /* --accent-text overrides: the shared --accent-orange token measures
@@ -463,11 +463,12 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
 
 /* ---------- Slide transitions (paged mode) ---------- */
 .js-paged .slide {
-  display: none; min-height: calc(100dvh - var(--nav-shell-height) - var(--deck-chrome-height));
+  display: none; min-height: 0;
   opacity: 0; transform: translateY(12px);
 }
 .js-paged .slide.is-active {
-  display: flex; opacity: 1; transform: translateY(0);
+  display: flex; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-gutter: stable; opacity: 1; transform: translateY(0);
   transition: opacity 420ms var(--ease), transform 420ms var(--ease);
 }
 .js-paged[data-slide='intro'] #intro,
@@ -485,7 +486,19 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
   display: flex; opacity: 0; transform: translateY(-12px);
   transition: opacity 220ms var(--ease), transform 220ms var(--ease);
 }
-.js-paged .deck { scroll-behavior: auto; }
+body.js-paged { height: 100dvh; overflow: hidden; }
+.js-paged .deck {
+  display: flex; height: calc(100dvh - var(--nav-shell-height) - var(--deck-chrome-height));
+  margin-top: var(--nav-shell-height); min-height: 0; scroll-behavior: auto;
+}
+.js-paged .deck-chrome {
+  block-size: var(--deck-chrome-height); margin: 0 auto; overflow: hidden;
+}
+.js-paged .site-footer { display: none; }
+
+@media (max-height: 720px) {
+  .js-paged .slide { padding-block: var(--space-md); }
+}
 
 /* ---------- Easter egg ---------- */
 .egg-hedgehog {
