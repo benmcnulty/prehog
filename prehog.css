@@ -279,17 +279,19 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .art-tone-pink { --tone: var(--art-pink); }
 .art-tone-green { --tone: var(--art-green); }
 .art-tone-yellow { --tone: var(--art-yellow); }
+/* Fill for gradient-painted shapes (nodes, core, bloom) comes from an
+   inline fill="url(#...)" attribute in the markup, not from CSS — SVG
+   presentation attributes lose to CSS class rules of any specificity, so
+   these rules deliberately only set stroke/opacity/etc., never fill.
+   Each gradient is a real per-tone radial "sphere" recipe (highlight →
+   full-chroma body → shade), not a flat color diluted into the
+   background — see docs/decisions.md for why the earlier color-mix
+   approach read as muddy. */
 .art-line {
-  fill: none; stroke: var(--tone); stroke-width: 2.1; stroke-linecap: round;
-  opacity: 0.82;
+  fill: none; stroke-width: 2.2; stroke-linecap: round;
+  opacity: 0.9;
 }
-.art-orbit {
-  fill: none; stroke: var(--tone); stroke-width: 0.9; stroke-dasharray: 2 8;
-  opacity: 0.25;
-}
-.art-orbit-wide { stroke-dasharray: 1 12; opacity: 0.17; }
-.art-halo { fill: color-mix(in oklch, var(--tone) 11%, transparent); stroke: none; }
-.art-halo-large { fill: color-mix(in oklch, var(--tone) 8%, transparent); }
+.art-bloom { stroke: none; }
 /* paint-order stroke trick: a background-colored halo behind each label so
    text stays legible where it crosses connecting lines, without needing
    individually hand-sized background rects per label. */
@@ -299,13 +301,15 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 }
 .node-label-core { fill: var(--fg); font-weight: 800; font-size: 10px; }
 .node-fill, .node-fill-core {
-  fill: color-mix(in oklch, var(--tone, var(--accent)) 24%, var(--bg-raised));
   stroke: var(--tone, var(--accent)); stroke-width: 2;
 }
-.node-fill-core { fill: color-mix(in oklch, var(--tone, var(--accent)) 38%, var(--bg-raised)); stroke-width: 2.4; }
+.node-fill-core {
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 14px color-mix(in oklch, var(--tone, var(--accent)) 55%, transparent));
+}
 .converge-core {
-  fill: color-mix(in oklch, var(--tone) 28%, var(--bg-raised));
   stroke: var(--tone); stroke-width: 2.5; stroke-linejoin: round;
+  filter: drop-shadow(0 0 12px color-mix(in oklch, var(--tone) 50%, transparent));
 }
 .loop-kicker, .loop-center-label {
   font-family: var(--font-mono); text-anchor: middle; fill: var(--fg-muted);
