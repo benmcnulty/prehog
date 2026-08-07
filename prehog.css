@@ -283,13 +283,15 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
    inline fill="url(#...)" attribute in the markup, not from CSS — SVG
    presentation attributes lose to CSS class rules of any specificity, so
    these rules deliberately only set stroke/opacity/etc., never fill.
-   Each gradient is a real per-tone radial "sphere" recipe (highlight →
-   full-chroma body → shade), not a flat color diluted into the
-   background — see docs/decisions.md for why the earlier color-mix
-   approach read as muddy. */
+   Each gradient is a simple 2-stop diagonal sheen (light tint → full-
+   chroma tone, one color-mix call, not three) — chosen over the earlier
+   3-stop radial "sphere" recipe because a 3-stop gradient doesn't read
+   as gradation at small sizes (the 7-9px junction dots rendered as flat
+   blobs) and adds no visible benefit at large sizes either. Simpler and
+   more robust, per direct feedback: fewer moving parts to get wrong. */
 .art-line {
-  fill: none; stroke-width: 2.2; stroke-linecap: round;
-  opacity: 0.9;
+  fill: none; stroke-width: 2.6; stroke-linecap: round;
+  opacity: 0.95;
 }
 .art-bloom { stroke: none; }
 /* paint-order stroke trick: a background-colored halo behind each label so

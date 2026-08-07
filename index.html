@@ -109,7 +109,7 @@
 
     <section class="slide" id="intro" data-slide="intro" aria-labelledby="intro-heading">
       <div class="slide-inner">
-        <p class="eyebrow">01 · An application, opened like a product</p>
+        <p class="eyebrow">01 · A shipped product, not a résumé</p>
         <h1 id="intro-heading" class="slide-title slide-title-hero">PREHOG</h1>
         <p class="slide-lede">Context before credentials.</p>
         <p class="slide-body">I built this presentation for the Context Engineer role on PostHog's Wizard &amp; Docs team. It is also my first production implementation of PostHog.</p>
@@ -135,46 +135,42 @@
         <figure class="slide-figure art-card art-card-product" aria-hidden="true">
           <svg class="illo" viewBox="0 0 400 320" data-animate-draw data-art="product-constellation">
             <defs>
-              <!-- Shared node-tone "sphere" gradients — reused by every diagram
-                   on this page (inline SVG ids resolve document-wide). Each is
-                   a 3-stop highlight → full-chroma body → shade recipe, the
-                   same technique the hire-me coffee cup uses (base gradient
-                   fill, not a flat color diluted into the background). -->
-              <radialGradient id="node-grad-cyan" cx="35%" cy="30%" r="75%">
+              <!-- Shared node-tone gradients — reused by every diagram on this
+                   page (inline SVG ids resolve document-wide). Simple 2-stop
+                   diagonal sheen: a light tint at the near corner, the full
+                   saturated tone at the far corner. One color-mix call, not
+                   three — a 3-stop radial "sphere" was tried first and
+                   dropped: it didn't read as gradation on the small (7-9px)
+                   junction dots, and added nothing visible on the large ones. -->
+              <linearGradient id="node-grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-cyan) 55%, white 45%)" />
-                <stop offset="55%" style="stop-color:var(--art-cyan)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-cyan) 62%, black 38%)" />
-              </radialGradient>
-              <radialGradient id="node-grad-blue" cx="35%" cy="30%" r="75%">
+                <stop offset="100%" style="stop-color:var(--art-cyan)" />
+              </linearGradient>
+              <linearGradient id="node-grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-blue) 55%, white 45%)" />
-                <stop offset="55%" style="stop-color:var(--art-blue)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-blue) 62%, black 38%)" />
-              </radialGradient>
-              <radialGradient id="node-grad-violet" cx="35%" cy="30%" r="75%">
+                <stop offset="100%" style="stop-color:var(--art-blue)" />
+              </linearGradient>
+              <linearGradient id="node-grad-violet" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-violet) 55%, white 45%)" />
-                <stop offset="55%" style="stop-color:var(--art-violet)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-violet) 62%, black 38%)" />
-              </radialGradient>
-              <radialGradient id="node-grad-pink" cx="35%" cy="30%" r="75%">
+                <stop offset="100%" style="stop-color:var(--art-violet)" />
+              </linearGradient>
+              <linearGradient id="node-grad-pink" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-pink) 55%, white 45%)" />
-                <stop offset="55%" style="stop-color:var(--art-pink)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-pink) 62%, black 38%)" />
-              </radialGradient>
-              <radialGradient id="node-grad-green" cx="35%" cy="30%" r="75%">
+                <stop offset="100%" style="stop-color:var(--art-pink)" />
+              </linearGradient>
+              <linearGradient id="node-grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-green) 55%, white 45%)" />
-                <stop offset="55%" style="stop-color:var(--art-green)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-green) 62%, black 38%)" />
-              </radialGradient>
-              <radialGradient id="node-grad-yellow" cx="35%" cy="30%" r="75%">
+                <stop offset="100%" style="stop-color:var(--art-green)" />
+              </linearGradient>
+              <linearGradient id="node-grad-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-yellow) 40%, white 60%)" />
-                <stop offset="55%" style="stop-color:var(--art-yellow)" />
-                <stop offset="100%" style="stop-color:color-mix(in oklch, var(--art-yellow) 55%, black 45%)" />
-              </radialGradient>
-              <!-- Diagram-specific background bloom (cyan/pink, matching this
-                   slide's .art-card-product pairing) — one soft radial glow
-                   behind the whole composition, not one per node. -->
-              <radialGradient id="pc-bloom" cx="50%" cy="50%" r="55%">
-                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-pink) 42%, transparent)" />
+                <stop offset="100%" style="stop-color:var(--art-yellow)" />
+              </linearGradient>
+              <!-- Diagram-specific background bloom (pink, matching this
+                   slide's .art-card-product pairing) — tight and visible
+                   behind the core only, not a large diffuse field. -->
+              <radialGradient id="pc-bloom" cx="50%" cy="50%" r="45%">
+                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-pink) 55%, transparent)" />
                 <stop offset="100%" style="stop-color:transparent" />
               </radialGradient>
               <!-- Connector-line gradients: each runs from its outer node's
@@ -196,7 +192,7 @@
                 <stop offset="0%" style="stop-color:var(--art-violet)" /><stop offset="100%" style="stop-color:var(--art-pink)" />
               </linearGradient>
             </defs>
-            <circle class="art-bloom" cx="200" cy="160" r="150" fill="url(#pc-bloom)" />
+            <circle class="art-bloom" cx="200" cy="160" r="90" fill="url(#pc-bloom)" />
             <g class="art-connectors" fill="none">
               <path class="art-line" data-draw pathLength="100" style="--draw-delay:0ms" stroke="url(#pc-line-cyan)" d="M200 160 L 90 70" />
               <path class="art-line" data-draw pathLength="100" style="--draw-delay:60ms" stroke="url(#pc-line-blue)" d="M200 160 L 310 70" />
@@ -206,28 +202,28 @@
               <path class="art-line" data-draw pathLength="100" style="--draw-delay:300ms" stroke="url(#pc-line-violet)" d="M200 160 L 260 270" />
             </g>
             <g class="art-nodes">
-              <circle id="ph-core" class="node-fill-core art-tone-pink" data-pop style="--pop-delay:480ms" cx="200" cy="160" r="28" fill="url(#node-grad-pink)" />
-              <text x="200" y="165" text-anchor="middle" class="node-label node-label-core" style="--label-delay:780ms">PostHog</text>
+              <circle id="ph-core" class="node-fill-core art-tone-pink" data-pop style="--pop-delay:480ms" cx="200" cy="160" r="34" fill="url(#node-grad-pink)" />
+              <text x="200" y="166" text-anchor="middle" class="node-label node-label-core" style="--label-delay:780ms">PostHog</text>
 
-              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:560ms" cx="90" cy="70" r="17" fill="url(#node-grad-cyan)" />
-              <text x="90" y="44" text-anchor="middle" class="node-label" style="--label-delay:820ms">Analytics</text>
+              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:560ms" cx="90" cy="70" r="22" fill="url(#node-grad-cyan)" />
+              <text x="90" y="39" text-anchor="middle" class="node-label" style="--label-delay:820ms">Analytics</text>
 
-              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:600ms" cx="310" cy="70" r="17" fill="url(#node-grad-blue)" />
-              <text x="310" y="44" text-anchor="middle" class="node-label" style="--label-delay:860ms">Session Replay</text>
+              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:600ms" cx="310" cy="70" r="22" fill="url(#node-grad-blue)" />
+              <text x="310" y="39" text-anchor="middle" class="node-label" style="--label-delay:860ms">Session Replay</text>
 
-              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:640ms" cx="60" cy="200" r="17" fill="url(#node-grad-green)" />
-              <text x="60" y="226" text-anchor="middle" class="node-label" style="--label-delay:900ms">Feature Flags</text>
+              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:640ms" cx="60" cy="200" r="22" fill="url(#node-grad-green)" />
+              <text x="60" y="234" text-anchor="middle" class="node-label" style="--label-delay:900ms">Feature Flags</text>
 
-              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:680ms" cx="340" cy="200" r="17" fill="url(#node-grad-pink)" />
-              <text x="340" y="226" text-anchor="middle" class="node-label" style="--label-delay:940ms">Surveys</text>
+              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:680ms" cx="340" cy="200" r="22" fill="url(#node-grad-pink)" />
+              <text x="340" y="234" text-anchor="middle" class="node-label" style="--label-delay:940ms">Surveys</text>
 
-              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:720ms" cx="140" cy="270" r="17" fill="url(#node-grad-yellow)" />
-              <text x="140" y="300" text-anchor="middle" class="node-label" style="--label-delay:980ms">Docs</text>
+              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:720ms" cx="140" cy="270" r="22" fill="url(#node-grad-yellow)" />
+              <text x="140" y="304" text-anchor="middle" class="node-label" style="--label-delay:980ms">Docs</text>
 
-              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:760ms" cx="260" cy="270" r="17" fill="url(#node-grad-violet)" />
-              <text x="260" y="300" text-anchor="middle" class="node-label" style="--label-delay:1020ms">Wizard</text>
+              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:760ms" cx="260" cy="270" r="22" fill="url(#node-grad-violet)" />
+              <text x="260" y="304" text-anchor="middle" class="node-label" style="--label-delay:1020ms">Wizard</text>
 
-              <animate data-idle-pulse href="#ph-core" attributeName="opacity" values="1;0.82;1" dur="3.4s" begin="1.6s" repeatCount="indefinite" />
+              <animate data-idle-pulse href="#ph-core" attributeName="opacity" values="1;0.8;1" dur="3.4s" begin="1.6s" repeatCount="indefinite" />
             </g>
           </svg>
           <figcaption class="sr-only">Diagram: a product knowledge graph, six PostHog product surfaces — Analytics, Session Replay, Feature Flags, Surveys, Docs, Wizard — connected to a central PostHog node.</figcaption>
@@ -249,43 +245,44 @@
         <figure class="slide-figure art-card art-card-convergence" aria-hidden="true">
           <svg class="illo illo-large" viewBox="0 0 400 340" data-animate-draw data-art="context-convergence">
             <defs>
-              <radialGradient id="cc-bloom" cx="50%" cy="52%" r="52%">
-                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-violet) 40%, transparent)" />
+              <radialGradient id="cc-bloom" cx="50%" cy="52%" r="38%">
+                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-violet) 55%, transparent)" />
                 <stop offset="100%" style="stop-color:transparent" />
               </radialGradient>
-              <linearGradient id="cc-line-cyan" gradientUnits="userSpaceOnUse" x1="40" y1="40" x2="200" y2="170">
+              <linearGradient id="cc-line-cyan" gradientUnits="userSpaceOnUse" x1="45" y1="45" x2="200" y2="170">
                 <stop offset="0%" style="stop-color:var(--art-cyan)" /><stop offset="100%" style="stop-color:var(--art-violet)" />
               </linearGradient>
-              <linearGradient id="cc-line-blue" gradientUnits="userSpaceOnUse" x1="360" y1="40" x2="200" y2="170">
+              <linearGradient id="cc-line-blue" gradientUnits="userSpaceOnUse" x1="355" y1="45" x2="200" y2="170">
                 <stop offset="0%" style="stop-color:var(--art-blue)" /><stop offset="100%" style="stop-color:var(--art-violet)" />
               </linearGradient>
-              <linearGradient id="cc-line-pink" gradientUnits="userSpaceOnUse" x1="20" y1="170" x2="200" y2="170">
+              <linearGradient id="cc-line-pink" gradientUnits="userSpaceOnUse" x1="35" y1="170" x2="200" y2="170">
                 <stop offset="0%" style="stop-color:var(--art-pink)" /><stop offset="100%" style="stop-color:var(--art-violet)" />
               </linearGradient>
-              <linearGradient id="cc-line-yellow" gradientUnits="userSpaceOnUse" x1="380" y1="170" x2="200" y2="170">
+              <linearGradient id="cc-line-yellow" gradientUnits="userSpaceOnUse" x1="365" y1="170" x2="200" y2="170">
                 <stop offset="0%" style="stop-color:var(--art-yellow)" /><stop offset="100%" style="stop-color:var(--art-violet)" />
               </linearGradient>
-              <linearGradient id="cc-line-green" gradientUnits="userSpaceOnUse" x1="120" y1="300" x2="200" y2="170">
+              <linearGradient id="cc-line-green" gradientUnits="userSpaceOnUse" x1="120" y1="295" x2="200" y2="170">
                 <stop offset="0%" style="stop-color:var(--art-green)" /><stop offset="100%" style="stop-color:var(--art-violet)" />
               </linearGradient>
             </defs>
-            <circle class="art-bloom" cx="200" cy="170" r="150" fill="url(#cc-bloom)" />
+            <circle class="art-bloom" cx="200" cy="170" r="90" fill="url(#cc-bloom)" />
             <g class="art-connectors" fill="none">
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:0ms" stroke="url(#cc-line-cyan)" d="M40 40 C 120 60, 160 100, 200 170" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:60ms" stroke="url(#cc-line-blue)" d="M360 40 C 280 60, 240 100, 200 170" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:120ms" stroke="url(#cc-line-pink)" d="M20 170 C 90 170, 150 170, 200 170" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:180ms" stroke="url(#cc-line-yellow)" d="M380 170 C 310 170, 250 170, 200 170" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:240ms" stroke="url(#cc-line-green)" d="M120 300 C 150 250, 175 210, 200 170" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:0ms" stroke="url(#cc-line-cyan)" d="M45 45 C 120 62, 160 105, 198 165" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:60ms" stroke="url(#cc-line-blue)" d="M355 45 C 280 62, 240 105, 202 165" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:120ms" stroke="url(#cc-line-pink)" d="M35 170 C 95 170, 145 170, 195 170" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:180ms" stroke="url(#cc-line-yellow)" d="M365 170 C 305 170, 255 170, 205 170" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:240ms" stroke="url(#cc-line-green)" d="M120 295 C 150 248, 175 212, 200 175" />
             </g>
             <g class="art-nodes">
-              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:480ms" cx="40" cy="40" r="17" fill="url(#node-grad-cyan)" /><text x="40" y="18" text-anchor="middle" class="node-label" style="--label-delay:750ms">SWE</text>
-              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:530ms" cx="360" cy="40" r="17" fill="url(#node-grad-blue)" /><text x="360" y="18" text-anchor="middle" class="node-label" style="--label-delay:790ms">QA / Reliability</text>
-              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:580ms" cx="20" cy="170" r="17" fill="url(#node-grad-pink)" /><text x="20" y="146" text-anchor="middle" class="node-label" style="--label-delay:830ms">Interaction Design</text>
-              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:630ms" cx="380" cy="170" r="17" fill="url(#node-grad-yellow)" /><text x="380" y="146" text-anchor="middle" class="node-label" style="--label-delay:870ms">Tech Comms</text>
-              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:680ms" cx="120" cy="300" r="17" fill="url(#node-grad-green)" /><text x="120" y="326" text-anchor="middle" class="node-label" style="--label-delay:910ms">AI Workflow</text>
+              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:480ms" cx="45" cy="45" r="20" fill="url(#node-grad-cyan)" /><text x="45" y="15" text-anchor="middle" class="node-label" style="--label-delay:750ms">SWE</text>
+              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:530ms" cx="355" cy="45" r="20" fill="url(#node-grad-blue)" /><text x="355" y="15" text-anchor="middle" class="node-label" style="--label-delay:790ms">QA / Reliability</text>
+              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:580ms" cx="35" cy="170" r="20" fill="url(#node-grad-pink)" /><text x="35" y="144" text-anchor="middle" class="node-label" style="--label-delay:830ms">Interaction Design</text>
+              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:630ms" cx="365" cy="170" r="20" fill="url(#node-grad-yellow)" /><text x="365" y="144" text-anchor="middle" class="node-label" style="--label-delay:870ms">Tech Comms</text>
+              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:680ms" cx="120" cy="295" r="20" fill="url(#node-grad-green)" /><text x="120" y="323" text-anchor="middle" class="node-label" style="--label-delay:910ms">AI Workflow</text>
             </g>
-            <rect data-draw pathLength="100" style="--draw-delay:900ms" class="converge-core art-tone-violet" x="137" y="145" width="126" height="50" rx="20" fill="url(#node-grad-violet)" />
-            <text x="200" y="176" text-anchor="middle" class="node-label node-label-core" style="--label-delay:1350ms">Context Engineering</text>
+            <rect id="cc-core" data-draw pathLength="100" style="--draw-delay:900ms" class="converge-core art-tone-violet" x="122" y="143" width="156" height="54" rx="15" fill="url(#node-grad-violet)" />
+            <text x="200" y="175" text-anchor="middle" class="node-label node-label-core" style="--label-delay:1350ms">Context Engineering</text>
+            <animate data-idle-pulse href="#cc-core" attributeName="opacity" values="1;0.85;1" dur="3.6s" begin="1.8s" repeatCount="indefinite" />
           </svg>
           <figcaption class="sr-only">Diagram: five disciplines — software engineering, QA and reliability, interaction design, technical communication, and AI workflow engineering — converging on a central field labeled Context Engineering.</figcaption>
         </figure>
@@ -308,24 +305,28 @@
                 <stop offset="0.68" stop-color="var(--art-pink)" />
                 <stop offset="1" stop-color="var(--art-yellow)" />
               </linearGradient>
-              <radialGradient id="wl-bloom" cx="50%" cy="50%" r="45%">
-                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-pink) 40%, transparent)" />
+              <radialGradient id="wl-bloom" cx="50%" cy="50%" r="35%">
+                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-pink) 50%, transparent)" />
                 <stop offset="100%" style="stop-color:transparent" />
               </radialGradient>
             </defs>
-            <circle class="art-bloom" cx="180" cy="180" r="150" fill="url(#wl-bloom)" />
+            <circle class="art-bloom" cx="180" cy="180" r="90" fill="url(#wl-bloom)" />
             <circle class="loop-ring" cx="180" cy="180" r="130" pathLength="100" />
             <text x="180" y="174" text-anchor="middle" class="loop-kicker">BUILD</text>
             <text x="180" y="194" text-anchor="middle" class="loop-center-label">LEARN</text>
+            <!-- Exactly six nodes, matching the six steps named in this
+                 slide's copy (Understand, Structure, Build, Test, Observe,
+                 Document) — the diagram previously carried two extra steps
+                 ("Instrument", "Refine") the text never mentions. Evenly
+                 spaced at 60° increments around the ring, clockwise from
+                 the top, in the same order the copy names them. -->
             <g class="art-nodes">
-              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:200ms" cx="180" cy="50" r="16" fill="url(#node-grad-cyan)" /><text x="180" y="28" text-anchor="middle" class="node-label" style="--label-delay:420ms">Understand</text>
-              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:280ms" cx="278" cy="82" r="16" fill="url(#node-grad-blue)" /><text x="300" y="68" text-anchor="middle" class="node-label" style="--label-delay:500ms">Structure</text>
-              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:360ms" cx="310" cy="180" r="16" fill="url(#node-grad-violet)" /><text x="335" y="185" text-anchor="middle" class="node-label" style="--label-delay:580ms">Build</text>
-              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:440ms" cx="278" cy="278" r="16" fill="url(#node-grad-pink)" /><text x="300" y="300" text-anchor="middle" class="node-label" style="--label-delay:660ms">Instrument</text>
-              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:520ms" cx="180" cy="310" r="16" fill="url(#node-grad-yellow)" /><text x="180" y="336" text-anchor="middle" class="node-label" style="--label-delay:740ms">Test</text>
-              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:600ms" cx="82" cy="278" r="16" fill="url(#node-grad-green)" /><text x="60" y="300" text-anchor="middle" class="node-label" style="--label-delay:820ms">Observe</text>
-              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:680ms" cx="50" cy="180" r="16" fill="url(#node-grad-cyan)" /><text x="27" y="185" text-anchor="middle" class="node-label" style="--label-delay:900ms">Refine</text>
-              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:760ms" cx="82" cy="82" r="16" fill="url(#node-grad-blue)" /><text x="55" y="68" text-anchor="middle" class="node-label" style="--label-delay:980ms">Document</text>
+              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:200ms" cx="180" cy="50" r="19" fill="url(#node-grad-cyan)" /><text x="180" y="24" text-anchor="middle" class="node-label" style="--label-delay:420ms">Understand</text>
+              <circle class="node-fill art-tone-blue" data-pop style="--pop-delay:320ms" cx="293" cy="115" r="19" fill="url(#node-grad-blue)" /><text x="313" y="98" text-anchor="middle" class="node-label" style="--label-delay:540ms">Structure</text>
+              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:440ms" cx="293" cy="245" r="19" fill="url(#node-grad-violet)" /><text x="313" y="268" text-anchor="middle" class="node-label" style="--label-delay:660ms">Build</text>
+              <circle class="node-fill art-tone-pink" data-pop style="--pop-delay:560ms" cx="180" cy="310" r="19" fill="url(#node-grad-pink)" /><text x="180" y="336" text-anchor="middle" class="node-label" style="--label-delay:780ms">Test</text>
+              <circle class="node-fill art-tone-yellow" data-pop style="--pop-delay:680ms" cx="67" cy="245" r="19" fill="url(#node-grad-yellow)" /><text x="47" y="268" text-anchor="middle" class="node-label" style="--label-delay:900ms">Observe</text>
+              <circle class="node-fill art-tone-green" data-pop style="--pop-delay:800ms" cx="67" cy="115" r="19" fill="url(#node-grad-green)" /><text x="47" y="98" text-anchor="middle" class="node-label" style="--label-delay:1020ms">Document</text>
             </g>
           </svg>
           <figcaption class="sr-only">Diagram: an eight-step circular feedback loop — Understand, Structure, Build, Instrument, Test, Observe, Refine, Document — orbiting back to itself.</figcaption>
@@ -396,8 +397,8 @@
         <figure class="slide-figure art-card art-card-collaboration" aria-hidden="true">
           <svg class="illo" viewBox="0 0 360 320" data-animate-draw data-art="shared-context">
             <defs>
-              <radialGradient id="sc-bloom" cx="50%" cy="46%" r="55%">
-                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-green) 38%, transparent)" />
+              <radialGradient id="sc-bloom" cx="50%" cy="42%" r="40%">
+                <stop offset="0%" style="stop-color:color-mix(in oklch, var(--art-green) 50%, transparent)" />
                 <stop offset="100%" style="stop-color:transparent" />
               </radialGradient>
               <linearGradient id="sc-line-yellow" gradientUnits="userSpaceOnUse" x1="180" y1="56" x2="180" y2="110">
@@ -416,25 +417,27 @@
                 <stop offset="0%" style="stop-color:var(--art-violet)" /><stop offset="100%" style="stop-color:var(--art-green)" />
               </linearGradient>
             </defs>
-            <circle class="art-bloom" cx="180" cy="150" r="150" fill="url(#sc-bloom)" />
+            <circle class="art-bloom" cx="180" cy="150" r="90" fill="url(#sc-bloom)" />
             <g class="art-connectors" fill="none">
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:0ms" stroke="url(#sc-line-yellow)" d="M180 56 C180 76 180 92 180 110" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:80ms" stroke="url(#sc-line-cyan-l)" d="M180 110 C142 132 108 162 90 194" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:80ms" stroke="url(#sc-line-violet-r)" d="M180 110 C218 132 252 162 270 194" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:160ms" stroke="url(#sc-line-cyan-out)" d="M90 246 C118 262 150 274 180 284" />
-              <path class="art-line" data-draw pathLength="100" style="--draw-delay:160ms" stroke="url(#sc-line-violet-out)" d="M270 246 C242 262 210 274 180 284" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:0ms" stroke="url(#sc-line-yellow)" d="M180 60 C180 78 180 92 180 110" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:80ms" stroke="url(#sc-line-cyan-l)" d="M180 110 C142 132 108 162 90 191" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:80ms" stroke="url(#sc-line-violet-r)" d="M180 110 C218 132 252 162 270 191" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:160ms" stroke="url(#sc-line-cyan-out)" d="M90 249 C118 264 150 276 180 284" />
+              <path class="art-line" data-draw pathLength="100" style="--draw-delay:160ms" stroke="url(#sc-line-violet-out)" d="M270 249 C242 264 210 276 180 284" />
             </g>
             <g class="art-nodes">
-              <rect class="node-fill-core art-tone-yellow" data-pop style="--pop-delay:420ms" x="140" y="16" width="80" height="40" rx="12" fill="url(#node-grad-yellow)" />
-              <text x="180" y="40" text-anchor="middle" class="node-label node-label-core" style="--label-delay:680ms">Shared context</text>
+              <rect class="node-fill-core art-tone-yellow" data-pop style="--pop-delay:420ms" x="132" y="14" width="96" height="46" rx="14" fill="url(#node-grad-yellow)" />
+              <text x="180" y="42" text-anchor="middle" class="node-label node-label-core" style="--label-delay:680ms">Shared context</text>
 
-              <circle class="node-fill-core art-tone-green" data-pop style="--pop-delay:470ms" cx="180" cy="110" r="7" fill="url(#node-grad-green)" />
+              <circle id="sc-junction" class="node-fill-core art-tone-green" data-pop style="--pop-delay:470ms" cx="180" cy="110" r="12" fill="url(#node-grad-green)" />
 
-              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:520ms" cx="90" cy="220" r="26" fill="url(#node-grad-cyan)" /><text x="90" y="225" text-anchor="middle" class="node-label" style="--label-delay:760ms">Humans</text>
-              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:560ms" cx="270" cy="220" r="26" fill="url(#node-grad-violet)" /><text x="270" y="225" text-anchor="middle" class="node-label" style="--label-delay:800ms">Agents</text>
+              <circle class="node-fill art-tone-cyan" data-pop style="--pop-delay:520ms" cx="90" cy="220" r="29" fill="url(#node-grad-cyan)" /><text x="90" y="225" text-anchor="middle" class="node-label" style="--label-delay:760ms">Humans</text>
+              <circle class="node-fill art-tone-violet" data-pop style="--pop-delay:560ms" cx="270" cy="220" r="29" fill="url(#node-grad-violet)" /><text x="270" y="225" text-anchor="middle" class="node-label" style="--label-delay:800ms">Agents</text>
 
-              <rect class="node-fill art-tone-green" data-pop style="--pop-delay:660ms" x="140" y="284" width="80" height="30" rx="10" fill="url(#node-grad-green)" />
-              <text x="180" y="304" text-anchor="middle" class="node-label" style="--label-delay:900ms">Outcomes</text>
+              <rect class="node-fill art-tone-green" data-pop style="--pop-delay:660ms" x="132" y="284" width="96" height="34" rx="12" fill="url(#node-grad-green)" />
+              <text x="180" y="306" text-anchor="middle" class="node-label" style="--label-delay:900ms">Outcomes</text>
+
+              <animate data-idle-pulse href="#sc-junction" attributeName="opacity" values="1;0.75;1" dur="3s" begin="1.4s" repeatCount="indefinite" />
             </g>
           </svg>
           <figcaption class="sr-only">Diagram: a shared context source branching into a human narrative path and an agent structured-context path, both converging on outcomes.</figcaption>
