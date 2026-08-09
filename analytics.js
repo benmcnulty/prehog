@@ -23,6 +23,11 @@
   var PREHOG_CONFIG = window.__PREHOG_CONFIG__ || {};
   var POSTHOG_TOKEN = PREHOG_CONFIG.posthogToken || '';
   var POSTHOG_HOST = PREHOG_CONFIG.posthogHost || 'https://us.i.posthog.com';
+  // Set only when POSTHOG_HOST is a reverse proxy (e.g. t.benlive.tv): the
+  // proxy forwards ingestion traffic but not the PostHog app itself, so the
+  // toolbar/session-replay authentication flow needs to be told the real
+  // PostHog UI origin separately.
+  var POSTHOG_UI_HOST = PREHOG_CONFIG.posthogUiHost || undefined;
 
   // Pinned to a specific published version rather than an unpinned "latest"
   // tag, so this page's behavior can't change out from under it on a day
@@ -95,6 +100,7 @@
     loadSnippet(function () {
       window.posthog.init(POSTHOG_TOKEN, {
         api_host: POSTHOG_HOST,
+        ui_host: POSTHOG_UI_HOST,
         defaults: '2026-05-30',
         capture_pageview: true,  // single static page — 'history_change' would never fire here
         capture_exceptions: true, // unhandled errors / unhandled promise rejections only — this page has no console.error call sites worth capturing separately
