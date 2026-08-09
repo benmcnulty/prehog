@@ -71,26 +71,37 @@ That choice only covers the *initial* module load, though:
 
 - `script-src` already allows `https://cdn.jsdelivr.net` for other site
   dependencies, so the initial module loads with no change there.
-- `connect-src` already includes a bare `https:`, so PostHog's ingestion
-  endpoint (`https://us.i.posthog.com`) needs no edit either.
+- `connect-src` already includes a bare `https:`, so any HTTPS ingestion
+  endpoint — PostHog's own domain or the reverse proxy below — needs no
+  `connect-src` edit either.
 - **But the loaded SDK still dynamically fetches its own feature bundles at
-  runtime from `https://us-assets.i.posthog.com`** — `array/<token>/config.js`
-  on init, plus `static/surveys.js` and `static/exception-autocapture.js`
-  once those features are enabled — regardless of where the initial module
-  came from. This was missed on a first pass (assumed jsDelivr covered
-  everything) and only surfaced by watching real network requests against
-  a live token; the corrected CSP restores this origin.
+  runtime** — `array/<token>/config.js` on init, plus `static/surveys.js`
+  and `static/exception-autocapture.js` once those features are enabled —
+  regardless of where the initial module came from. This was missed on a
+  first pass (assumed jsDelivr covered everything) and only surfaced by
+  watching real network requests against a live token; the corrected CSP
+  restores the origin these load from.
 
-Two pieces are **required**:
+**Reverse proxy changes which origin that is.** `analytics.js`'s `api_host`
+points at `https://t.benlive.tv` (a PostHog-managed reverse proxy — see
+`docs/decisions.md`), not `us.i.posthog.com` directly, and the SDK's dynamic
+feature-bundle fetches follow `api_host`. So the origin `script-src` needs to
+allowlist is the proxy host, not PostHog's asset CDN:
 
 ```diff
   script-src 'self' 'unsafe-inline' 'unsafe-eval'
     https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com
 -   https://code.jquery.com https://www.gstatic.com https://apis.google.com;
 +   https://code.jquery.com https://www.gstatic.com https://apis.google.com
-+   https://us-assets.i.posthog.com;
++   https://us-assets.i.posthog.com https://t.benlive.tv;
 + worker-src 'self' blob:;
 ```
+
+`https://us-assets.i.posthog.com` stays allowlisted too, even though nothing
+currently loads from it: it's the origin the SDK would fall back to if
+`api_host`/the proxy config were ever cleared (see the no-token no-op path
+in the Deployment section below), so removing it would trade a defensive
+allowance for a CSP line the SDK doesn't strictly need today.
 
 `worker-src` doesn't exist in the current policy at all, which means it
 falls back to `default-src 'self'`. PostHog's Session Replay compresses
@@ -121,12 +132,13 @@ every PostHog browser SDK on every site that uses one, and PostHog's own
 docs embed it directly in the snippet. It is not a secret and doesn't need
 server-side injection.
 
-Until a real project exists, `window.__PREHOG_CONFIG__` is left unset in
-`index.html` and `analytics.js` reads an empty `posthogToken`, which
-resolves to a documented, harmless no-op (see `analytics.js` header
-comment and `README.md`). Once a PostHog project is created, the token is
-set directly in `index.html`'s `<head>` and committed like any other
-content change — no separate secrets pipeline required.
+The real project token is set directly in `index.html`'s `<head>` via
+`window.__PREHOG_CONFIG__` and committed like any other content change — no
+separate secrets pipeline required, for the write-only-identifier reason
+above. If `posthogToken` were ever unset (e.g. reverting to a fork with no
+project of its own), `analytics.js` reads the empty string and resolves to a
+documented, harmless no-op — see `analytics.js`'s header comment and
+`README.md` — rather than throwing or half-initializing.
 
 Rollback is simple by construction: `/prehog` is purely additive. Removing
 the submodule mount and redeploying `firebase deploy --only hosting`

@@ -84,12 +84,19 @@ depends on the host's stylesheets being present.
 
 ## Reverse proxy for PostHog ingestion
 
-Not implemented. `connect-src` in the host CSP already permits
-`us.i.posthog.com` directly (see `docs/architecture.md`), so a Firebase
-Function reverse-proxy would add operational surface (a new endpoint, a new
-failure mode, cold starts) with no corresponding benefit for a page at this
-scale. Worth revisiting only if ad-blocker interference with direct
-PostHog domains becomes a measured problem.
+Reverses the earlier "not implemented" call. The original reasoning (a
+self-hosted Firebase Function reverse-proxy would add operational surface —
+a new endpoint, a new failure mode, cold starts — with no corresponding
+benefit at this scale) still holds *for a self-hosted proxy*. What changed:
+PostHog provisioned a managed reverse proxy at `t.benlive.tv` directly, which
+removes the exact cost the original decision was weighing — no new endpoint
+to operate, no new failure mode to own, nothing self-hosted. `analytics.js`'s
+`api_host` now points at `t.benlive.tv` instead of `us.i.posthog.com`,
+avoiding ad-blocker interference with PostHog's own domains — the specific
+"measured problem" the original entry named as the only thing that would
+justify revisiting it. `ui_host` stays pinned to `https://us.posthog.com`
+since the proxy only forwards ingestion traffic, not the toolbar/survey
+authentication flow. See `docs/architecture.md` for the resulting CSP delta.
 
 ## Live event capture can't be verified through headless Playwright
 

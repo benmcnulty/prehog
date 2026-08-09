@@ -131,10 +131,12 @@ It depends on two scripts it does not vendor — `/js/nav-toggle.js` and
 host's directly linked shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
 per invariant #4, all absolute-pathed against the host site's domain.
 The host's `firebase.json` Content-Security-Policy must allow
-`https://us-assets.i.posthog.com` in `script-src` (the SDK's initial module
-loads from `cdn.jsdelivr.net`, but it dynamically fetches feature bundles —
-config, surveys, exception autocapture — from PostHog's own asset CDN at
-runtime regardless) and declare `worker-src 'self' blob:` for Session
+`https://t.benlive.tv` in `script-src` (the SDK's initial module loads from
+`cdn.jsdelivr.net`, but it dynamically fetches feature bundles — config,
+surveys, exception autocapture — from `api_host` at runtime regardless, and
+`api_host` is the PostHog reverse proxy, not PostHog's asset CDN directly;
+see `docs/decisions.md`), plus `https://us-assets.i.posthog.com` as a
+defensive fallback, and declare `worker-src 'self' blob:` for Session
 Replay to function — see `docs/architecture.md` for the exact required
 header delta. If PostHog
 events silently stop working in production, check the CSP first — it's
