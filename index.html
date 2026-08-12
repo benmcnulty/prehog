@@ -57,10 +57,20 @@
   <!-- PostHog project config: read by the shared js/analytics/index.js.
        Not a secret — PostHog project API keys are client-side, write-only
        identifiers by design. See docs/architecture.md for why this is set
-       here directly rather than injected by a build step. Matches
-       index.js's own hardcoded default exactly; set explicitly here for
-       the same transparency reason it always was. -->
-  <script>window.__BL_ANALYTICS_CONFIG__ = { posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o', posthogHost: 'https://t.benlive.tv', posthogUiHost: 'https://us.posthog.com' };</script>
+       here directly rather than injected by a build step. token/host/uiHost
+       match index.js's own hardcoded default exactly; set explicitly here
+       for the same transparency reason it always was. captureExceptions
+       and sessionRecording are page-scoped overrides the shared layer
+       doesn't enable by default — this is the one page where every error
+       is worth seeing, and where Session Replay (masked) exists to answer
+       one specific question (see /prehog/privacy/). -->
+  <script>window.__BL_ANALYTICS_CONFIG__ = {
+    posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o',
+    posthogHost: 'https://t.benlive.tv',
+    posthogUiHost: 'https://us.posthog.com',
+    captureExceptions: true,
+    sessionRecording: { maskAllInputs: true, maskTextSelector: '[data-ph-mask]' }
+  };</script>
 
   <!-- Link shared styles directly so they begin downloading together. Their
        order is the established host cascade; prehog.css contains local rules only. -->

@@ -29,7 +29,13 @@
 
   function capture(event, props) {
     if (!window.BenLiveAnalytics) return; // shared layer failed to load — deck stays fully functional
-    window.BenLiveAnalytics.capture(event, props || {});
+    var status = window.BenLiveAnalytics.capture(event, props || {});
+    // Only log what the shared layer actually accepted or queued for
+    // delivery — 'rejected' (consent denied) never happened as far as
+    // this panel is concerned. Matches its own stated contract: "only
+    // events actually sent to PostHog" (queued-then-delivered still
+    // counts; a call that was flatly refused does not).
+    if (status === 'rejected') return;
     capturedLog.push({ event: event, atMs: Date.now() - startedAt });
     renderLogEntry(event, Date.now() - startedAt);
   }
