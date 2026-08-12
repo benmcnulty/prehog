@@ -330,24 +330,6 @@
     });
   });
 
-  // Consent/disclosure banner — a plain dismiss-and-remember UI notice, not
-  // an analytics feature itself (it never touches window.posthog), so it
-  // lives here alongside the other generic panel mechanics.
-  var CONSENT_STORAGE_KEY = 'prehog:consent-banner-dismissed';
-  var consentBanner = document.querySelector('[data-consent-banner]');
-  var consentDismiss = document.querySelector('[data-consent-dismiss]');
-  if (consentBanner) {
-    var alreadyDismissed = false;
-    try { alreadyDismissed = localStorage.getItem(CONSENT_STORAGE_KEY) === '1'; } catch (e) { /* ignore */ }
-    if (!alreadyDismissed) consentBanner.hidden = false;
-    if (consentDismiss) {
-      consentDismiss.addEventListener('click', function () {
-        consentBanner.hidden = true;
-        try { localStorage.setItem(CONSENT_STORAGE_KEY, '1'); } catch (e) { /* ignore */ }
-      });
-    }
-  }
-
   // Transparency panel
   var panel = document.querySelector('[data-transparency-panel]');
   var openTriggers = Array.prototype.slice.call(document.querySelectorAll('[data-action="open-transparency"]'));

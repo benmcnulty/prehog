@@ -1,44 +1,17 @@
 /**
- * analytics.js — PostHog init + event layer for /prehog.
- *
- * Deliberately separate from prehog.js: this file is the only place that
- * knows PostHog exists. Navigation logic in prehog.js dispatches plain
- * DOM CustomEvents on `document`; this file listens and translates them
- * into the event spec documented in docs/analytics.md. If PostHog fails
- * to load, is blocked, or has no token configured, the deck still works —
- * this script only ever *adds* behavior, never gates it.
- *
- * Test determinism: Playwright specs set `window.__PREHOG_TEST_STUB__ = true`
- * and install `window.posthog` themselves via page.addInitScript() *before*
- * this deferred script runs. When that flag is present we skip loading the
- * real snippet and call init()/capture() straight against the test stub —
- * no network involved. See tests/prehog.spec.js.
+ * analytics.js — /prehog's thin domain adapter onto the shared site-wide
+ * analytics layer (public/js/analytics/{consent,events,index}.js in the
+ * benlive repo, loaded ahead of this script — see index.html). The
+ * shared layer owns PostHog init, consent gating, and the shared bl_*
+ * taxonomy; this file only maps prehog's own `prehog:*` DOM CustomEvents
+ * (dispatched by prehog.js) onto `prehog_*` PostHog events via
+ * `window.BenLiveAnalytics.capture()`, and keeps the parts that are
+ * genuinely local to this one page: the survey UI and the recursive
+ * live-event-log panel. See docs/analytics.md for the full event spec.
  */
 (function () {
   'use strict';
 
-  // Replace with the real PostHog project token before the first production
-  // deploy. Until then this file loads and does nothing observable — the
-  // deck is fully functional with analytics absent. See docs/decisions.md.
-  var PREHOG_CONFIG = window.__PREHOG_CONFIG__ || {};
-  var POSTHOG_TOKEN = PREHOG_CONFIG.posthogToken || '';
-  var POSTHOG_HOST = PREHOG_CONFIG.posthogHost || 'https://us.i.posthog.com';
-  // Set only when POSTHOG_HOST is a reverse proxy (e.g. t.benlive.tv): the
-  // proxy forwards ingestion traffic but not the PostHog app itself, so the
-  // toolbar/session-replay authentication flow needs to be told the real
-  // PostHog UI origin separately.
-  var POSTHOG_UI_HOST = PREHOG_CONFIG.posthogUiHost || undefined;
-
-  // Pinned to a specific published version rather than an unpinned "latest"
-  // tag, so this page's behavior can't change out from under it on a day
-  // nobody touched this repo. Bump deliberately.
-  var POSTHOG_SDK_URL = PREHOG_CONFIG.posthogSdkUrl
-    || 'https://cdn.jsdelivr.net/npm/posthog-js@1.413.3/dist/module.js';
-
-  // Gates the recursive live-event-log panel (see docs/decisions.md for why
-  // this is a genuine flag, not decoration). Create it in the PostHog
-  // dashboard (Feature Flags → New) with this exact key to turn the panel
-  // on for some or all visitors; it defaults to hidden until you do.
   var RECURSIVE_PANEL_FLAG = 'prehog-recursive-panel';
 
   var seenSlides = new Set();
@@ -54,71 +27,9 @@
     else document.addEventListener('DOMContentLoaded', fn);
   }
 
-  // Loads PostHog's own published ES module build (posthog-js's
-  // dist/module.js — the same package used by `import posthog from
-  // "posthog-js"`) from jsDelivr, which the host site's CSP already allows
-  // in script-src. A dynamic import() is used rather than a classic
-  // `<script src>` tag: module.js uses `export default`, which is a syntax
-  // error outside an actual module context, but dynamic import() works
-  // from any script. This sidesteps PostHog's array.js/array.full.js
-  // "snippet" bootstrap entirely — that format expects a specific
-  // pre-existing window.posthog queue-stub shape that isn't documented
-  // anywhere reproducible, which is what broke the two earlier attempts
-  // at this (see git history). The ESM default export is unambiguous: it's
-  // always a ready-to-use PostHog instance with a real .init() method.
-  function loadSnippet(cb) {
-    if (window.posthog && typeof window.posthog.init === 'function') { cb(); return; }
-
-    import(/* webpackIgnore: true */ POSTHOG_SDK_URL)
-      .then(function (module) {
-        window.posthog = module.default;
-        cb();
-      })
-      .catch(function (err) {
-        console.warn('[prehog] PostHog module failed to load; analytics disabled for this session.', err);
-      });
-  }
-
-  function initPostHog() {
-    var usingStub = PREHOG_CONFIG.testStub === true || window.__PREHOG_TEST_STUB__ === true;
-
-    if (usingStub) {
-      if (window.posthog && typeof window.posthog.init === 'function') {
-        window.posthog.init('test-stub', { api_host: POSTHOG_HOST, defaults: '2026-05-30' });
-      }
-      wireEvents();
-      initRecursivePanel();
-      return;
-    }
-
-    if (!POSTHOG_TOKEN) {
-      // No token configured yet — no-op, deck stays fully functional.
-      console.info('[prehog] PostHog token not configured; analytics disabled.');
-      return;
-    }
-
-    loadSnippet(function () {
-      window.posthog.init(POSTHOG_TOKEN, {
-        api_host: POSTHOG_HOST,
-        ui_host: POSTHOG_UI_HOST,
-        defaults: '2026-05-30',
-        capture_pageview: true,  // single static page — 'history_change' would never fire here
-        capture_exceptions: true, // unhandled errors / unhandled promise rejections only — this page has no console.error call sites worth capturing separately
-        respect_dnt: true,
-        persistence: 'localStorage+cookie',
-        session_recording: {
-          maskAllInputs: true,
-          maskTextSelector: '[data-ph-mask]'
-        }
-      });
-      wireEvents();
-      initRecursivePanel();
-    });
-  }
-
   function capture(event, props) {
-    if (!window.posthog || typeof window.posthog.capture !== 'function') return;
-    window.posthog.capture(event, props || {});
+    if (!window.BenLiveAnalytics) return; // shared layer failed to load — deck stays fully functional
+    window.BenLiveAnalytics.capture(event, props || {});
     capturedLog.push({ event: event, atMs: Date.now() - startedAt });
     renderLogEntry(event, Date.now() - startedAt);
   }
@@ -364,5 +275,8 @@
     });
   });
 
-  ready(initPostHog);
+  ready(function () {
+    wireEvents();
+    if (window.BenLiveAnalytics) window.BenLiveAnalytics.onReady(initRecursivePanel);
+  });
 })();

@@ -54,11 +54,13 @@
   <!-- Inline deck init: establish the opening slide before CSS paints. With JS
        disabled this never runs, so the document remains a readable long-form page. -->
   <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');document.documentElement.classList.add('js-paged')}catch(e){}})()</script>
-  <!-- PostHog project config: read by analytics.js. Not a secret — PostHog
-       project API keys are client-side, write-only identifiers by design.
-       See docs/architecture.md for why this is set here directly rather
-       than injected by a build step. -->
-  <script>window.__PREHOG_CONFIG__ = { posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o', posthogHost: 'https://t.benlive.tv', posthogUiHost: 'https://us.posthog.com' };</script>
+  <!-- PostHog project config: read by the shared js/analytics/index.js.
+       Not a secret — PostHog project API keys are client-side, write-only
+       identifiers by design. See docs/architecture.md for why this is set
+       here directly rather than injected by a build step. Matches
+       index.js's own hardcoded default exactly; set explicitly here for
+       the same transparency reason it always was. -->
+  <script>window.__BL_ANALYTICS_CONFIG__ = { posthogToken: 'phc_majTvvpPpYK2stHRELMkq6H3MD5YidtnYwFz76aDZJ5o', posthogHost: 'https://t.benlive.tv', posthogUiHost: 'https://us.posthog.com' };</script>
 
   <!-- Link shared styles directly so they begin downloading together. Their
        order is the established host cascade; prehog.css contains local rules only. -->
@@ -67,6 +69,7 @@
   <link rel="stylesheet" href="/css/core/_animations.css">
   <link rel="stylesheet" href="/css/core/_utilities.css">
   <link rel="stylesheet" href="/css/components/_navigation.css">
+  <link rel="stylesheet" href="/css/components/_analytics-consent.css">
   <link rel="stylesheet" href="/prehog/prehog.css">
 </head>
 <body>
@@ -104,19 +107,6 @@
       </ul>
     </div>
   </nav>
-
-  <div class="consent-banner" data-consent-banner hidden role="status">
-    <span class="consent-banner-icon" aria-hidden="true">🏴‍☠️</span>
-    <span class="consent-banner-text">
-      <strong>Here there be analytics trackers.</strong>
-      This one page uses PostHog to see how the presentation itself performs.
-      <span class="consent-banner-links">
-        <a href="/">Back to benlive.tv</a>
-        <a href="/prehog/privacy/">What's collected &rarr;</a>
-      </span>
-    </span>
-    <button type="button" class="consent-banner-dismiss" data-consent-dismiss aria-label="Dismiss this notice">&times;</button>
-  </div>
 
   <main id="main-content" class="deck" data-role="deck">
 
@@ -569,6 +559,12 @@
 
   <script src="/js/nav-toggle.js" defer></script>
   <script src="/js/animation-observer.js" defer></script>
+  <!-- Shared analytics layer first (deferred scripts run in source order),
+       so window.BenLiveAnalytics exists before prehog/analytics.js's own
+       deferred script runs. -->
+  <script src="/js/analytics/consent.js" defer></script>
+  <script src="/js/analytics/events.js" defer></script>
+  <script src="/js/analytics/index.js" defer></script>
   <script src="/prehog/prehog.js" defer></script>
   <script src="/prehog/analytics.js" defer></script>
 </body>

@@ -85,19 +85,19 @@
       <p class="eyebrow"><a href="/prehog/">&larr; Back to prehog</a></p>
       <h1 class="privacy-page-title">Privacy on /prehog</h1>
       <p class="privacy-page-lede">
-        This one page runs analytics; the rest of benlive.tv deliberately doesn't.
-        Here's exactly what that means.
+        This page is a supplement to <a href="/privacy/">benlive.tv's site-wide privacy page</a> —
+        it covers only what's <em>additionally</em> true here that isn't true site-wide.
       </p>
 
       <section class="privacy-page-section">
         <h2>Why this page is different</h2>
         <p>
           <a href="/prehog/">benlive.tv/prehog</a> is a working PostHog implementation, built to
-          demonstrate PostHog competence for a job application — so it's the one place on this
-          site instrumented with the PostHog JS SDK. Everywhere else, including
-          <a href="/ai-lab/chat/">AI Lab</a>, stays analytics-free. Scoping it this way keeps that
-          "no analytics" claim honest elsewhere, and keeps the blast radius of adding a
-          third-party script contained to the one page that's explicitly about it.
+          demonstrate PostHog competence for a job application, so it runs a few things the rest
+          of the site doesn't: Session Replay (masked, scoped to this page only) and a short
+          post-completion survey. The shared analytics layer covering the rest of the site — see
+          <a href="/privacy/">the site-wide privacy page</a> for what that collects — doesn't run
+          either of those.
         </p>
       </section>
 
@@ -141,11 +141,13 @@
       <section class="privacy-page-section">
         <h2>Where it goes</h2>
         <p>
-          Events are sent directly to PostHog's US cloud (<code>us.i.posthog.com</code>) under my own
-          PostHog project. See PostHog's own
+          Events are sent through <code>t.benlive.tv</code>, a first-party reverse-proxy subdomain
+          that forwards ingestion traffic to my own PostHog project — not directly to a
+          third-party domain. See PostHog's own
           <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
-          for how they handle it on their end. Nothing is sold, shared with third parties for
-          advertising, or used for anything beyond understanding whether this presentation works.
+          for how they handle it on their end once it arrives. Nothing is sold, shared with third
+          parties for advertising, or used for anything beyond understanding whether this
+          presentation works. Persisted via <code>localStorage+cookie</code>, scoped to this site.
         </p>
       </section>
 
@@ -164,9 +166,11 @@
         <p>
           <small>
             Last updated: August 2026. This page describes <em>/prehog</em> specifically — see
-            <a href="/ai-lab/chat/">AI Lab</a>'s own "Privacy &amp; Data Handling" panel for how that
-            product (which is not instrumented with PostHog) handles data. Questions go to Ben
-            McNulty via <a href="/hire-me/">Hire Me</a>.
+            <a href="/privacy/">the site-wide privacy page</a> for the rest of the site, and
+            <a href="/ai-lab/chat/">AI Lab</a>'s own "Privacy &amp; Data Handling" panel for how
+            that product handles conversation data specifically (chat message content and
+            responses are never sent to analytics, on this page or site-wide). Questions go to
+            Ben McNulty via <a href="/hire-me/">Hire Me</a>.
           </small>
         </p>
       </section>
