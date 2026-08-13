@@ -12,14 +12,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <title>prehog — Ben McNulty × PostHog Context Engineering</title>
-  <meta name="description" content="Ben McNulty's application for PostHog's Context Engineer role: relevant work, working product analytics, and source code.">
+  <meta name="description" content="A shipped analytics case study built as Ben McNulty's application for PostHog's Context Engineer role: working PostHog instrumentation, attributed sourcing, and source code.">
   <meta name="author" content="Ben McNulty">
   <link rel="canonical" href="https://benlive.tv/prehog/">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://benlive.tv/prehog/">
   <meta property="og:title" content="prehog — Ben McNulty × PostHog Context Engineering">
-  <meta property="og:description" content="A concise application for PostHog's Context Engineer role, with relevant work and a working PostHog implementation.">
+  <meta property="og:description" content="A shipped analytics case study, originally built as a concise application for PostHog's Context Engineer role, with a working PostHog implementation and attributed sourcing.">
   <meta property="og:image" content="https://benlive.tv/img/social/og-prehog.jpg">
   <meta property="og:site_name" content="Ben McNulty Portfolio">
   <meta property="og:locale" content="en_US">
@@ -27,7 +27,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://benlive.tv/prehog/">
   <meta name="twitter:title" content="prehog — Ben McNulty × PostHog Context Engineering">
-  <meta name="twitter:description" content="A concise application for PostHog's Context Engineer role, with relevant work and a working PostHog implementation.">
+  <meta name="twitter:description" content="A shipped analytics case study, originally built as a concise application for PostHog's Context Engineer role, with a working PostHog implementation and attributed sourcing.">
   <meta name="twitter:image" content="https://benlive.tv/img/social/og-prehog.jpg">
 
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -44,8 +44,8 @@
     "name": "prehog",
     "url": "https://benlive.tv/prehog/",
     "author": { "@type": "Person", "name": "Ben McNulty", "url": "https://benlive.tv/about/" },
-    "about": "Context Engineering, PostHog implementation, application artifact",
-    "description": "Ben McNulty's application for PostHog's Context Engineer role."
+    "about": "Context Engineering, PostHog implementation, product analytics case study",
+    "description": "A shipped analytics case study, originally built as Ben McNulty's application for PostHog's Context Engineer role."
   }
   </script>
 
@@ -391,10 +391,10 @@
           <div class="qa-row" role="row"><span role="cell">Do reviewers inspect the repository?</span><span role="cell"><code>prehog_outbound_clicked</code></span></div>
           <div class="qa-row" role="row"><span role="cell">Does anyone let it auto-play, or take control?</span><span role="cell"><code>prehog_autoplay_toggled</code></span></div>
         </div>
-        <p class="slide-body">That question-first approach didn't stay contained to this page. Building it properly here exposed what a real analytics architecture needs — a shared consent layer, not a page-local one-off — which generalized into a small library the rest of the site now runs on: the same kind of specific, meaningful interactions instead of blanket tracking, with visitor control built in from the start rather than added later.</p>
+        <p class="slide-body">That question-first approach didn't stay contained to this page. Building it properly here exposed what a real analytics architecture needs — a shared consent layer, not a page-local one-off — which generalized into a small library now used across the site's primary public surfaces: the same kind of specific, meaningful interactions instead of blanket tracking, with visitor control built in from the start rather than added later.</p>
         <div class="slide-actions">
           <button type="button" class="btn btn-secondary" data-action="open-transparency">What does this page measure?<span aria-hidden="true"> →</span></button>
-          <a class="btn btn-secondary" href="https://benlive.tv/privacy/">See what runs site-wide now<span aria-hidden="true"> →</span></a>
+          <a class="btn btn-secondary" href="/privacy/">See what it covers<span aria-hidden="true"> →</span></a>
         </div>
       </div>
     </section>
@@ -466,12 +466,13 @@
         <h2 id="why-now-heading" class="slide-title">Not just remote — how they run remote</h2>
         <p class="slide-body">Ten-plus years building full-stack products, QA automation, documentation systems, and AI-assisted workflows point at this role. What pulled me toward PostHog specifically is <em>how</em> they say they work — checked against their own public handbook, not assumed.</p>
         <ul class="trait-list">
-          <li><strong>PostHog's handbook:</strong> fully remote across 20+ countries, async-first with no internal email, and two meeting-free days a week.</li>
-          <li><strong>PostHog's handbook:</strong> "default to not asking for permission" if you're acting in the company's interest — bias toward shipping.</li>
-          <li><strong><em>No Rules Rules</em> (Hastings &amp; Meyer) argues:</strong> give people context, not control, and trust them to act on it.</li>
-          <li><strong>The overlap is real, not assumed:</strong> PostHog's own handbook credits that book for its context-based expense policy — one concrete practice, not a claim that PostHog runs its culture on Netflix's playbook generally.</li>
+          <li><strong><a href="https://posthog.com/handbook/company/culture" target="_blank" rel="noopener" data-outbound="handbook-culture">PostHog's culture handbook</a>:</strong> fully remote across 20+ countries, and Tuesdays and Thursdays kept free of internal meetings.</li>
+          <li><strong><a href="https://posthog.com/handbook/company/communication#email" target="_blank" rel="noopener" data-outbound="handbook-communication">PostHog's communication handbook</a>:</strong> async-first, with internal email avoided "in nearly all cases" — carved out for legal approvals, official company documents, and communication with external partners.</li>
+          <li><strong>Same culture handbook:</strong> "default to not asking for permission" if you're acting in the company's interest — bias toward shipping.</li>
+          <li><strong><a href="https://www.penguinrandomhouse.com/books/606529/no-rules-rules-by-reed-hastings-and-erin-meyer/" target="_blank" rel="noopener" data-outbound="no-rules-rules"><em>No Rules Rules</em></a> (Hastings &amp; Meyer) argues:</strong> give people context, not control, and trust them to act on it.</li>
+          <li><strong>A real, verified link between the two:</strong> <a href="https://posthog.com/handbook/people/spending-money#guiding-principles" target="_blank" rel="noopener" data-outbound="handbook-spending">PostHog's own spending-money handbook</a> names <em>No Rules Rules</em> as the direct influence behind its context-based expense policy — one specific, documented practice, not a claim that PostHog runs its broader culture on Netflix's playbook.</li>
         </ul>
-        <p class="slide-body">That's two influences landing on similar instincts from different directions, not one following the other — and it's close to how I already try to work. <a href="https://benlive.tv/about/">My resume</a> has the specifics.</p>
+        <p class="slide-body">That's not two unrelated threads I'm forcing together: PostHog itself points to the book for that one policy. What's mine is broader than that single documented link — the same context-over-control instinct shows up across how PostHog describes its whole way of working, and it's close to how I already try to work. <a href="https://benlive.tv/about/">My resume</a> has the specifics.</p>
       </div>
     </section>
 
