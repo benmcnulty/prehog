@@ -44,7 +44,7 @@ area × correctness × explainability**, not feature growth.
    elements (`[data-idle-pulse]`), which `animation-play-state` and CSS
    classes do **not** affect; `prehog.js` removes them from the DOM
    directly when `prefers-reduced-motion` is set.
-6. **Event names are the public API of `analytics.js`.** The seven
+6. **Event names are the public API of `analytics.js`.** The eight
    `prehog_*` custom events (plus the standard PostHog `survey shown` /
    `survey sent` / `survey dismissed` triad) are documented in
    `docs/analytics.md`. Renaming, adding, or removing one requires updating

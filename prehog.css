@@ -109,6 +109,30 @@ code {
    mobile flyout to sit at the right offset below the fixed nav. */
 nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 
+/* ---------- View toolbar (mode toggle + Contents) ----------
+   Deliberately normal document flow, not position:fixed or grid-pinned to
+   an edge — three earlier consent-UI designs this session each collided
+   with some page's own fixed content (see docs/ARCHITECTURE.md's Session C
+   section); this sits between <nav> and <main> instead, so it can't. */
+.deck-toolbar {
+  display: flex; flex-wrap: wrap; gap: var(--space-sm);
+  max-width: 1180px; padding-inline: var(--space-md);
+  /* nav is position:fixed (see _navigation.css), out of normal flow — .deck
+     already compensates with this same margin-top in its base (non-paged)
+     rule; without it here, .deck-toolbar (now the first element after nav
+     in document flow) would render underneath the fixed nav instead of
+     below it. .js-paged overrides this back down since the grid's own
+     row 1 already reserves that space. */
+  margin: calc(var(--nav-shell-height) + var(--space-sm)) auto 0;
+}
+.view-toggle {
+  display: inline-flex; align-items: center; min-height: var(--touch);
+  padding: 0.4rem 0.9rem; border-radius: 999px; border: 1px solid var(--border);
+  background: transparent; color: var(--fg); font-size: 0.85rem; cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.view-toggle:hover, .view-toggle[aria-pressed='true'] { border-color: var(--accent); color: var(--accent-text); }
+
 /* ---------- Deck chrome: progress + dots ---------- */
 .deck-chrome {
   position: relative; max-width: 1180px; margin: 0 auto var(--space-lg);
@@ -151,6 +175,11 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   border: 1px solid var(--border); border-radius: 999px; padding: 0.25rem 0.5rem;
 }
 
+/* Reference mode: progress/position/playback describe paging state that
+   doesn't exist once every slide is already visible — hide them. The
+   toolbar (mode toggle + Contents) stays visible in both modes. */
+[data-view-mode='reference'] .deck-chrome { display: none; }
+
 /* ---------- Slides ---------- */
 .deck { display: block; margin-top: var(--nav-shell-height); }
 .slide {
@@ -180,9 +209,11 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   .slide-inner-split-reverse { grid-template-columns: 1fr 1.1fr; }
   .slide-inner-split-reverse .slide-text { order: 2; }
   .slide-inner-split-reverse .slide-figure { order: 1; }
-  .illo { max-height: min(160px, 34dvh); }
-  .illo-large { max-height: min(150px, 32dvh); }
-  .js-paged .slide { padding-block: var(--space-sm); }
+  /* .illo/.illo-large overrides for this same bracket live further down
+     the file (after their own base rules, near .illo-large's comment) —
+     equal-specificity rules declared here would be silently overridden by
+     those later base rules, so they're kept in the one place that
+     actually wins the cascade rather than duplicated here. */
   .js-paged .slide-text h2 { margin-bottom: 0.35rem; }
   .js-paged .slide-text .slide-body { margin-bottom: 0.35rem; }
   .js-paged .slide-text .eyebrow { margin-bottom: 0.35rem; }
@@ -311,6 +342,16 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 @media (min-width: 900px) {
   .illo { max-height: min(340px, 42dvh); }
   .illo-large { max-height: min(380px, 44dvh); }
+}
+/* Landscape phones (e.g. 844x390): declared after the base rules above so
+   it actually wins the cascade (equal specificity, later source order) —
+   an earlier attempt at this same bracket further up the file was
+   silently dead code for exactly that reason. Tightened after the
+   view-mode toolbar's own grid row (see body.js-paged) took a fixed ~44px
+   out of this row's available height. */
+@media (min-width: 640px) and (max-height: 500px) {
+  .illo { max-height: min(95px, 17dvh); }
+  .illo-large { max-height: min(75px, 13dvh); }
 }
 /* Extra-short phones (iPhone SE class): the two-column split still stacks
    here, and content-heavy slides (trait list, callout + button) can outrun
@@ -500,6 +541,13 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .panel-close svg { width: 16px; height: 16px; }
 .transparency-list { padding-left: 1.2rem; }
 .transparency-list li { margin-bottom: 0.5rem; }
+.toc-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.toc-list a {
+  display: block; padding: 0.6rem 0.5rem; border-radius: var(--radius-sm);
+  color: var(--fg); text-decoration: none; min-height: var(--touch);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.toc-list a:hover, .toc-list a:focus-visible { background: var(--light-subtle); }
 .transparency-excluded { font-size: 0.9rem; color: var(--fg-muted); border-top: 1px solid var(--border); padding-top: var(--space-sm); }
 
 /* Live event log — the recursive, self-referential layer */
@@ -599,20 +647,34 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .js-paged .slide.is-active, .js-paged .slide.is-leaving {
   will-change: transform, opacity; backface-visibility: hidden;
 }
+/* Explicit grid-row on all four children (rather than leaving nav/toolbar
+   to implicit placement) since two of the four already need explicit rows
+   — mixing implicit and explicit placement in one grid is fragile. */
 body.js-paged {
-  display: grid; grid-template-rows: var(--nav-shell-height) minmax(0, 1fr) auto;
+  display: grid;
+  grid-template-rows: var(--nav-shell-height) auto minmax(0, 1fr) auto;
   height: 100dvh; min-height: 100svh; overflow: hidden;
 }
+.js-paged nav { grid-row: 1; }
+/* Zero margin here — row 2's height is the toolbar's own content box only
+   (its buttons already carry the required 44px touch target, see AGENTS.md
+   "Accessibility expectations"; that floor can't shrink, so this is the
+   only slack available to reclaim in the fixed-height paged grid). */
+.js-paged .deck-toolbar { grid-row: 2; margin-block: 0; }
 .js-paged .deck {
-  position: relative; grid-row: 2; display: block; height: auto;
+  position: relative; grid-row: 3; display: block; height: auto;
   margin-top: 0; min-height: 0; overflow: hidden; isolation: isolate; scroll-behavior: auto;
 }
 .js-paged .deck-chrome {
-  grid-row: 3; inline-size: min(100%, 1180px); block-size: auto; margin: 0 auto;
+  grid-row: 4; inline-size: min(100%, 1180px); block-size: auto; margin: 0 auto;
   min-inline-size: 0; padding-block-end: max(var(--space-xs), env(safe-area-inset-bottom));
 }
 @media (max-height: 720px) {
-  .js-paged .slide { padding-block: var(--space-md); }
+  /* Tightened from --space-md after the toolbar's new grid row (above)
+     took ~44px out of this row's available height — reclaims the rest of
+     that budget on the shortest phone viewports (verified against
+     "split-layout diagrams never overlap the deck controller"). */
+  .js-paged .slide { padding-block: var(--space-xs); }
 }
 
 /* ---------- Easter egg ---------- */

@@ -62,6 +62,9 @@
       'prehog:autoplaytoggled': function (d) {
         capture('prehog_autoplay_toggled', { method: d.method, state: d.state });
       },
+      'prehog:viewmodechanged': function (d) {
+        capture('prehog_view_mode_changed', { mode: d.mode, method: d.method });
+      },
       'prehog:transparencyopen': function (d) {
         capture('prehog_measurement_panel_opened', { slide_id: d.slideId });
       },

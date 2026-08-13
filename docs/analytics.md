@@ -30,8 +30,8 @@ no custom `prehog_viewed` event is defined, to avoid duplicating it.
 
 | | |
 |---|---|
-| **Trigger** | Any successful navigation input (button, arrow key, dot, swipe, hash) |
-| **Properties** | `method`, `direction` (`next` \| `prev`), `from`, `to` |
+| **Trigger** | Any successful navigation input (button, arrow key, dot, swipe, hash, Contents panel) |
+| **Properties** | `method` (`click` \| `key` \| `swipe` \| `hash` \| `toc`), `direction` (`next` \| `prev`), `from`, `to` |
 | **Question answered** | Are the navigation controls discoverable? Does the interaction model actually work on mobile (swipe vs. tap ratio)? |
 | **Autocapture overlap** | Partial — autocapture would see the click but not the resulting slide transition or the swipe gesture |
 | **Privacy** | None |
@@ -74,12 +74,23 @@ no custom `prehog_viewed` event is defined, to avoid duplicating it.
 
 | | |
 |---|---|
-| **Trigger** | The deck's automatic slide advance is paused or resumed — by the user clicking the top-right control, or automatically disabled once at load under `prefers-reduced-motion` |
-| **Properties** | `method` (`manual` \| `auto`), `state` (`playing` \| `paused`) |
+| **Trigger** | The deck's automatic slide advance is paused or resumed — by the user clicking the top-right control, automatically disabled once at load under `prefers-reduced-motion`, or paused as a side effect of switching to reference view (auto-advance doesn't apply once every slide is already visible) |
+| **Properties** | `method` (`manual` \| `auto` \| `mode`), `state` (`playing` \| `paused`) |
 | **Question answered** | Does anyone let the deck run itself, or does everyone immediately take control? |
 | **Autocapture overlap** | None — autocapture sees the button click but not the resulting playback state |
 | **Privacy** | None |
 | **Test** | Click the playback button, assert the event and that the state alternates correctly on repeated clicks |
+
+### `prehog_view_mode_changed`
+
+| | |
+|---|---|
+| **Trigger** | Toggling between present (paged, default) and reference (scrollable, all sections visible) view via the toolbar button |
+| **Properties** | `mode` (`present` \| `reference`), `method` (currently always `toggle`, kept as a distinct prop rather than folded into `mode` in case a second trigger — e.g. a keyboard shortcut — is added later) |
+| **Question answered** | Does anyone actually use reference mode, or is the guided narrative sufficient on its own? |
+| **Autocapture overlap** | Partial — autocapture would see the button click but not which mode it resolved to |
+| **Privacy** | None |
+| **Test** | Toggle the view twice; assert one event per toggle with the correct `mode` |
 
 ### `prehog_easter_egg_found`
 

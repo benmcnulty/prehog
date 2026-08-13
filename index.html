@@ -118,6 +118,19 @@
     </div>
   </nav>
 
+  <!-- View toolbar: switches between the guided, paged narrative (default)
+       and a scrollable reference layout that reuses the existing no-JS
+       fallback CSS — see prehog.js's setViewMode(). Normal document flow,
+       not fixed-position, so it can't collide with any page's own fixed
+       content the way three earlier consent-UI designs did (see
+       docs/ARCHITECTURE.md's Session C section). -->
+  <div class="deck-toolbar" role="group" aria-label="View controls">
+    <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">
+      <span data-view-toggle-label>Switch to reference view</span>
+    </button>
+    <button type="button" class="btn btn-secondary" data-action="open-toc" aria-haspopup="dialog">Contents</button>
+  </div>
+
   <main id="main-content" class="deck" data-role="deck">
 
     <section class="slide" id="intro" data-slide="intro" aria-labelledby="intro-heading">
@@ -530,6 +543,21 @@
     </div>
   </div>
 
+  <!-- Contents panel: table of contents for both view modes. Its <ol> is
+       built by prehog.js from the slides' own headings (single source of
+       truth, same pattern as SLIDE_IDS) rather than duplicated by hand
+       here. -->
+  <div class="panel-overlay" data-toc-panel hidden>
+    <div class="panel-backdrop" data-toc-close></div>
+    <div class="panel-dialog" role="dialog" aria-modal="true" aria-labelledby="toc-heading">
+      <button type="button" class="panel-close" data-toc-close aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="toc-heading">Contents</h2>
+      <ol class="toc-list" data-toc-list></ol>
+    </div>
+  </div>
+
   <!-- Transparency panel: the self-referential "what does this page measure" disclosure,
        extended with a live log of the actual events this session has captured. -->
   <div class="panel-overlay" data-transparency-panel hidden>
@@ -539,11 +567,12 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <h2 id="transparency-heading">What does this page measure?</h2>
-      <p>Six custom events, plus PostHog's standard pageview. Full spec: <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a>.</p>
+      <p>Seven custom events, plus PostHog's standard pageview. Full spec: <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a>.</p>
       <ul class="transparency-list">
         <li><strong>prehog_slide_viewed</strong> — which sections hold attention, deduplicated per session.</li>
         <li><strong>prehog_navigation_used</strong> — whether controls are discoverable, especially on mobile.</li>
         <li><strong>prehog_autoplay_toggled</strong> — whether anyone lets the deck run itself or takes control.</li>
+        <li><strong>prehog_view_mode_changed</strong> — whether anyone actually uses reference mode, or the guided narrative is enough on its own.</li>
         <li><strong>prehog_measurement_panel_opened</strong> — you opening this exact panel.</li>
         <li><strong>prehog_outbound_clicked</strong> — which evidence links and CTAs get followed.</li>
         <li><strong>prehog_completed</strong> — whether the deck gets finished.</li>

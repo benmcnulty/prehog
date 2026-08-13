@@ -25,6 +25,7 @@
   var AUTOPLAY_DIAGRAM_BONUS_MS = 2200; // slides with an SVG figure need time to look at the art, not just read the copy
   var AUTOPLAY_STORAGE_KEY = 'prehog:autoplay';
   var SLIDE_LEAVE_MS = 380; // lets the overlaid exit transition settle before cleanup
+  var VIEWMODE_STORAGE_KEY = 'prehog:viewmode'; // durable preference, like the site's own 'theme' key — unlike autoplay's per-visit sessionStorage
 
   var root = document.documentElement;
   var deck = document.querySelector('[data-role="deck"]');
@@ -47,6 +48,7 @@
   var currentIndex = 0;
   var seenSlideIds = {}; // used only to decide 'entry_method' framing locally; analytics.js does its own dedup
   var completedEmitted = false; // 'prehog:completed' fires at most once per session, landing on the last slide repeatedly must not re-fire it
+  var viewMode = 'present'; // 'present' (paged, default) | 'reference' (scrollable, reuses the no-JS fallback CSS) — see setViewMode()
 
   // analytics.js is a deferred script that runs *after* prehog.js, so the
   // very first slidechange (fired synchronously on load, before analytics.js
@@ -68,6 +70,12 @@
   }
 
   // ---------- Slide transitions ----------
+  // Present-mode-only concerns (is-active/inert toggling, dots, progress
+  // bar, position readout, autofocus on navigate, completion, auto-advance)
+  // are skipped in reference mode, where every slide is already visible at
+  // once and none of that paging machinery applies — see setViewMode().
+  // currentIndex/hash/data-slide/prehog:slidechange stay mode-agnostic so
+  // "what slide is current" survives a mode switch either direction.
   function setActive(index, method) {
     index = Math.max(0, Math.min(SLIDE_IDS.length - 1, index));
     if (index === currentIndex && method !== 'load') return;
@@ -77,32 +85,34 @@
     currentIndex = index;
     if (previousIndex !== index) autoplayRemainingMs = null; // a resume-with-remaining-time offer only applies to the slide it was paused on
 
-    root.setAttribute('data-direction', index < previousIndex ? 'backward' : 'forward');
+    if (viewMode === 'present') {
+      root.setAttribute('data-direction', index < previousIndex ? 'backward' : 'forward');
 
-    if (previousEl && previousIndex !== index && method !== 'load' && !reducedMotion) {
-      previousEl.classList.add('is-leaving');
-      previousEl.classList.remove('is-active');
-      window.setTimeout(function () { previousEl.classList.remove('is-leaving'); }, SLIDE_LEAVE_MS);
+      if (previousEl && previousIndex !== index && method !== 'load' && !reducedMotion) {
+        previousEl.classList.add('is-leaving');
+        previousEl.classList.remove('is-active');
+        window.setTimeout(function () { previousEl.classList.remove('is-leaving'); }, SLIDE_LEAVE_MS);
+      }
+
+      slides.forEach(function (slide, i) {
+        if (!slide) return;
+        var isCurrent = i === index;
+        if (isCurrent) slide.classList.remove('is-leaving');
+        slide.classList.toggle('is-active', isCurrent);
+        slide.inert = !isCurrent;
+        slide.setAttribute('aria-hidden', isCurrent ? 'false' : 'true');
+      });
+
+      dots.forEach(function (dot) {
+        var isCurrent = dot.getAttribute('data-dot') === id;
+        dot.setAttribute('aria-current', isCurrent ? 'true' : 'false');
+      });
+
+      if (progressBar) progressBar.style.transform = 'scaleX(' + ((index + 1) / SLIDE_IDS.length) + ')';
+      if (progressWrap) progressWrap.setAttribute('aria-valuenow', String(index + 1));
+      if (positionEl) positionEl.textContent = (index + 1) + ' / ' + SLIDE_IDS.length;
+      if (prevBtn) prevBtn.disabled = index === 0;
     }
-
-    slides.forEach(function (slide, i) {
-      if (!slide) return;
-      var isCurrent = i === index;
-      if (isCurrent) slide.classList.remove('is-leaving');
-      slide.classList.toggle('is-active', isCurrent);
-      slide.inert = !isCurrent;
-      slide.setAttribute('aria-hidden', isCurrent ? 'false' : 'true');
-    });
-
-    dots.forEach(function (dot) {
-      var isCurrent = dot.getAttribute('data-dot') === id;
-      dot.setAttribute('aria-current', isCurrent ? 'true' : 'false');
-    });
-
-    if (progressBar) progressBar.style.transform = 'scaleX(' + ((index + 1) / SLIDE_IDS.length) + ')';
-    if (progressWrap) progressWrap.setAttribute('aria-valuenow', String(index + 1));
-    if (positionEl) positionEl.textContent = (index + 1) + ' / ' + SLIDE_IDS.length;
-    if (prevBtn) prevBtn.disabled = index === 0;
 
     root.setAttribute('data-slide', id);
 
@@ -119,19 +129,22 @@
     if (activeSlideEl) {
       var illos = activeSlideEl.querySelectorAll('[data-animate-draw]');
       illos.forEach(function (svg) { svg.classList.add('is-visible'); });
-      var focusTarget = activeSlideEl.querySelector('h1, h2');
-      if (focusTarget && method && method !== 'load') {
-        focusTarget.setAttribute('tabindex', '-1');
-        focusTarget.focus({ preventScroll: true });
+      if (viewMode === 'present') {
+        var focusTarget = activeSlideEl.querySelector('h1, h2');
+        if (focusTarget && method && method !== 'load') {
+          focusTarget.setAttribute('tabindex', '-1');
+          focusTarget.focus({ preventScroll: true });
+        }
       }
     }
 
-    if (index === SLIDE_IDS.length - 1 && !completedEmitted) {
-      completedEmitted = true;
-      emit('prehog:completed', { slidesSeen: Object.keys(seenSlideIds).length });
+    if (viewMode === 'present') {
+      if (index === SLIDE_IDS.length - 1 && !completedEmitted) {
+        completedEmitted = true;
+        emit('prehog:completed', { slidesSeen: Object.keys(seenSlideIds).length });
+      }
+      scheduleAutoAdvance();
     }
-
-    scheduleAutoAdvance();
   }
 
   function go(delta, method) {
@@ -270,12 +283,164 @@
     });
   }
 
-  // Enable paged mode only once JS confirms it can drive the deck.
-  root.classList.add('js-paged');
-  document.body && document.body.classList.add('js-paged');
+  // ---------- View mode (present / reference) ----------
+  // 'present' is today's paged deck (unchanged, default). 'reference' turns
+  // off paging and reuses the existing no-JS fallback CSS — every slide
+  // already renders as a normal scrollable document without .js-paged, since
+  // that's exactly what a visitor with JS disabled sees today. Persisted in
+  // localStorage (a durable preference, like the site's own 'theme' key) —
+  // not sessionStorage like autoplay's pause state, which is deliberately
+  // per-visit.
+  var toolbarToggleBtn = document.querySelector('[data-action="toggle-view"]');
+  var viewToggleLabel = document.querySelector('[data-view-toggle-label]');
+  var tocBtn = document.querySelector('[data-action="open-toc"]');
+  var tocPanel = document.querySelector('[data-toc-panel]');
+  var tocList = document.querySelector('[data-toc-list]');
+  var tocCloseTriggers = Array.prototype.slice.call(document.querySelectorAll('[data-toc-close]'));
+  var tocLastFocused = null;
+
+  function clearPagedSlideState() {
+    slides.forEach(function (slide) {
+      if (!slide) return;
+      slide.classList.remove('is-active', 'is-leaving');
+      slide.inert = false;
+      slide.removeAttribute('aria-hidden');
+    });
+  }
+
+  function updateViewToggleUI() {
+    var isReference = viewMode === 'reference';
+    if (toolbarToggleBtn) toolbarToggleBtn.setAttribute('aria-pressed', String(isReference));
+    if (viewToggleLabel) viewToggleLabel.textContent = isReference ? 'Switch to present view' : 'Switch to reference view';
+    root.setAttribute('data-view-mode', viewMode);
+  }
+
+  function setViewMode(mode, method) {
+    if (mode === viewMode) return;
+    viewMode = mode;
+    try { localStorage.setItem(VIEWMODE_STORAGE_KEY, mode); } catch (e) { /* ignore */ }
+    if (mode === 'reference') {
+      pauseAutoplay('mode');
+      clearAutoAdvance();
+      root.classList.remove('js-paged');
+      document.body && document.body.classList.remove('js-paged');
+      clearPagedSlideState();
+    } else {
+      root.classList.add('js-paged');
+      document.body && document.body.classList.add('js-paged');
+      setActive(currentIndex, 'load');
+      window.scrollTo(0, 0);
+    }
+    updateViewToggleUI();
+    emit('prehog:viewmodechanged', { mode: mode, method: method });
+  }
+
+  if (toolbarToggleBtn) {
+    toolbarToggleBtn.addEventListener('click', function () {
+      setViewMode(viewMode === 'present' ? 'reference' : 'present', 'toggle');
+    });
+  }
+
+  // Jumps to a slide from the Contents panel. In present mode this is just
+  // the existing goTo() pipeline; in reference mode there is no "active
+  // slide" to page to, so it scrolls the target section into view instead
+  // and still emits prehog:navused (method: 'toc') for parity with present
+  // mode's dot/button navigation.
+  function jumpTo(id, method) {
+    var idx = SLIDE_IDS.indexOf(id);
+    if (idx === -1) return;
+    if (viewMode === 'present') {
+      goTo(id, method);
+      return;
+    }
+    var before = currentIndex;
+    currentIndex = idx;
+    var slide = slides[idx];
+    if (slide) {
+      slide.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+      var focusTarget = slide.querySelector('h1, h2');
+      if (focusTarget) { focusTarget.setAttribute('tabindex', '-1'); focusTarget.focus({ preventScroll: true }); }
+    }
+    if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+    if (before !== idx) {
+      emit('prehog:navused', { method: method, direction: idx > before ? 'next' : 'prev', to: id });
+    }
+  }
+
+  // Built once from each slide's own heading — single source of truth,
+  // same reasoning as SLIDE_IDS — rather than a second hand-authored list
+  // in index.html that could drift from the actual slide titles.
+  function buildToc() {
+    if (!tocList) return;
+    SLIDE_IDS.forEach(function (id, i) {
+      var slide = slides[i];
+      if (!slide) return;
+      var heading = slide.querySelector('h1, h2');
+      var title = heading ? heading.textContent.trim() : id;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = (i + 1) + '. ' + title;
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeToc();
+        jumpTo(id, 'toc');
+      });
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+  }
+
+  function openToc() {
+    if (!tocPanel) return;
+    if (viewMode === 'present') pauseAutoplay('manual');
+    tocLastFocused = document.activeElement;
+    tocPanel.hidden = false;
+    var closeBtn = tocPanel.querySelector('.panel-close');
+    if (closeBtn) closeBtn.focus();
+  }
+  function closeToc() {
+    if (!tocPanel || tocPanel.hidden) return;
+    tocPanel.hidden = true;
+    if (tocLastFocused) tocLastFocused.focus();
+  }
+  if (tocBtn) tocBtn.addEventListener('click', openToc);
+  tocCloseTriggers.forEach(function (btn) { btn.addEventListener('click', closeToc); });
+  buildToc();
+
+  // Enable paged mode only once JS confirms it can drive the deck, and only
+  // if the stored view-mode preference (if any) doesn't say otherwise.
+  var storedViewMode = 'present';
+  try {
+    var storedVM = localStorage.getItem(VIEWMODE_STORAGE_KEY);
+    if (storedVM === 'reference' || storedVM === 'present') storedViewMode = storedVM;
+  } catch (e) { /* ignore */ }
+  viewMode = storedViewMode;
+
+  if (viewMode === 'present') {
+    root.classList.add('js-paged');
+    document.body && document.body.classList.add('js-paged');
+  }
 
   setActive(indexFromHash(), 'load');
-  initAutoplay();
+
+  // In reference mode there's no paging to land the deep-linked slide in
+  // view — the browser's own fragment scroll normally handles this, but
+  // that's driven by the URL bar/history, not something automated
+  // navigation (or every browser) reliably replicates. Doing it explicitly
+  // makes deep links deterministic in reference mode instead of assuming
+  // native behavior always fires.
+  if (viewMode === 'reference' && location.hash) {
+    var deepLinkSlide = slides[indexFromHash()];
+    if (deepLinkSlide) deepLinkSlide.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+
+  if (viewMode === 'present') {
+    initAutoplay();
+  } else {
+    clearPagedSlideState();
+  }
+  updateViewToggleUI();
 
   nextBtns.forEach(function (btn) {
     btn.addEventListener('click', function () { go(1, 'click'); });
@@ -290,14 +455,17 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    if (e.key === 'Escape') { closeTransparency(); closeSurvey(); closeToc(); return; }
+    if (viewMode !== 'present') return; // arrow/paging keys are native scroll in reference mode
     if (e.key === 'ArrowRight' || e.key === 'PageDown') { go(1, 'key'); e.preventDefault(); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1, 'key'); e.preventDefault(); }
     else if (e.key === 'Home') { goTo(SLIDE_IDS[0], 'key'); e.preventDefault(); }
     else if (e.key === 'End') { goTo(SLIDE_IDS[SLIDE_IDS.length - 1], 'key'); e.preventDefault(); }
-    else if (e.key === 'Escape') { closeTransparency(); closeSurvey(); }
   });
 
   // Touch swipe (single axis, deliberately simple — no gesture library).
+  // Present-mode-only — in reference mode a horizontal swipe has no paging
+  // meaning and should fall through to native scroll instead.
   var touchStartX = null, touchStartY = null;
   deck.addEventListener('touchstart', function (e) {
     var t = e.changedTouches[0];
@@ -309,12 +477,14 @@
     var dx = t.clientX - touchStartX;
     var dy = t.clientY - touchStartY;
     touchStartX = null;
+    if (viewMode !== 'present') return;
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       go(dx < 0 ? 1 : -1, 'swipe');
     }
   }, { passive: true });
 
   window.addEventListener('hashchange', function () {
+    if (viewMode !== 'present') return; // native anchor scroll already handles this in reference mode
     pauseAutoplay('manual');
     setActive(indexFromHash(), 'hash');
   });
@@ -438,5 +608,12 @@
     }
   });
 
-  window.__prehogController = { goTo: goTo, go: go, getIndex: function () { return currentIndex; }, ids: SLIDE_IDS };
+  window.__prehogController = {
+    goTo: goTo,
+    go: go,
+    getIndex: function () { return currentIndex; },
+    ids: SLIDE_IDS,
+    setViewMode: setViewMode,
+    getViewMode: function () { return viewMode; }
+  };
 })();
