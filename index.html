@@ -51,9 +51,13 @@
 
   <!-- Inline theme init: runs synchronously before CSS to prevent FOUC -->
   <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
-  <!-- Inline deck init: establish the opening slide before CSS paints. With JS
-       disabled this never runs, so the document remains a readable long-form page. -->
-  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');document.documentElement.classList.add('js-paged')}catch(e){}})()</script>
+  <!-- Inline deck init: establish the opening slide and view mode before CSS
+       paints. With JS disabled this never runs, so the document remains a
+       readable long-form page. Reads the stored view-mode preference itself
+       (rather than defaulting to paged and having prehog.js correct it
+       later) so a returning reference-mode visitor never sees a flash of
+       the paged layout before their deferred script runs. -->
+  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');var vm=localStorage.getItem('prehog:viewmode');document.documentElement.setAttribute('data-view-mode',vm==='reference'?'reference':'present');if(vm!=='reference')document.documentElement.classList.add('js-paged')}catch(e){document.documentElement.classList.add('js-paged')}})()</script>
   <!-- PostHog project config: read by the shared js/analytics/index.js.
        Not a secret — PostHog project API keys are client-side, write-only
        identifiers by design. See docs/architecture.md for why this is set
@@ -123,11 +127,13 @@
        fallback CSS — see prehog.js's setViewMode(). Normal document flow,
        not fixed-position, so it can't collide with any page's own fixed
        content the way three earlier consent-UI designs did (see
-       docs/ARCHITECTURE.md's Session C section). -->
-  <div class="deck-toolbar" role="group" aria-label="View controls">
-    <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">
-      <span data-view-toggle-label>Switch to reference view</span>
-    </button>
+       docs/ARCHITECTURE.md's Session C section). Starts hidden: without
+       JS there is no controller to drive the toggle or populate Contents,
+       and the page is already the reference-style long-form document, so
+       showing these controls would just be dead UI. prehog.js reveals it
+       once it confirms it can actually drive the page. -->
+  <div class="deck-toolbar" role="group" aria-label="View controls" hidden>
+    <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">Reference view</button>
     <button type="button" class="btn btn-secondary" data-action="open-toc" aria-haspopup="dialog">Contents</button>
   </div>
 
@@ -567,7 +573,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <h2 id="transparency-heading">What does this page measure?</h2>
-      <p>Seven custom events, plus PostHog's standard pageview. Full spec: <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a>.</p>
+      <p>Eight custom events, plus PostHog's standard pageview. Seven are listed below; the eighth is a hidden easter-egg event, intentionally not detailed here so as not to spoil it — see <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a> for the full spec, including that one.</p>
       <ul class="transparency-list">
         <li><strong>prehog_slide_viewed</strong> — which sections hold attention, deduplicated per session.</li>
         <li><strong>prehog_navigation_used</strong> — whether controls are discoverable, especially on mobile.</li>

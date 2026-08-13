@@ -18,9 +18,9 @@ no custom `prehog_viewed` event is defined, to avoid duplicating it.
 
 | | |
 |---|---|
-| **Trigger** | A slide becomes the active slide (paged mode) |
-| **Properties** | `slide_id` (string), `slide_index` (0–8), `entry_method` (`load` \| `key` \| `click` \| `swipe` \| `hash` \| `nav`) |
-| **Question answered** | Do people meaningfully progress through the deck? Which sections hold attention vs. get skipped? |
+| **Trigger** | A slide becomes the active slide (present/paged mode), or a section scrolls substantially into view in reference mode (a scrollspy `IntersectionObserver` with a centered ~20% band, so a section has to be meaningfully read, not just brush a viewport edge) |
+| **Properties** | `slide_id` (string), `slide_index` (0–8), `entry_method` (`load` \| `key` \| `click` \| `swipe` \| `hash` \| `nav` \| `scroll`) |
+| **Question answered** | Do people meaningfully progress through the deck? Which sections hold attention vs. get skipped? — answerable in both view modes, not just present mode |
 | **Autocapture overlap** | None — autocapture sees DOM clicks, not which slide is logically active in a single-page deck |
 | **Privacy** | No PII. `slide_id` is one of nine fixed enum values |
 | **Dedup rule** | Fires **at most once per slide per session**, enforced in `analytics.js` via an in-memory `Set` — revisiting a slide does not re-fire it |

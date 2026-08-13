@@ -109,7 +109,7 @@
           <dd>PostHog's standard <code>$pageview</code> autocapture, fired once on load. Answers "did anyone open the page."</dd>
 
           <dt>Slide progress</dt>
-          <dd>Nine small events tied to the deck's own nine sections — which slide is active, how you navigated (click, arrow key, swipe, dot), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, and which evidence links you clicked through to. Each one exists to answer a specific, stated question about whether the presentation itself works — not to build a profile. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
+          <dd>Eight small events tied to the deck's own nine sections — which section is active (in either view mode — see below), how you navigated (click, arrow key, swipe, dot, Contents panel, scrolling), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, which evidence links you clicked through to, and whether you switched between the guided and browsable layouts. The eighth is hidden, rewarding reading closely enough to find something not advertised on the page. Each exists to answer a specific, stated question about whether the presentation itself works — not to build a profile. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
 
           <dt>Session Replay</dt>
           <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question — is the slide navigation discoverable on a phone — and is meant to come off once that's answered, not run indefinitely by default.</dd>
@@ -125,6 +125,9 @@
 
           <dt>One <code>sessionStorage</code> key</dt>
           <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it doesn't restart if you navigate within the same tab. It never leaves your browser.</dd>
+
+          <dt>One <code>localStorage</code> key</dt>
+          <dd><code>prehog:viewmode</code> remembers whether you last chose the guided (present) or browsable (reference) layout, so it doesn't reset every visit — the same durable-preference pattern the site's own dark/light theme choice already uses. It never leaves your browser.</dd>
         </dl>
       </section>
 

@@ -291,8 +291,9 @@
   // localStorage (a durable preference, like the site's own 'theme' key) —
   // not sessionStorage like autoplay's pause state, which is deliberately
   // per-visit.
+  var toolbar = document.querySelector('.deck-toolbar');
+  if (toolbar) toolbar.hidden = false; // starts hidden in markup — see index.html's comment on why
   var toolbarToggleBtn = document.querySelector('[data-action="toggle-view"]');
-  var viewToggleLabel = document.querySelector('[data-view-toggle-label]');
   var tocBtn = document.querySelector('[data-action="open-toc"]');
   var tocPanel = document.querySelector('[data-toc-panel]');
   var tocList = document.querySelector('[data-toc-list]');
@@ -308,14 +309,80 @@
     });
   }
 
+  // Scrollspy for reference mode: keeps currentIndex/hash/data-slide (and,
+  // once per section, prehog:slidechange) in sync with manual scrolling, so
+  // "what section is current" survives a switch back to present mode and
+  // section-progress analytics stay meaningful in reference mode too — not
+  // just at whichever section reference mode happened to be entered on.
+  // Each slide is roughly one viewport tall (min-height: 100dvh minus nav),
+  // often taller — a threshold requiring 50% of the *slide's* area inside a
+  // narrow center band is geometrically impossible once the slide exceeds
+  // roughly twice the band's height, so this uses the opposite approach: a
+  // thin trigger line at vertical center (threshold: 0, ~10% tall band) that
+  // fires the instant a slide's boundary crosses it, the standard
+  // "scrollspy via center trigger line" pattern.
+  var referenceObserver = null;
+  var referenceTrackingPrimed = false; // see startReferenceTracking()
+  function handleReferenceIntersection(entries) {
+    // IntersectionObserver callbacks are queued asynchronously — disconnect()
+    // stops *future* observations but does not retract a callback already
+    // queued at the moment it's called, so a stale one can in principle
+    // still arrive after stopReferenceTracking() has run. referenceObserver
+    // is nulled out synchronously by stop, so checking it here rejects any
+    // such callback outright.
+    if (!referenceObserver) return;
+    // The observer's first callback after (re)starting just reports
+    // whatever is already at the trigger line, which is exactly the state
+    // scrollSlideIntoView() was called to establish right before this —
+    // discard it as a no-op baseline read rather than treat it as a change,
+    // so only genuine subsequent scroll-driven movement updates state.
+    if (!referenceTrackingPrimed) { referenceTrackingPrimed = true; return; }
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var idx = slides.indexOf(entry.target);
+      if (idx === -1 || idx === currentIndex) return;
+      currentIndex = idx;
+      var id = SLIDE_IDS[idx];
+      root.setAttribute('data-slide', id);
+      if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+      if (!seenSlideIds[id]) {
+        seenSlideIds[id] = true;
+        emit('prehog:slidechange', { id: id, index: idx, entryMethod: 'scroll' });
+      }
+    });
+  }
+  function startReferenceTracking() {
+    if (referenceObserver || !('IntersectionObserver' in window)) return;
+    referenceTrackingPrimed = false;
+    referenceObserver = new IntersectionObserver(handleReferenceIntersection, {
+      threshold: 0,
+      rootMargin: '-45% 0px -45% 0px'
+    });
+    slides.forEach(function (slide) { if (slide) referenceObserver.observe(slide); });
+  }
+  function stopReferenceTracking() {
+    if (referenceObserver) { referenceObserver.disconnect(); referenceObserver = null; }
+  }
+  function scrollSlideIntoView(index, behavior) {
+    var slide = slides[index];
+    if (!slide) return;
+    slide.scrollIntoView({ behavior: behavior, block: 'start' });
+  }
+
+  // The button's own label ("Reference view") stays fixed — aria-pressed
+  // alone communicates state, per the W3C toggle-button pattern. An
+  // earlier draft changed the label text between "Switch to reference
+  // view"/"Switch to present view" alongside aria-pressed, which a review
+  // flagged as conflicting: if the label already names the action and its
+  // inverse, aria-pressed is redundant at best and confusing at worst.
   function updateViewToggleUI() {
     var isReference = viewMode === 'reference';
     if (toolbarToggleBtn) toolbarToggleBtn.setAttribute('aria-pressed', String(isReference));
-    if (viewToggleLabel) viewToggleLabel.textContent = isReference ? 'Switch to present view' : 'Switch to reference view';
     root.setAttribute('data-view-mode', viewMode);
   }
 
   function setViewMode(mode, method) {
+    if (mode !== 'present' && mode !== 'reference') return; // public API — reject anything but the two real states
     if (mode === viewMode) return;
     viewMode = mode;
     try { localStorage.setItem(VIEWMODE_STORAGE_KEY, mode); } catch (e) { /* ignore */ }
@@ -325,9 +392,20 @@
       root.classList.remove('js-paged');
       document.body && document.body.classList.remove('js-paged');
       clearPagedSlideState();
+      // Land on the section that was open in present mode, not the top of
+      // the document — without this the reader's place is silently lost.
+      // Instant, not smooth: a smooth scroll takes time, and the scrollspy
+      // starting right after would see the pre-animation position on its
+      // first (discarded-as-baseline) check, not the actual destination.
+      scrollSlideIntoView(currentIndex, 'auto');
+      startReferenceTracking();
     } else {
+      stopReferenceTracking();
       root.classList.add('js-paged');
       document.body && document.body.classList.add('js-paged');
+      // currentIndex already reflects manual scrolling in reference mode
+      // (see handleReferenceIntersection) — setActive(currentIndex, 'load')
+      // restores paging at whichever section was actually being read.
       setActive(currentIndex, 'load');
       window.scrollTo(0, 0);
     }
@@ -357,7 +435,12 @@
     currentIndex = idx;
     var slide = slides[idx];
     if (slide) {
-      slide.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+      // Instant, not smooth — the scrollspy observer is running continuously
+      // in reference mode and would otherwise fire for whichever slide is
+      // still on-screen partway through a smooth scroll, transiently
+      // overwriting the currentIndex/hash this function just set (see the
+      // identical reasoning in setViewMode's own scroll-into-view call).
+      slide.scrollIntoView({ behavior: 'auto', block: 'start' });
       var focusTarget = slide.querySelector('h1, h2');
       if (focusTarget) { focusTarget.setAttribute('tabindex', '-1'); focusTarget.focus({ preventScroll: true }); }
     }
@@ -394,15 +477,10 @@
   function openToc() {
     if (!tocPanel) return;
     if (viewMode === 'present') pauseAutoplay('manual');
-    tocLastFocused = document.activeElement;
-    tocPanel.hidden = false;
-    var closeBtn = tocPanel.querySelector('.panel-close');
-    if (closeBtn) closeBtn.focus();
+    tocLastFocused = openPanelModal(tocPanel);
   }
   function closeToc() {
-    if (!tocPanel || tocPanel.hidden) return;
-    tocPanel.hidden = true;
-    if (tocLastFocused) tocLastFocused.focus();
+    closePanelModal(tocPanel, tocLastFocused);
   }
   if (tocBtn) tocBtn.addEventListener('click', openToc);
   tocCloseTriggers.forEach(function (btn) { btn.addEventListener('click', closeToc); });
@@ -420,6 +498,16 @@
   if (viewMode === 'present') {
     root.classList.add('js-paged');
     document.body && document.body.classList.add('js-paged');
+  } else {
+    // The early synchronous inline script in index.html (which runs before
+    // this deferred script, to set data-slide before first paint) always
+    // adds js-paged to <html> unconditionally, since it has no way to read
+    // localStorage that early without risking a flash of unstyled content.
+    // A stored 'reference' preference must explicitly remove it here,
+    // otherwise .js-paged-scoped CSS still matches everything descended
+    // from <html> even though body never got the class — the paged layout
+    // partially applies despite viewMode already being 'reference'.
+    root.classList.remove('js-paged');
   }
 
   setActive(indexFromHash(), 'load');
@@ -439,6 +527,7 @@
     initAutoplay();
   } else {
     clearPagedSlideState();
+    startReferenceTracking();
   }
   updateViewToggleUI();
 
@@ -500,6 +589,54 @@
     });
   });
 
+  // ---------- Shared modal panel behavior ----------
+  // role="dialog" + aria-modal="true" (transparency, survey, and Contents
+  // all use it — see index.html) is a claim, not just a label: the W3C
+  // modal-dialog pattern requires Tab to stay inside the dialog and the
+  // rest of the page to be inert while it's open. One implementation here
+  // rather than three separately-maintained copies.
+  var INERT_BACKGROUND_SELECTOR = 'nav, .deck-toolbar, main.deck, .deck-chrome';
+  var openPanels = []; // stack — supports the (unlikely) case of one panel opening while another is still open
+  function getFocusableIn(container) {
+    var nodes = container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    return Array.prototype.filter.call(nodes, function (el) { return el.offsetParent !== null; });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Tab' || !openPanels.length) return;
+    var topPanel = openPanels[openPanels.length - 1];
+    var focusable = getFocusableIn(topPanel);
+    if (!focusable.length) return;
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  });
+  function openPanelModal(panel) {
+    if (!panel || !panel.hidden) return null;
+    var lastFocused = document.activeElement;
+    document.querySelectorAll(INERT_BACKGROUND_SELECTOR).forEach(function (el) { el.inert = true; });
+    panel.hidden = false;
+    openPanels.push(panel);
+    var closeBtn = panel.querySelector('.panel-close');
+    if (closeBtn) closeBtn.focus();
+    return lastFocused;
+  }
+  function closePanelModal(panel, lastFocused) {
+    if (!panel || panel.hidden) return;
+    panel.hidden = true;
+    var idx = openPanels.indexOf(panel);
+    if (idx !== -1) openPanels.splice(idx, 1);
+    if (!openPanels.length) {
+      document.querySelectorAll(INERT_BACKGROUND_SELECTOR).forEach(function (el) { el.inert = false; });
+    }
+    if (lastFocused) lastFocused.focus();
+  }
+
   // Transparency panel
   var panel = document.querySelector('[data-transparency-panel]');
   var openTriggers = Array.prototype.slice.call(document.querySelectorAll('[data-action="open-transparency"]'));
@@ -509,16 +646,11 @@
   function openTransparency() {
     if (!panel) return;
     pauseAutoplay('manual');
-    lastFocused = document.activeElement;
-    panel.hidden = false;
-    var closeBtn = panel.querySelector('.panel-close');
-    if (closeBtn) closeBtn.focus();
+    lastFocused = openPanelModal(panel);
     emit('prehog:transparencyopen', { slideId: root.getAttribute('data-slide') });
   }
   function closeTransparency() {
-    if (!panel || panel.hidden) return;
-    panel.hidden = true;
-    if (lastFocused) lastFocused.focus();
+    closePanelModal(panel, lastFocused);
   }
   openTriggers.forEach(function (btn) { btn.addEventListener('click', openTransparency); });
   closeTriggers.forEach(function (btn) { btn.addEventListener('click', closeTransparency); });
@@ -528,17 +660,15 @@
   // the generic open/close mechanics, shared with the transparency panel.
   var surveyPanel = document.querySelector('[data-survey-panel]');
   var surveyCloseTriggers = Array.prototype.slice.call(document.querySelectorAll('[data-survey-close]'));
+  var surveyLastFocused = null;
   function closeSurvey() {
-    if (!surveyPanel || surveyPanel.hidden) return;
-    surveyPanel.hidden = true;
+    closePanelModal(surveyPanel, surveyLastFocused);
   }
   surveyCloseTriggers.forEach(function (btn) { btn.addEventListener('click', closeSurvey); });
   window.__prehogOpenSurvey = function () {
     if (!surveyPanel) return;
     pauseAutoplay('manual');
-    surveyPanel.hidden = false;
-    var closeBtn = surveyPanel.querySelector('.panel-close');
-    if (closeBtn) closeBtn.focus();
+    surveyLastFocused = openPanelModal(surveyPanel);
   };
 
   // Draw-in animation trigger for illustrations reached via normal scroll

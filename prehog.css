@@ -125,6 +125,27 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
      row 1 already reserves that space. */
   margin: calc(var(--nav-shell-height) + var(--space-sm)) auto 0;
 }
+/* Reference mode's document can be nine viewports tall — without this, the
+   toolbar (the only way back to present mode, or to open Contents) scrolls
+   out of reach after the first section, and reaching it again means
+   scrolling all the way back to the top first, which silently changes
+   "the section being read" before the toggle is even clicked. position:
+   sticky (not fixed) keeps it reachable everywhere while still
+   contributing to normal document flow — no new class of collision risk,
+   since it never leaves the flow the way position:fixed does. */
+[data-view-mode='reference'] .deck-toolbar {
+  position: sticky; top: var(--nav-shell-height); z-index: 5;
+  background: color-mix(in oklch, var(--bg) 92%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding-block: var(--space-xs);
+}
+/* Author display:flex above would otherwise beat the UA stylesheet's
+   [hidden]{display:none} (author origin always wins over user-agent
+   origin, regardless of matching specificity) — starts hidden in markup
+   (see index.html) until prehog.js confirms it can drive the page, so
+   this has to be explicit rather than relying on the attribute alone. */
+.deck-toolbar[hidden] { display: none; }
 .view-toggle {
   display: inline-flex; align-items: center; min-height: var(--touch);
   padding: 0.4rem 0.9rem; border-radius: 999px; border: 1px solid var(--border);
