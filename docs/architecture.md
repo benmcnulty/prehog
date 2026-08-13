@@ -30,24 +30,63 @@ the site.
 before it links `prehog.css`. Do not replace these links with CSS `@import`s:
 imports create a dependent stylesheet waterfall on a cold load and can expose
 unstyled content before the deck is ready. The small inline deck bootstrap
-sets the opening/deep-linked slide before styles paint; with JavaScript
-disabled it does not run, so all nine sections remain readable in sequence.
+sets the opening/deep-linked slide and reads the stored view-mode
+preference (`prehog:viewmode`) before styles paint — the latter matters
+because a returning reference-mode visitor must never see even a flash of
+the paged layout before the deferred controller script runs. With
+JavaScript disabled the bootstrap does not run at all, so all nine
+sections remain readable in sequence regardless.
 
-## Paged layout and motion
+## Paged layout and motion (present mode)
 
-Paged mode is a three-row viewport grid: measured host navigation, a flexible
-slide stage, and an intrinsically sized controller. The controller owns its
-real height (including safe-area padding), so the slide receives exactly the
-remaining space at any viewport or aspect ratio. Dense slides scroll inside
-that stage while navigation remains visible.
+Present mode — the default, guided narrative — is a four-row viewport
+grid: measured host navigation, `.deck-toolbar` (see below), a flexible
+slide stage, and an intrinsically sized controller. The controller owns
+its real height (including safe-area padding), so the slide receives
+exactly the remaining space at any viewport or aspect ratio. Dense slides
+scroll inside that stage while navigation remains visible.
 
 Slides are absolutely overlaid inside an isolated stage. Entering and leaving
 slides animate only `transform` and `opacity`, so two slides never re-enter
 layout during a transition. Progress and autoplay indicators use `scaleX()`
 instead of animated width, and the continuously moving loop illustration uses
 SVG transform rotation instead of stroke repainting. Inactive slides are both
-`inert` and `aria-hidden`; the no-JavaScript document keeps every section in
-normal flow.
+`inert` and `aria-hidden`.
+
+## Reference mode (Session D, Phase 6)
+
+Reference mode is the second, browsable way to consume the page —
+selectable and persisted (`localStorage`, key `prehog:viewmode`), not a
+separate route. Toggling to it removes `.js-paged` with JavaScript still
+running, which lands on the *same* base CSS the no-JavaScript document
+already used: every slide becomes a normal, non-`inert` block in ordinary
+document flow, no bespoke second layout written for it. `.deck-chrome`
+(progress bar, dots, prev/next, autoplay) is hidden — none of it describes
+a state that exists once every slide is already visible.
+
+`.deck-toolbar` (the mode toggle and the Contents button) is
+`position: sticky`, uniquely on this page — every other fixed-position
+attempt at a persistent control on this site was abandoned during Session
+C's consent-UI work for colliding with some page's own content (see
+`benlive.tv/docs/ARCHITECTURE.md`). Sticky avoids that class of problem
+differently: it stays in normal document flow (contributing real layout
+height, unlike `position: fixed`) and only pins to the viewport edge
+while its containing block is in view. It has to behave this way here
+specifically because reference mode's document can run several viewports
+long — without it, the toolbar (the only way back to present mode, or to
+open Contents) scrolls out of reach after the first section, and a
+visitor would have to scroll all the way back to the top just to reach
+it.
+
+A scrollspy (`IntersectionObserver`, a thin trigger line at vertical
+center rather than an area threshold — most slides are taller than any
+reasonably-sized center band, so an area-based threshold is
+geometrically unsatisfiable for them) keeps `currentIndex`, the URL hash,
+and `data-slide` in sync with manual scrolling, so switching back to
+present mode restores paging at whatever section was actually being
+read, and reference-mode section reads still answer the same "which
+sections hold attention" question `prehog_slide_viewed` was built for in
+present mode.
 
 ## Why not write the page directly into the `public` repo?
 

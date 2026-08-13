@@ -6,10 +6,21 @@ prefer `README.md` — this file trades narrative for density.
 ## Mission
 
 `prehog` is a static, single-page presentation deployed at
-`benlive.tv/prehog`, instrumented with PostHog. It is a job-application
-artifact for a Context Engineer role, and it is also meant to be a genuinely
-good small system on its own terms. Optimize changes for **small surface
-area × correctness × explainability**, not feature growth.
+`benlive.tv/prehog`, instrumented with PostHog. It began as a
+job-application artifact for a Context Engineer role and is now also a
+shipped analytics case study in its own right — both framings are true
+and stated explicitly (see the page's own metadata and the "why now"
+slide), not one silently replacing the other. It is meant to be a
+genuinely good small system on its own terms. Optimize changes for
+**small surface area × correctness × explainability**, not feature
+growth.
+
+The page works two ways: **present** mode (default) is the original
+guided, paged narrative; **reference** mode is the same content as a
+normal scrollable, browsable document — a visitor's choice, persisted,
+not two different pages. Most invariants below describe present mode
+specifically; where reference mode's contract differs, it's called out
+(see invariant 11).
 
 ## Architecture invariants — do not violate
 
@@ -25,7 +36,12 @@ area × correctness × explainability**, not feature growth.
    JavaScript disabled, `index.html` must render as one readable scrollable
    document with all nine `<section class="slide">` elements visible in
    order. Do not add a feature whose *only* implementation is JS-gated
-   content with no fallback.
+   content with no fallback. `.deck-toolbar` (the view-mode toggle and
+   Contents button) starts `hidden` in the markup for exactly this reason
+   — without JS there's no controller to drive either one, and the page is
+   already the reference-style document those controls would otherwise
+   promise; a new JS-only control should default to hidden the same way,
+   not render as dead UI for no-JS visitors.
 4. **`index.html` links `benlive.tv`'s shared design tokens directly**
    (the ordered `/css/core/*` links plus `/css/components/_navigation.css`,
    ahead of `prehog.css`). Keep them as direct links instead of CSS
@@ -35,8 +51,12 @@ area × correctness × explainability**, not feature growth.
    depended on host-only scripts (`nav-toggle.js`, `animation-observer.js`)
    with documented degradation, so extending that same acknowledged
    coupling to CSS is consistent, not new. This presentation deliberately
-   has no site footer: its persistent deck controller is the bottom edge of
-   the interface.
+   has no site footer. In present (paged) mode the persistent deck
+   controller is the bottom edge of the interface; in reference mode
+   (see invariant 10) the deck controller is hidden and `.deck-toolbar`
+   — `position: sticky`, not the site's usual pattern — is the thing that
+   stays reachable instead, since that mode's document can run several
+   viewports long.
 5. **No meaning may depend solely on motion.** Every `[data-animate-draw]`
    SVG has a paired `<figcaption class="sr-only">` describing what the
    diagram shows. `prefers-reduced-motion: reduce` must disable all
@@ -70,12 +90,27 @@ area × correctness × explainability**, not feature growth.
    PostHog display conditions — simpler and fully covered by
    `tests/prehog.spec.js` rather than depending on an unverified
    conditions-JSON shape.
-10. **Paged layout is a viewport grid, not fixed-height arithmetic.** The
-    controller is an intrinsic bottom row and the deck is the flexible middle
-    row. Slides overlap absolutely inside the deck and animate with compositor-
-    friendly `transform`/`opacity`; long slides scroll internally. Preserve
-    this contract when changing navigation or transitions so the controller
+10. **Paged layout is a viewport grid, not fixed-height arithmetic — but
+    this only describes present mode.** The controller is an intrinsic
+    bottom row and the deck is the flexible middle row (`body.js-paged`'s
+    4-row grid — nav, `.deck-toolbar`, `.deck`, `.deck-chrome`). Slides
+    overlap absolutely inside the deck and animate with compositor-friendly
+    `transform`/`opacity`; long slides scroll internally. Preserve this
+    contract when changing navigation or transitions so the controller
     cannot be clipped or pushed below the fold.
+11. **Reference mode is normal document flow, on purpose — do not give it
+    its own layout.** Toggling to reference mode removes `.js-paged`
+    entirely rather than switching to a second bespoke layout; every slide
+    becomes a normal, scrollable, non-`inert` block using the *same* base
+    CSS the no-JS fallback already relies on (invariant 3). If a change
+    needs reference-mode-specific layout rules beyond hiding
+    `.deck-chrome` and making `.deck-toolbar` sticky, that's a sign the
+    change should be reconsidered, not that reference mode needs its own
+    grid. `prehog.js`'s scrollspy (`startReferenceTracking`) keeps
+    `currentIndex`/hash/`data-slide` in sync with manual scrolling in this
+    mode — any code path that changes `currentIndex` needs to stay correct
+    whichever mode is active, since `setActive()` is shared and mode-aware
+    rather than duplicated per mode.
 
 ## Commands
 
@@ -100,6 +135,14 @@ swipe, `prefers-reduced-motion`, mobile viewport (390px), and the
 slide-view-dedup guarantee. A change that isn't coverable by that spec
 without network mocking is probably breaking invariant #2.
 
+Any change touching navigation, `setActive()`, or the analytics event
+bridge needs to be traced against **both** view modes, not just present —
+the `prehog: view mode` describe block covers mode persistence (including
+across a reload, with the actual layout checked, not just the state
+attributes), position sync in both switch directions, the sticky
+toolbar's reachability, and the Contents panel's focus trap. A change that
+only makes sense in one mode is a signal to check invariant 11.
+
 ## Analytics rules
 
 - Every new custom event must answer a **question**, stated in
@@ -116,9 +159,16 @@ without network mocking is probably breaking invariant #2.
 ## Accessibility expectations
 
 - Native HTML semantics before ARIA. `role="dialog"` + `aria-modal="true"`
-  on the transparency panel is the one place ARIA is load-bearing; keep
-  focus trap/return behavior (`prehog.js`, `openTransparency`/
-  `closeTransparency`) intact if you touch that code.
+  is load-bearing, not decorative, on all three of this page's panels
+  (transparency, survey, Contents) — a review caught a first pass where it
+  was declared but not actually enforced (Tab could escape to background
+  controls). All three now share one implementation,
+  `openPanelModal`/`closePanelModal` in `prehog.js`: background content
+  (`nav`, `.deck-toolbar`, `main.deck`, `.deck-chrome`) goes `inert` while
+  any panel is open, Tab/Shift+Tab is trapped to the topmost open panel,
+  and focus returns to whatever triggered it on close. A new dialog-role
+  panel must go through this shared pair, not a bespoke open/close — that
+  was exactly the gap the review found.
 - Every interactive control needs a minimum 44×44px hit target
   (`--touch` token in `prehog.css`) — this is enforced by convention, not
   a test, so check it by hand when adding a new control.

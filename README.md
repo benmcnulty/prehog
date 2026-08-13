@@ -2,15 +2,21 @@
 
 **Context before employment.**
 
-A responsive, PostHog-instrumented presentation built for my application to
-the **Context Engineer** role on PostHog's **Wizard & Docs** team. Live at
-[benlive.tv/prehog](https://benlive.tv/prehog); this repo is the independently
-cloneable, inspectable source behind it.
+A responsive, PostHog-instrumented presentation that began as my application
+to the **Context Engineer** role on PostHog's **Wizard & Docs** team, and is
+now also a shipped analytics case study in its own right — both are true at
+once, stated as such on the page itself, not one quietly replacing the
+other. Live at [benlive.tv/prehog](https://benlive.tv/prehog); this repo is
+the independently cloneable, inspectable source behind it.
 
 ## Results
 
-- 9-slide presentation: keyboard + touch navigation, content-proportional
-  auto-advance, full no-JS fallback, zero `wcag2a`/`wcag2aa` violations
+- Works two ways: a guided, paged narrative (9 slides — keyboard + touch
+  navigation, content-proportional auto-advance) or, toggled and persisted,
+  a normal browsable long-form document — same content, a visitor's choice,
+  not two different pages
+- Full no-JS fallback (every section readable without JavaScript), zero
+  `wcag2a`/`wcag2aa` violations in either view mode
 - First production PostHog JS SDK implementation: Product Analytics, masked
   Session Replay, exception tracking, a real custom-rendered Survey, and one
   flag-gated feature — all routed through a PostHog-managed reverse proxy
@@ -19,9 +25,10 @@ cloneable, inspectable source behind it.
   this session has sent to PostHog in real time
 - Deterministic Playwright coverage in the host repo
   (`tests/prehog.spec.js`), including the guarantee that
-  `prehog_slide_viewed` never double-fires on a revisit
+  `prehog_slide_viewed` never double-fires on a revisit, across both view
+  modes
 - Public repo, truthful commit history, decisions documented — including
-  three reversed calls — rather than silently edited
+  reversed calls and post-ship review findings — rather than silently edited
 
 ## How it's organized
 
@@ -29,9 +36,11 @@ cloneable, inspectable source behind it.
 index.html      All nine slide sections in document order; links benlive.tv's
                 shared tokens/nav CSS in cascade order (no-JS stays readable)
 prehog.css      Local presentation styles built on host tokens
-prehog.js       Presentation controller — paging, transitions, keyboard,
-                 swipe, hash routing, auto-advance, focus management.
-                 Knows nothing about PostHog.
+prehog.js       Controller — paging, transitions, keyboard, swipe, hash
+                 routing, auto-advance, focus management, the present/
+                 reference view-mode toggle and its scrollspy, and the
+                 shared modal (focus-trap) behavior all three of the page's
+                 panels use. Knows nothing about PostHog.
 analytics.js    PostHog init, event wiring, Survey render, live-event-log
                  panel. Knows nothing about slide mechanics.
 docs/           architecture.md, analytics.md, decisions.md
