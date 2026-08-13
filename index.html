@@ -391,8 +391,10 @@
           <div class="qa-row" role="row"><span role="cell">Do reviewers inspect the repository?</span><span role="cell"><code>prehog_outbound_clicked</code></span></div>
           <div class="qa-row" role="row"><span role="cell">Does anyone let it auto-play, or take control?</span><span role="cell"><code>prehog_autoplay_toggled</code></span></div>
         </div>
+        <p class="slide-body">That question-first approach didn't stay contained to this page. Building it properly here exposed what a real analytics architecture needs — a shared consent layer, not a page-local one-off — which generalized into a small library the rest of the site now runs on: the same kind of specific, meaningful interactions instead of blanket tracking, with visitor control built in from the start rather than added later.</p>
         <div class="slide-actions">
           <button type="button" class="btn btn-secondary" data-action="open-transparency">What does this page measure?<span aria-hidden="true"> →</span></button>
+          <a class="btn btn-secondary" href="https://benlive.tv/privacy/">See what runs site-wide now<span aria-hidden="true"> →</span></a>
         </div>
       </div>
     </section>
@@ -460,9 +462,16 @@
 
     <section class="slide" id="why-now" data-slide="why-now" aria-labelledby="why-now-heading">
       <div class="slide-inner">
-        <p class="eyebrow">08 · Why me, why now</p>
-        <h2 id="why-now-heading" class="slide-title">Why this role</h2>
-        <p class="slide-body slide-body-large">I have spent more than ten years building full-stack products, QA automation, documentation systems, and AI-assisted workflows. This role brings those strengths together. <a href="https://benlive.tv/about/">My resume</a> has the details.</p>
+        <p class="eyebrow">08 · Why this role, why now</p>
+        <h2 id="why-now-heading" class="slide-title">Not just remote — how they run remote</h2>
+        <p class="slide-body">Ten-plus years building full-stack products, QA automation, documentation systems, and AI-assisted workflows point at this role. What pulled me toward PostHog specifically is <em>how</em> they say they work — checked against their own public handbook, not assumed.</p>
+        <ul class="trait-list">
+          <li><strong>PostHog's handbook:</strong> fully remote across 20+ countries, async-first with no internal email, and two meeting-free days a week.</li>
+          <li><strong>PostHog's handbook:</strong> "default to not asking for permission" if you're acting in the company's interest — bias toward shipping.</li>
+          <li><strong><em>No Rules Rules</em> (Hastings &amp; Meyer) argues:</strong> give people context, not control, and trust them to act on it.</li>
+          <li><strong>The overlap is real, not assumed:</strong> PostHog's own handbook credits that book for its context-based expense policy — one concrete practice, not a claim that PostHog runs its culture on Netflix's playbook generally.</li>
+        </ul>
+        <p class="slide-body">That's two influences landing on similar instincts from different directions, not one following the other — and it's close to how I already try to work. <a href="https://benlive.tv/about/">My resume</a> has the specifics.</p>
       </div>
     </section>
 
