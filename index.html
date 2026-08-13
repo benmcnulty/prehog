@@ -565,7 +565,9 @@
   </div>
 
   <!-- Transparency panel: the self-referential "what does this page measure" disclosure,
-       extended with a live log of the actual events this session has captured. -->
+       extended with a live log of events this session has had accepted for
+       delivery (queued-but-not-yet-delivered counts too — see analytics.js's
+       own capture() comment and docs/analytics.md). -->
   <div class="panel-overlay" data-transparency-panel hidden>
     <div class="panel-backdrop" data-transparency-close></div>
     <div class="panel-dialog" role="dialog" aria-modal="true" aria-labelledby="transparency-heading">
@@ -585,7 +587,7 @@
       </ul>
       <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked — including the optional survey's rating and free-text answer, which replay never shows even though the event data does.</p>
       <div class="event-log" data-event-log>
-        <p class="event-log-title">Live — what this session has actually sent</p>
+        <p class="event-log-title">Live — what this session has had accepted for delivery</p>
         <ul class="event-log-list" data-event-log-list>
           <li class="event-log-empty" data-event-log-empty>Nothing captured yet. Navigate a slide and check back.</li>
         </ul>

@@ -16,15 +16,50 @@ were evaluated and declined. The judgment is part of the artifact.
 | **Error Tracking** | Implemented, narrow | Revised from an earlier "declined for MVP" call. The original reasoning (no server-side logic to fail, Playwright already catches regressions faster than a dashboard) still holds for *development-time* bugs. What it missed: production has no Playwright running — a runtime error on someone's actual phone during the actual application review is exactly the kind of failure this project can't afford to be blind to, and `capture_exceptions: true` on the SDK already loaded on this page costs nothing to enable (no new dependency, no new product surface, one boolean). Scoped narrowly: unhandled exceptions and unhandled promise rejections only, not `console.error` capture — this page has no console.error call sites worth turning into tracked events. Full PostHog Error Tracking (issue grouping, alerting workflows) is still out of scope; this is just "don't fly blind in production." |
 | **AI-related PostHog capabilities** (e.g. LLM observability) | Declined | Not applicable — this page makes no LLM calls at runtime. Noted here so it's clear the surface was reviewed, not missed. |
 
-## Scoping PostHog to `/prehog` only, not site-wide
+## Reversed: PostHog scoped to `/prehog` only, not site-wide
 
-`benlive.tv/ai-lab/chat/` currently displays "No analytics" as a stated
-privacy property. Instrumenting the whole site would make that claim false
-without a corresponding copy change, and would meaningfully increase the
-blast radius of adding a new third-party script. Scoping to `/prehog` (and,
-per the resume-alignment work, optionally `/about`) keeps the analytics
-story honest and the risk contained to the one page that's explicitly about
-demonstrating PostHog competence.
+The original call here was to keep PostHog scoped to this one page.
+`benlive.tv/ai-lab/chat/` displayed "No analytics" as a stated privacy
+property at the time, instrumenting the whole site would have made that
+claim false without a corresponding copy change, and adding a new
+third-party script site-wide meaningfully increases blast radius. Scoping
+to `/prehog` kept the analytics story honest and the risk contained to
+the one page explicitly about demonstrating PostHog competence.
+
+**Reversed in the host site's own Session B** (`benlive.tv`'s
+`docs/ARCHITECTURE.md` §3). What changed: building `/prehog`'s
+instrumentation properly — a real consent gate, a real taxonomy, real
+"what's deliberately not collected" discipline — surfaced that the same
+architecture was worth having site-wide, not kept as a one-page
+demonstration. `public/js/analytics/{consent,events,index}.js` in the
+host repo generalizes exactly the pattern this repo's own `analytics.js`
+established: pages emit semantic DOM events, one shared file decides
+whether they become real `capture()` calls, gated on consent. It now runs
+across the site's primary public surfaces — landing, About, Portfolio,
+Hire Me, Blog, AI Lab (hub and all four sub-apps), `/prehog/` itself
+(via this repo's own adapter), and `/privacy/` — with `/login/`, `/port/`,
+`/webxr/`, `/benu/`, `/menus/`, and `/tools/` still deliberately excluded
+(see the host repo's own architecture doc for why each). The AI Lab
+chat page's privacy copy was updated alongside the rollout: it no longer
+says "No analytics," and instead states precisely what is and isn't
+collected there (one aggregate `bl_chat_engaged` event per session; chat
+message text, prompts, and responses are never sent).
+
+What made this acceptable where the original narrow-scope reasoning
+correctly said it wasn't: the risk the original decision was weighing —
+adding a third-party script's blast radius without the consent/
+disclosure discipline to back it up — is exactly what the shared layer
+now provides everywhere it runs, not just here. A visitor gets the same
+opt-out-with-visible-notice contract on any instrumented page, the same
+taxonomy discipline (a new event has to answer a stated question, same
+rule as this repo's own `AGENTS.md`), and the same "no free text, no PII"
+constraint. The blast-radius concern was really an architecture-maturity
+concern, and once the architecture existed, scoping to one page stopped
+being the safer choice and started being an inconsistency — a
+`bl_*`-taxonomy event on `/about/` and a `prehog_*` one here disclose
+under the same consent gate and the same `/privacy/` page now, so keeping
+them artificially separated no longer served the honesty goal it was
+originally protecting.
 
 ## Why `prehog_viewed` doesn't exist
 

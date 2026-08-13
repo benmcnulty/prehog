@@ -4,13 +4,48 @@ Analytics begins with questions, not events. This document states the
 question first for every event; if a question can't be stated plainly, the
 event doesn't ship.
 
-## Standard capture
+## Capture architecture: what owns what
 
-`$pageview` — PostHog's default autocapture, fired once on load
-(`capture_pageview: true`; the page never changes URL path, so
-`'history_change'` mode would never fire and is intentionally not used).
-This alone answers "did anyone open the page" and "what referred them" —
-no custom `prehog_viewed` event is defined, to avoid duplicating it.
+This page's analytics run on `benlive.tv`'s shared layer, not a
+`/prehog`-local implementation — this section states that plainly because
+it wasn't always true, and older phrasing (in this repo's own git
+history, and until this session, its docs) can still describe the
+pre-migration shape. See `docs/architecture.md`'s "Where PostHog init
+actually lives" and `docs/decisions.md`'s "Reversed: PostHog scoped to
+`/prehog` only" for the fuller account. In short:
+
+- **`benlive.tv`'s `public/js/analytics/index.js`** owns `posthog.init()`,
+  reads consent (`BenLiveConsent`) before deciding whether a capture call
+  actually reaches PostHog, and queues calls made before the SDK finishes
+  its async load — drained once ready, with consent rechecked at drain
+  time so a call queued before an opt-out is never delivered after one.
+- **This repo's `analytics.js` never calls `posthog.init()`.** It's a
+  thin domain adapter: it listens for `prehog:*` DOM events (dispatched
+  by `prehog.js`, which itself knows nothing about PostHog — invariant 2
+  in `AGENTS.md`) and maps them onto `prehog_*` events via
+  `window.BenLiveAnalytics.capture()`. That function is the shared
+  layer's trusted-adapter boundary (`rawCapture()` internally): it
+  bypasses the shared layer's own `bl_*` taxonomy allowlist — that
+  allowlist exists for pages using the shared layer's generic event
+  bridge directly, and this repo already owns its own `prehog_*`
+  contract and dedup rules — but still goes through the *same* consent
+  gate, PostHog instance, and pending queue every other page's events do.
+  It returns `'sent'`, `'queued'`, or `'rejected'`, which is what the
+  recursive live-event-log panel (below) actually reflects.
+- **`$pageview` fires conditionally on consent**, not unconditionally.
+  `capture_pageview` is set to `true` only when consent is already
+  granted at init time (`opt_out_capturing_by_default` covers the
+  opposite case), so a visitor who has opted out never generates even the
+  standard autocapture pageview. Answers "did anyone open the page" and
+  "what referred them" with zero custom code when consent allows it — no
+  custom `prehog_viewed` event is defined, to avoid duplicating it.
+- **Two taxonomies, one consent gate.** This page's events are all
+  `prehog_*`; the rest of the site's are `bl_*` (see the host repo's
+  `public/js/analytics/events.js`). Different naming, different
+  allowlist enforcement, same shared consent/init/delivery underneath —
+  a visitor who opts out on `/prehog/` has opted out everywhere, not just
+  here, because the consent key (`bl:analytics-consent`) is shared, not
+  page-scoped.
 
 ## Custom events
 
@@ -105,7 +140,10 @@ no custom `prehog_viewed` event is defined, to avoid duplicating it.
 
 ## Session Replay
 
-Scoped to `/prehog` only, `maskAllInputs: true`,
+Configured via this page's `window.__BL_ANALYTICS_CONFIG__.sessionRecording`
+override (`index.html`), read by the shared layer's `posthog.init()` call —
+this page is the only one that currently sets it, which is what scopes it
+to `/prehog` only, `maskAllInputs: true`,
 `maskTextSelector: '[data-ph-mask]'`. Enabled to answer one specific,
 written-down question: **is the slide navigation model discoverable on a
 phone, or do mobile visitors get stuck?** If replay review answers that
@@ -142,22 +180,36 @@ responded — enforced server-side, not by this repo's code.
 
 Gated behind the `prehog-recursive-panel` feature flag (see
 `docs/decisions.md` for why this is a real flag, not decoration). When
-enabled for a visitor, the transparency panel (slide 6) gains a live list of
-every `prehog_*` and `survey *` event this session has actually sent to
-PostHog, with a relative timestamp, plus a chip showing that session's
-anonymous `distinct_id`. It reads directly off the same in-memory log
-`analytics.js`'s `capture()` wrapper already keeps — no new event, no new
-data collection, just a render layer making the existing capture stream
-visible to the person it's about. This is the demonstration, not a
-description, of slide 6's claim that analytics begins with questions: the
-question "what is this page sending about me, right now" gets an answer
-you can watch update live.
+enabled for a visitor, the transparency panel (slide 6) gains a live list
+of every `prehog_*` and `survey *` event this session has had **accepted
+for delivery** to PostHog — logged the moment the shared layer's
+`rawCapture()` returns `'sent'` *or* `'queued'`, not only once actually
+delivered (a call that comes back `'rejected'`, meaning consent wasn't
+granted, is never logged, since as far as this panel is concerned it
+never happened). A queued call is drained and delivered once the SDK
+finishes loading in the ordinary case; the one gap this label doesn't
+cover is the rare race where consent changes to denied in the moment
+between a call being queued and the queue draining, which discards it at
+drain time (see `public/js/analytics/index.js`'s `drainPending()` in the
+host repo) — "accepted for delivery" is the accurate claim, "delivered"
+would not always be. The panel also shows a relative timestamp per event
+plus a chip with that session's anonymous `distinct_id`. It reads
+directly off the same in-memory log `analytics.js`'s `capture()` wrapper
+already keeps — no new event, no new data collection, just a render layer
+making the existing capture stream visible to the person it's about.
+This is the demonstration, not a description, of slide 6's claim that
+analytics begins with questions: the question "what is this page sending
+about me, right now" gets an answer you can watch update live.
 
 ## Exception capture
 
-`capture_exceptions: true`, scoped to unhandled exceptions and unhandled
-promise rejections only — `console.error` capture is left off, since this
-page has no `console.error` call sites worth turning into tracked events.
+`window.__BL_ANALYTICS_CONFIG__.captureExceptions = true` on this page
+(read by the shared layer's init call the same way as Session Replay,
+above) — the shared layer's own default is `false`, so this is an
+explicit per-page opt-in, not something every instrumented page gets.
+Scoped to unhandled exceptions and unhandled promise rejections only —
+`console.error` capture is left off, since this page has no
+`console.error` call sites worth turning into tracked events.
 Answers one question: did anyone hit a JavaScript error in production that
 Playwright's local test run didn't catch? See `docs/decisions.md` for why
 this was added after initially being declined for MVP.

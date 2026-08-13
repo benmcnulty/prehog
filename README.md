@@ -7,7 +7,11 @@ to the **Context Engineer** role on PostHog's **Wizard & Docs** team, and is
 now also a shipped analytics case study in its own right — both are true at
 once, stated as such on the page itself, not one quietly replacing the
 other. Live at [benlive.tv/prehog](https://benlive.tv/prehog); this repo is
-the independently cloneable, inspectable source behind it.
+the inspectable source behind it. It clones independently, and its content
+stays fully readable standalone (see "Run it locally" below), but its full
+runtime — shared design tokens, nav behavior, the consent UI, and the
+PostHog layer itself — depends on the host site; see
+[`docs/architecture.md`](docs/architecture.md) for exactly what and why.
 
 ## Results
 
@@ -22,7 +26,9 @@ the independently cloneable, inspectable source behind it.
   flag-gated feature — all routed through a PostHog-managed reverse proxy
   (`t.benlive.tv`) for ad-blocker resilience
 - A self-referential live event log on the page itself, showing exactly what
-  this session has sent to PostHog in real time
+  this session has had accepted for delivery to PostHog, in real time
+  (queued events are logged when accepted, not only once actually
+  delivered — see `docs/analytics.md`)
 - Deterministic Playwright coverage in the host repo
   (`tests/prehog.spec.js`), including the guarantee that
   `prehog_slide_viewed` never double-fires on a revisit, across both view
@@ -41,8 +47,11 @@ prehog.js       Controller — paging, transitions, keyboard, swipe, hash
                  reference view-mode toggle and its scrollspy, and the
                  shared modal (focus-trap) behavior all three of the page's
                  panels use. Knows nothing about PostHog.
-analytics.js    PostHog init, event wiring, Survey render, live-event-log
-                 panel. Knows nothing about slide mechanics.
+analytics.js    Domain adapter onto benlive.tv's shared analytics layer
+                 (/js/analytics/*, which owns PostHog init, consent
+                 gating, and delivery) — maps this page's own events onto
+                 it, renders the Survey and the live-event-log panel.
+                 Knows nothing about slide mechanics.
 docs/           architecture.md, analytics.md, decisions.md
 AGENTS.md       Same project context, structured for a coding agent
 ```

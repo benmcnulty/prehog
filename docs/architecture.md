@@ -138,9 +138,8 @@ allowlist is the proxy host, not PostHog's asset CDN:
 
 `https://us-assets.i.posthog.com` stays allowlisted too, even though nothing
 currently loads from it: it's the origin the SDK would fall back to if
-`api_host`/the proxy config were ever cleared (see the no-token no-op path
-in the Deployment section below), so removing it would trade a defensive
-allowance for a CSP line the SDK doesn't strictly need today.
+`api_host`/the proxy config were ever cleared, so removing it would trade a
+defensive allowance for a CSP line the SDK doesn't strictly need today.
 
 `worker-src` doesn't exist in the current policy at all, which means it
 falls back to `default-src 'self'`. PostHog's Session Replay compresses
@@ -172,12 +171,51 @@ docs embed it directly in the snippet. It is not a secret and doesn't need
 server-side injection.
 
 The real project token is set directly in `index.html`'s `<head>` via
-`window.__PREHOG_CONFIG__` and committed like any other content change — no
-separate secrets pipeline required, for the write-only-identifier reason
-above. If `posthogToken` were ever unset (e.g. reverting to a fork with no
-project of its own), `analytics.js` reads the empty string and resolves to a
-documented, harmless no-op — see `analytics.js`'s header comment and
-`README.md` — rather than throwing or half-initializing.
+`window.__BL_ANALYTICS_CONFIG__` and committed like any other content
+change — no separate secrets pipeline required, for the
+write-only-identifier reason above. **This config is read by the host
+site's shared analytics layer** (`benlive.tv`'s
+`public/js/analytics/index.js`), not by this repo's own `analytics.js` —
+see "Where PostHog init actually lives" below. It's set here purely
+for the same transparency reason it always was (so the real value is
+visible in this repo's own history, not injected invisibly by the host);
+the shared layer already has this same token as its own hardcoded
+default, so **removing this override would not disable analytics** —
+init would still run with the same real project, just without this
+page's `captureExceptions`/`sessionRecording` overrides. A fork pointed
+at a different PostHog project needs its own token set in the *shared
+layer's* config, not here.
+
+## Where PostHog init actually lives
+
+This is the one place this repo's own documentation most needs to be
+read carefully, because the implementation moved and older phrasing
+elsewhere (this repo's git history, and until this session's own fix,
+its docs) can still describe the pre-migration shape:
+
+- **`benlive.tv`'s `public/js/analytics/index.js`** is the only file that
+  calls `posthog.init()`. It owns SDK loading, consent gating (reading
+  `BenLiveConsent`, denying capture when consent isn't granted), the
+  pending-event queue for calls made before the SDK finishes loading, and
+  persistence (`localStorage+cookie`).
+- **This repo's `analytics.js` is a thin domain adapter**, not an
+  initializer. It maps this page's own `prehog:*` DOM events (dispatched
+  by `prehog.js`) onto `prehog_*` PostHog events via
+  `window.BenLiveAnalytics.capture()` — the shared layer's trusted-adapter
+  entry point, which bypasses the shared `bl_*` taxonomy allowlist (that
+  allowlist exists for the shared layer's own generic event bridge, not
+  for a page that already owns its own event contract) but still goes
+  through the one shared consent gate, PostHog instance, and queue. It
+  also owns what's genuinely local to this page: the Survey UI and the
+  recursive live-event-log panel.
+- **This page's own config** (`window.__BL_ANALYTICS_CONFIG__`, above)
+  only ever supplies overrides the shared layer reads at init time — it
+  cannot make this repo's own `analytics.js` initialize anything, because
+  that file has no init code path to trigger.
+
+Before changing anything analytics-related in this repo, check which of
+these two files actually owns the behavior in question —
+`docs/analytics.md` states this for each documented event and setting.
 
 Rollback is simple by construction: `/prehog` is purely additive. Removing
 the submodule mount and redeploying `firebase deploy --only hosting`

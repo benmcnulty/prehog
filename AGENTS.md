@@ -53,7 +53,7 @@ specifically; where reference mode's contract differs, it's called out
    coupling to CSS is consistent, not new. This presentation deliberately
    has no site footer. In present (paged) mode the persistent deck
    controller is the bottom edge of the interface; in reference mode
-   (see invariant 10) the deck controller is hidden and `.deck-toolbar`
+   (see invariant 11) the deck controller is hidden and `.deck-toolbar`
    — `position: sticky`, not the site's usual pattern — is the thing that
    stays reachable instead, since that mode's document can run several
    viewports long.
@@ -176,10 +176,22 @@ only makes sense in one mode is a signal to check invariant 11.
 ## Constraints from the host site (`benlive.tv`)
 
 This repo is mounted as a git submodule at `benlive.tv`'s `public/prehog/`.
-It depends on two scripts it does not vendor — `/js/nav-toggle.js` and
-`/js/animation-observer.js` — and also on the
-host's directly linked shared CSS partials (`/css/core/*`, `/css/components/_navigation.css`)
-per invariant #4, all absolute-pathed against the host site's domain.
+It depends on scripts and styles it does not vendor, all absolute-pathed
+against the host site's domain:
+- `/js/nav-toggle.js`, `/js/animation-observer.js` — nav behavior and
+  off-screen animation pausing.
+- `/js/analytics/consent.js`, `/js/analytics/events.js`,
+  `/js/analytics/index.js` — the shared analytics layer this repo's own
+  `analytics.js` is a domain adapter onto. It owns PostHog init, consent
+  gating, and delivery; this repo's `analytics.js` has no init code path
+  of its own (see `docs/architecture.md`'s "Where PostHog init actually
+  lives"). Without these three loading, `window.BenLiveAnalytics` doesn't
+  exist and `analytics.js`'s own `capture()` no-ops — the deck stays fully
+  functional, just uninstrumented (see invariant #2).
+- The host's directly linked shared CSS partials (`/css/core/*`,
+  `/css/components/_navigation.css`, `/css/components/_analytics-consent.css`)
+  per invariant #4 — the last one styles the consent link the shared
+  layer injects into this page's nav (see invariant 11).
 The host's `firebase.json` Content-Security-Policy must allow
 `https://t.benlive.tv` in `script-src` (the SDK's initial module loads from
 `cdn.jsdelivr.net`, but it dynamically fetches feature bundles — config,
