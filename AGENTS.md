@@ -32,6 +32,10 @@ specifically; where reference mode's contract differs, it's called out
    directly. It communicates only via `document.dispatchEvent(new
    CustomEvent(...))`. `analytics.js` only ever *listens*; it never drives
    navigation. This lets navigation be tested with zero network dependency.
+   `chat.js` follows the same rule: it never references `window.posthog`
+   either, dispatching `prehog:chat*` CustomEvents the same way `prehog.js`
+   dispatches its own — `analytics.js` is still the only file that knows
+   PostHog exists.
 3. **Progressive enhancement is load-bearing, not decorative.** With
    JavaScript disabled, `index.html` must render as one readable scrollable
    document with all nine `<section class="slide">` elements visible in
@@ -64,12 +68,12 @@ specifically; where reference mode's contract differs, it's called out
    elements (`[data-idle-pulse]`), which `animation-play-state` and CSS
    classes do **not** affect; `prehog.js` removes them from the DOM
    directly when `prefers-reduced-motion` is set.
-6. **Event names are the public API of `analytics.js`.** The eight
+6. **Event names are the public API of `analytics.js`.** The twelve
    `prehog_*` custom events (plus the standard PostHog `survey shown` /
    `survey sent` / `survey dismissed` triad) are documented in
    `docs/analytics.md`. Renaming, adding, or removing one requires updating
-   that doc and `tests/prehog.spec.js` in the same change — do not let them
-   drift.
+   that doc and `tests/prehog.spec.js` (or `tests/prehog-chat.spec.js` for
+   the `prehog_chat_*` events) in the same change — do not let them drift.
 7. **`prehog_slide_viewed` fires at most once per slide per browser
    session.** Deduplication happens in `analytics.js` via an in-memory
    `Set`, not in PostHog. This is tested; do not remove the guard to

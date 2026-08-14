@@ -14,7 +14,7 @@ were evaluated and declined. The judgment is part of the artifact.
 | **Experiments** | Declined, same reasoning as Feature Flags | No hypothesis with enough traffic to reach significance exists for a single-page job-application artifact. |
 | **Web Analytics** | Declined | Would duplicate Product Analytics' pageview/session data for this use case with a different UI. Not enough distinct value to justify a second product surface for one page. |
 | **Error Tracking** | Implemented, narrow | Revised from an earlier "declined for MVP" call. The original reasoning (no server-side logic to fail, Playwright already catches regressions faster than a dashboard) still holds for *development-time* bugs. What it missed: production has no Playwright running — a runtime error on someone's actual phone during the actual application review is exactly the kind of failure this project can't afford to be blind to, and `capture_exceptions: true` on the SDK already loaded on this page costs nothing to enable (no new dependency, no new product surface, one boolean). Scoped narrowly: unhandled exceptions and unhandled promise rejections only, not `console.error` capture — this page has no console.error call sites worth turning into tracked events. Full PostHog Error Tracking (issue grouping, alerting workflows) is still out of scope; this is just "don't fly blind in production." |
-| **AI-related PostHog capabilities** (e.g. LLM observability) | Declined | Not applicable — this page makes no LLM calls at runtime. Noted here so it's clear the surface was reviewed, not missed. |
+| **AI-related PostHog capabilities** (e.g. LLM observability) | Declined | This page now makes LLM calls at runtime (the "Ask about PostHog fit" chat, added in Session G — see the reversal below), but PostHog's own LLM-observability product specifically is still declined: it would mean routing chat requests/responses through PostHog's ingestion, which directly conflicts with this project's own hard line that chat message text and AI responses are never sent to PostHog. Product Analytics still covers the chat's product-level events (opened, starter selected, conversation initiated, reset) the same way it covers everything else on this page. |
 
 ## Reversed: PostHog scoped to `/prehog` only, not site-wide
 
@@ -60,6 +60,30 @@ being the safer choice and started being an inconsistency — a
 under the same consent gate and the same `/privacy/` page now, so keeping
 them artificially separated no longer served the honesty goal it was
 originally protecting.
+
+## Reversed: "this page makes no LLM calls at runtime"
+
+Earlier drafts of this document declined AI-related PostHog capabilities
+with the reasoning "not applicable — this page makes no LLM calls at
+runtime." That premise no longer holds: Session G of the host site's
+evolution plan added a toggleable "Ask about PostHog fit" chat
+(`chat.js`), a themed instance of `benlive.tv`'s shared AI Lab chat
+foundation (`public/js/api/{openrouter-client,chat-config,chat-errors}.js`,
+`public/js/components/chat-transcript.js` — see that repo's
+`docs/CHAT_ARCHITECTURE.md`), talking to the same Firebase Functions
+endpoint every AI Lab app uses.
+
+What did **not** change: the hard privacy line already established for
+`benlive.tv/ai-lab/chat/` — chat message text, prompts, and AI responses
+are never sent to PostHog, full stop. Only four product-level events
+exist for this feature (`prehog_chat_opened`, `prehog_chat_starter_selected`,
+`prehog_chat_conversation_initiated`, `prehog_chat_reset` — see
+`docs/analytics.md`), and `prehog_chat_starter_selected`'s only property
+is a fixed short label identifying *which* of four preset questions was
+used, never free text — a visitor's own typed question is never captured
+in any event. This is why "AI-related PostHog capabilities" above stays
+**declined** even though the page now genuinely uses an LLM: the two are
+separable, and only the second one changed.
 
 ## Why `prehog_viewed` doesn't exist
 

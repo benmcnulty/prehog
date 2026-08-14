@@ -84,6 +84,22 @@
           duration_ms: Date.now() - startedAt
         });
         maybeShowSurvey();
+      },
+      // "Ask about PostHog fit" chat (chat.js) — product-level events
+      // only. chat.js's CustomEvent details never carry message text or
+      // AI responses; this handler forwards exactly what it receives,
+      // so that guarantee lives at the source, not here.
+      'prehog:chatopened': function () {
+        capture('prehog_chat_opened', {});
+      },
+      'prehog:chatstarterselected': function (d) {
+        capture('prehog_chat_starter_selected', { starter: d.starter });
+      },
+      'prehog:chatmessagesent': function () {
+        capture('prehog_chat_conversation_initiated', {});
+      },
+      'prehog:chatreset': function () {
+        capture('prehog_chat_reset', {});
       }
     };
 

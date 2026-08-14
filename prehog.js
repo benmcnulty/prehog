@@ -544,7 +544,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target && /input|textarea/i.test(e.target.tagName)) return;
-    if (e.key === 'Escape') { closeTransparency(); closeSurvey(); closeToc(); return; }
+    if (e.key === 'Escape') { closeTransparency(); closeSurvey(); closeToc(); if (window.__prehogCloseChat) window.__prehogCloseChat(); return; }
     if (viewMode !== 'present') return; // arrow/paging keys are native scroll in reference mode
     if (e.key === 'ArrowRight' || e.key === 'PageDown') { go(1, 'key'); e.preventDefault(); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1, 'key'); e.preventDefault(); }
@@ -636,6 +636,14 @@
     }
     if (lastFocused) lastFocused.focus();
   }
+
+  // Exposed so a separate chat controller (chat.js) can reuse this exact
+  // open/close pair instead of a bespoke implementation — the shared-pair
+  // requirement AGENTS.md states for any new dialog-role panel. Mirrors
+  // the window.__prehogOpenSurvey cross-file hook below. pauseAutoplay is
+  // included so opening the chat panel pauses the deck the same way the
+  // other three panels already do.
+  window.__prehogPanelModal = { open: openPanelModal, close: closePanelModal, pauseAutoplay: pauseAutoplay };
 
   // Transparency panel
   var panel = document.querySelector('[data-transparency-panel]');

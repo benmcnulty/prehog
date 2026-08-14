@@ -135,6 +135,7 @@
   <div class="deck-toolbar" role="group" aria-label="View controls" hidden>
     <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">Reference view</button>
     <button type="button" class="btn btn-secondary" data-action="open-toc" aria-haspopup="dialog">Contents</button>
+    <button type="button" class="btn btn-secondary" data-action="open-chat" aria-haspopup="dialog">Chat</button>
   </div>
 
   <main id="main-content" class="deck" data-role="deck">
@@ -575,7 +576,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <h2 id="transparency-heading">What does this page measure?</h2>
-      <p>Eight custom events, plus PostHog's standard pageview. Seven are listed below; the eighth is a hidden easter-egg event, intentionally not detailed here so as not to spoil it — see <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a> for the full spec, including that one.</p>
+      <p>Twelve custom events, plus PostHog's standard pageview. Eleven are listed below; the twelfth is a hidden easter-egg event, intentionally not detailed here so as not to spoil it — see <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a> for the full spec, including that one.</p>
       <ul class="transparency-list">
         <li><strong>prehog_slide_viewed</strong> — which sections hold attention, deduplicated per session.</li>
         <li><strong>prehog_navigation_used</strong> — whether controls are discoverable, especially on mobile.</li>
@@ -584,8 +585,12 @@
         <li><strong>prehog_measurement_panel_opened</strong> — you opening this exact panel.</li>
         <li><strong>prehog_outbound_clicked</strong> — which evidence links and CTAs get followed.</li>
         <li><strong>prehog_completed</strong> — whether the deck gets finished.</li>
+        <li><strong>prehog_chat_opened</strong> — whether anyone opens the "Ask about PostHog fit" chat.</li>
+        <li><strong>prehog_chat_starter_selected</strong> — which suggested question gets used, by a fixed short label — never your own typed question.</li>
+        <li><strong>prehog_chat_conversation_initiated</strong> — whether the chat actually gets used (once per session), separate from just opening it.</li>
+        <li><strong>prehog_chat_reset</strong> — whether anyone starts the conversation over.</li>
       </ul>
-      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked — including the optional survey's rating and free-text answer, which replay never shows even though the event data does.</p>
+      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked — including the chat input and the optional survey's rating and free-text answer, which replay never shows even though the event data does. <strong>Chat message text, and the AI's responses, are never sent to PostHog</strong> — only the four fixed events above.</p>
       <div class="event-log" data-event-log>
         <p class="event-log-title">Live — what this session has had accepted for delivery</p>
         <ul class="event-log-list" data-event-log-list>
@@ -614,6 +619,39 @@
     </div>
   </div>
 
+  <!-- Chat panel: a toggleable "ask about PostHog fit" chat — a themed
+       instance of the shared AI Lab chat foundation documented in the
+       benlive repo's docs/CHAT_ARCHITECTURE.md, not a fork of it. Reuses
+       this file's own openPanelModal/closePanelModal pair via
+       window.__prehogPanelModal (see prehog.js); chat.js owns everything
+       inside this markup. -->
+  <div class="panel-overlay" data-chat-panel hidden>
+    <div class="panel-backdrop" data-chat-close></div>
+    <div class="panel-dialog panel-dialog-chat" role="dialog" aria-modal="true" aria-labelledby="chat-heading">
+      <button type="button" class="panel-close" data-chat-close aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <h2 id="chat-heading">Ask about PostHog fit</h2>
+      <p class="chat-panel-intro">Answers from this page's own content — Ben's approach to context, working style, and why PostHog specifically. It won't guess at PostHog's internal policies or this application's status.</p>
+      <div class="chat-starters" data-chat-starters>
+        <button type="button" class="chat-starter" data-starter="culture">What does "context, not control" mean here?</button>
+        <button type="button" class="chat-starter" data-starter="throughline">What's the throughline across Ben's work?</button>
+        <button type="button" class="chat-starter" data-starter="analytics">Why build this page's analytics this way?</button>
+        <button type="button" class="chat-starter" data-starter="why-now">Why this role, why now?</button>
+      </div>
+      <div class="chat-messages" data-chat-messages tabindex="0" role="log" aria-live="polite" aria-label="Chat messages"></div>
+      <form class="chat-form" data-chat-form>
+        <input type="text" data-chat-input placeholder="Ask a question..." autocomplete="off" required aria-label="Message">
+        <button type="submit" data-chat-send aria-label="Send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </form>
+      <div class="chat-panel-footer">
+        <button type="button" class="chat-reset" data-chat-reset>Reset conversation</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/nav-toggle.js" defer></script>
   <script src="/js/animation-observer.js" defer></script>
   <!-- Shared analytics layer first (deferred scripts run in source order),
@@ -624,5 +662,16 @@
   <script src="/js/analytics/index.js" defer></script>
   <script src="/prehog/prehog.js" defer></script>
   <script src="/prehog/analytics.js" defer></script>
+  <!-- Shared chat foundation (see docs/CHAT_ARCHITECTURE.md in the
+       benlive repo) — chat.js is the only prehog-specific file; the rest
+       are the same modules every AI Lab chat app uses, configured not
+       forked. No chat-storage.js: this instance has no tier switcher, so
+       nothing needs persisting. -->
+  <script src="/js/api/openrouter-client.js?v=chat-foundation-20260814" defer></script>
+  <script src="/js/api/chat-config.js?v=chat-foundation-20260814" defer></script>
+  <script src="/js/api/chat-errors.js?v=chat-foundation-20260814" defer></script>
+  <script src="/js/utils/markdown-parser.js" defer></script>
+  <script src="/js/components/chat-transcript.js?v=chat-foundation-20260814" defer></script>
+  <script src="/prehog/chat.js" defer></script>
 </body>
 </html>

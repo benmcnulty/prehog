@@ -138,6 +138,59 @@ actually lives" and `docs/decisions.md`'s "Reversed: PostHog scoped to
 | **Privacy** | None |
 | **Test** | Trigger the sequence twice; assert exactly one capture despite the visual replaying both times |
 
+### `prehog_chat_opened`
+
+| | |
+|---|---|
+| **Trigger** | The "Ask about PostHog fit" chat panel is opened, via the toolbar button |
+| **Properties** | None |
+| **Question answered** | Does anyone engage with the chat feature at all? |
+| **Autocapture overlap** | Partial — autocapture would see the button click but not that it resulted in the chat panel specifically opening (vs. Contents or the transparency panel) |
+| **Privacy** | None |
+| **Test** | `tests/prehog-chat.spec.js`: open the panel via the toolbar button; assert one `prehog_chat_opened` |
+
+### `prehog_chat_starter_selected`
+
+| | |
+|---|---|
+| **Trigger** | One of the four preset starter questions is clicked |
+| **Properties** | `starter` — a fixed short label (`culture` \| `throughline` \| `analytics` \| `why-now`) identifying *which* preset was used |
+| **Question answered** | Which topics do visitors actually want to go deeper on? |
+| **Autocapture overlap** | Partial — autocapture would see the click but not which fixed question it corresponds to |
+| **Privacy** | The property is a closed four-value enum, never the question's own text and never anything the visitor typed |
+| **Test** | Click each starter button; assert the matching `starter` value |
+
+### `prehog_chat_conversation_initiated`
+
+| | |
+|---|---|
+| **Trigger** | The first message is actually sent in the chat (starter chip or typed), once per session — mirrors `benlive.tv`'s own `bl_chat_engaged` aggregate semantics for `ai-lab/chat/` |
+| **Properties** | None |
+| **Question answered** | Of the people who open the chat, how many actually use it — opening is not the same as engaging |
+| **Autocapture overlap** | None |
+| **Privacy** | None — deliberately fires on send, not per-message, so message count/frequency is never derivable from this event |
+| **Test** | Send two messages in one session; assert exactly one `prehog_chat_conversation_initiated` |
+
+### `prehog_chat_reset`
+
+| | |
+|---|---|
+| **Trigger** | The "Reset conversation" control is used |
+| **Properties** | None |
+| **Question answered** | Does the reset control get used — a soft signal the conversation went somewhere the visitor wanted to restart from |
+| **Autocapture overlap** | Partial — autocapture would see the click but not that it cleared conversation state |
+| **Privacy** | None |
+| **Test** | Send a message, reset, assert one `prehog_chat_reset` and that the transcript is empty afterward |
+
+**Chat message text and AI responses are never sent to PostHog, in any
+event above or anywhere else.** This is a hard line inherited from
+`benlive.tv/ai-lab/chat/`'s own privacy contract (see that repo's
+`docs/decisions.md`), not something evaluated per-event here. `chat.js`
+never places conversation content into any `capture()`-bound event
+detail — see `tests/prehog-chat.spec.js`'s dedicated privacy test in the
+host repo, which stubs PostHog, sends a distinctive sentinel string
+through the chat, and asserts it never appears in any captured event.
+
 ## Session Replay
 
 Configured via this page's `window.__BL_ANALYTICS_CONFIG__.sessionRecording`
