@@ -64,6 +64,12 @@
   var client = new window.OpenRouterClient({
     model: window.BenLiveChatConfig.TIER_DEFAULTS.thoughtful.openrouter
   });
+  // Reassigned (not just .clear()'d) on reset — see the reset handler
+  // below for why: an in-flight send() holds a closure over the OLD
+  // conversation's own `history` array, and that array gets mutated
+  // internally by openrouter-client.js regardless of what happens in
+  // this file, so merely emptying it out from here doesn't stop a
+  // stale completion from pushing a stray assistant entry onto it.
   var conversation = client.createConversation('prehog.chat.v1');
 
   var transcript = window.BenLiveChatTranscript.create({
@@ -74,6 +80,14 @@
     // there's nothing per-message to attribute beyond "this assistant."
     getActiveTierIcon: function () { return ''; },
     getActiveModelLabel: function () { return 'PostHog Fit AI'; },
+    // prehog.chat.v1 (functions/index.js) explicitly instructs the model
+    // not to expose internal reasoning or hidden-thought exposition —
+    // rendering a "View thinking process" control for this instance
+    // would contradict that domain contract even though the underlying
+    // Thoughtful-tier model can return reasoning_details. Chat/Promptpad
+    // show reasoning because their prompts don't carry this constraint;
+    // this instance's prompt does.
+    enableReasoning: false,
     onResubmit: function (text) {
       input.value = text;
       sendMessage(text);
@@ -87,6 +101,13 @@
 
   var lastFocused = null;
   var pendingSend = false;
+  var activeTypingId = null;
+  // Bumped on every reset. A send() captures the generation it started
+  // with; if reset runs before that request settles, the generation it
+  // captured no longer matches, and its .then()/.catch()/.finally() all
+  // no-op instead of rendering a response into (or re-enabling input
+  // for) a conversation the visitor already cleared.
+  var generation = 0;
 
   function openChat() {
     if (!panel.hidden) return;
@@ -142,23 +163,30 @@
       emit('prehog:chatmessagesent', {});
     }
 
+    var requestGeneration = generation;
     var typingId = transcript.addTyping();
+    activeTypingId = typingId;
 
     conversation.send(trimmed, {
       promptKey: 'prehog.chat.v1',
       maxRetries: 1,
       retryDelay: 2000
     }).then(function (result) {
+      if (requestGeneration !== generation) return; // reset happened while this was in flight
       transcript.removeTyping(typingId);
+      activeTypingId = null;
       transcript.addMessage('assistant', result.content, result.reasoningDetails);
     }).catch(function (error) {
+      if (requestGeneration !== generation) return;
       transcript.removeTyping(typingId);
+      activeTypingId = null;
       var classified = window.BenLiveChatErrors.classifyError(error);
       transcript.addMessage('assistant', classified.message, null, {
         isError: true,
         retryText: trimmed
       });
     }).finally(function () {
+      if (requestGeneration !== generation) return; // don't re-enable input for a stale, already-reset request
       setLoading(false);
       if (!('ontouchstart' in window)) input.focus();
     });
@@ -173,7 +201,21 @@
 
   if (resetBtn) {
     resetBtn.addEventListener('click', function () {
-      conversation.clear();
+      generation += 1; // invalidates any in-flight send()'s completion handlers
+      // A fresh conversation object, not conversation.clear() — clear()
+      // would empty the OLD object's `history` array in place, but a
+      // still-in-flight request already holds a closure over that same
+      // array and will push its own late completion onto it regardless
+      // of this handler (see openrouter-client.js's send()). Handing out
+      // a brand new object means that late push lands on a history no
+      // longer referenced by anything, instead of corrupting the
+      // conversation the visitor just asked to start over.
+      conversation = client.createConversation('prehog.chat.v1');
+      if (activeTypingId) {
+        transcript.removeTyping(activeTypingId);
+        activeTypingId = null;
+      }
+      setLoading(false);
       messagesEl.innerHTML = '';
       if (startersEl) startersEl.hidden = false;
       emit('prehog:chatreset', {});

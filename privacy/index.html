@@ -95,10 +95,12 @@
         <p>
           <a href="/prehog/">benlive.tv/prehog</a> is a working PostHog implementation, built to
           demonstrate PostHog competence for a job application, so it runs a few things the rest
-          of the site doesn't: Session Replay (masked, scoped to this page only) and a short
-          post-completion survey. The shared analytics layer covering the rest of the site — see
-          <a href="/privacy/">the site-wide privacy page</a> for what that collects — doesn't run
-          either of those.
+          of the site doesn't: Session Replay (masked, scoped to this page only), a short
+          post-completion survey, and — as of this page's "Ask about PostHog fit" chat — an AI
+          chat feature whose message content is sent to a different third party than PostHog
+          entirely (see "AI chat messages" below). The shared analytics layer covering the rest of
+          the site — see <a href="/privacy/">the site-wide privacy page</a> for what that collects
+          — doesn't run any of those.
         </p>
       </section>
 
@@ -111,11 +113,32 @@
           <dt>Slide progress</dt>
           <dd>Eight small events tied to the deck's own nine sections — which section is active (in either view mode — see below), how you navigated (click, arrow key, swipe, dot, Contents panel, scrolling), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, which evidence links you clicked through to, and whether you switched between the guided and browsable layouts. The eighth is hidden, rewarding reading closely enough to find something not advertised on the page. Each exists to answer a specific, stated question about whether the presentation itself works — not to build a profile. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
 
+          <dt>Chat engagement (product-level only)</dt>
+          <dd>Four more small events for the "Ask about PostHog fit" chat: whether you opened it, which preset starter question you used (by a fixed label like <code>culture</code> or <code>throughline</code> — never your own typed question), whether you actually sent a message (once per session), and whether you reset the conversation. <strong>None of these ever carry your message text or the AI's response</strong> — see "AI chat messages" below for what happens to that content instead. Documented alongside the slide-progress events in <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
+
           <dt>Session Replay</dt>
-          <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question — is the slide navigation discoverable on a phone — and is meant to come off once that's answered, not run indefinitely by default.</dd>
+          <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question — is the slide navigation discoverable on a phone — and is meant to come off once that's answered, not run indefinitely by default. The entire chat dialog is additionally masked as rendered text (not just its input field), the same treatment the survey's free-text answer gets — <code>maskAllInputs</code> alone only covers text while it's being typed into an input, not the message bubbles the chat renders afterward.</dd>
 
           <dt>A short survey</dt>
-          <dd>Shown once, after you reach the final slide: a 1–5 rating and one optional open-text question. The open-text answer is the only free text this page ever collects, and it's masked in Session Replay even though the response itself is recorded as normal survey data.</dd>
+          <dd>Shown once, after you reach the final slide: a 1–5 rating and one optional open-text question, masked in Session Replay even though the response itself is recorded as normal survey data.</dd>
+
+          <dt>AI chat messages</dt>
+          <dd>
+            Typing a question into the "Ask about PostHog fit" chat sends that text to my own
+            Firebase Functions backend, which forwards it to
+            <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter</a>'s
+            free tier and the specific model it routes to for this feature (NVIDIA's Nemotron 3
+            Super, or a local-only Ollama model during my own development — never in production).
+            Free-tier OpenRouter requests may be logged and retained by OpenRouter or the model
+            provider for service improvement; see OpenRouter's own
+            <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
+            for their retention terms. <strong>This content never reaches PostHog</strong> — it's a
+            separate destination entirely, not something PostHog's SDK transmits. This app itself
+            doesn't persist your questions or the AI's answers anywhere beyond your own browser tab
+            (refreshing clears the conversation); Firebase Functions logs requests for
+            debugging/rate-limiting, retained 30 days. This is the same data-handling model as
+            <a href="/ai-lab/chat/">benlive.tv/ai-lab/chat</a>'s own chat feature.
+          </dd>
 
           <dt>One feature flag</dt>
           <dd>Controls whether a live, self-referential event-log panel is visible to a given visitor — a real rollout control, not a fake A/B test with no branch to measure.</dd>
@@ -123,8 +146,8 @@
           <dt>JavaScript errors</dt>
           <dd>Unhandled exceptions and unhandled promise rejections only, so a bug that only shows up on someone's actual phone in production doesn't go unnoticed. Nothing else in the console is captured.</dd>
 
-          <dt>One <code>sessionStorage</code> key</dt>
-          <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it doesn't restart if you navigate within the same tab. It never leaves your browser.</dd>
+          <dt>Two <code>sessionStorage</code> keys</dt>
+          <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it doesn't restart if you navigate within the same tab. <code>bl:prehog-chat-initiated</code> remembers whether you've already sent a chat message this session, so the "chat engagement" event above fires only once. Neither ever leaves your browser.</dd>
 
           <dt>One <code>localStorage</code> key</dt>
           <dd><code>prehog:viewmode</code> remembers whether you last chose the guided (present) or browsable (reference) layout, so it doesn't reset every visit — the same durable-preference pattern the site's own dark/light theme choice already uses. It never leaves your browser.</dd>
@@ -137,21 +160,24 @@
           No names, no email addresses, no precise or IP-derived location beyond PostHog's default
           country-level estimate, and no cross-site identity linking — there's no <code>identify()</code>
           call anywhere in this page's code, so every visitor stays anonymous to it. The only free
-          text collected is the survey's optional open answer, described above, and only if you
-          choose to type one.
+          text <em>PostHog</em> ever collects is the survey's optional open answer, described
+          above, and only if you choose to type one — chat questions are free text too, but as
+          described above they go to Firebase/OpenRouter, never to PostHog.
         </p>
       </section>
 
       <section class="privacy-page-section">
         <h2>Where it goes</h2>
         <p>
-          Events are sent through <code>t.benlive.tv</code>, a first-party reverse-proxy subdomain
-          that forwards ingestion traffic to my own PostHog project — not directly to a
+          PostHog events are sent through <code>t.benlive.tv</code>, a first-party reverse-proxy
+          subdomain that forwards ingestion traffic to my own PostHog project — not directly to a
           third-party domain. See PostHog's own
           <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
           for how they handle it on their end once it arrives. Nothing is sold, shared with third
           parties for advertising, or used for anything beyond understanding whether this
           presentation works. Persisted via <code>localStorage+cookie</code>, scoped to this site.
+          Chat messages follow a completely separate path — see "AI chat messages" above — through
+          Firebase Functions to OpenRouter, never through <code>t.benlive.tv</code> or PostHog at all.
         </p>
       </section>
 

@@ -543,8 +543,15 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    if (e.target && /input|textarea/i.test(e.target.tagName)) return;
+    // Escape is checked before the input/textarea guard below — a modal
+    // dialog (Contents, transparency, survey, chat) must be closable by
+    // Escape from its normal typing position, same as any other web
+    // dialog. The input/textarea guard exists only to stop arrow/paging
+    // keys from hijacking normal text-field editing (Home/End moving the
+    // caret, arrow keys moving within free text), which doesn't apply to
+    // Escape at all.
     if (e.key === 'Escape') { closeTransparency(); closeSurvey(); closeToc(); if (window.__prehogCloseChat) window.__prehogCloseChat(); return; }
+    if (e.target && /input|textarea/i.test(e.target.tagName)) return;
     if (viewMode !== 'present') return; // arrow/paging keys are native scroll in reference mode
     if (e.key === 'ArrowRight' || e.key === 'PageDown') { go(1, 'key'); e.preventDefault(); }
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { go(-1, 'key'); e.preventDefault(); }

@@ -777,6 +777,7 @@ body.js-paged {
 .chat-panel-intro { color: var(--fg-muted); font-size: 0.92rem; }
 .chat-starters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: var(--space-sm); }
 .chat-starter {
+  display: inline-flex; align-items: center; min-height: var(--touch);
   border: 1px solid var(--border); border-radius: 999px; background: var(--light-subtle);
   color: var(--fg); font-size: 0.82rem; padding: 0.45rem 0.85rem; cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
@@ -826,7 +827,7 @@ body.js-paged {
 .chat-messages .model-badge { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--fg-faint); }
 .chat-messages .model-icon svg { width: 14px; height: 14px; }
 .chat-messages .copy-button {
-  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: transparent;
+  width: var(--touch); height: var(--touch); border-radius: 50%; border: 1px solid var(--border); background: transparent;
   color: var(--fg-muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: background-color var(--dur-fast) var(--ease);
 }
@@ -860,8 +861,9 @@ body.js-paged {
 
 .chat-panel-footer { margin-top: var(--space-sm); text-align: right; }
 .chat-reset {
+  display: inline-flex; align-items: center; min-height: var(--touch);
   border: none; background: none; color: var(--fg-faint); font-size: 0.78rem; cursor: pointer;
-  padding: 0.3rem 0.2rem; text-decoration: underline; text-underline-offset: 2px;
+  padding: 0.3rem 0.6rem; text-decoration: underline; text-underline-offset: 2px;
 }
 .chat-reset:hover, .chat-reset:focus-visible { color: var(--fg-muted); }
 

@@ -84,7 +84,7 @@
   <link rel="stylesheet" href="/css/core/_utilities.css">
   <link rel="stylesheet" href="/css/components/_navigation.css">
   <link rel="stylesheet" href="/css/components/_analytics-consent.css">
-  <link rel="stylesheet" href="/prehog/prehog.css">
+  <link rel="stylesheet" href="/prehog/prehog.css?v=prehog-chat-20260814">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -590,7 +590,7 @@
         <li><strong>prehog_chat_conversation_initiated</strong> — whether the chat actually gets used (once per session), separate from just opening it.</li>
         <li><strong>prehog_chat_reset</strong> — whether anyone starts the conversation over.</li>
       </ul>
-      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked — including the chat input and the optional survey's rating and free-text answer, which replay never shows even though the event data does. <strong>Chat message text, and the AI's responses, are never sent to PostHog</strong> — only the four fixed events above.</p>
+      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked, and the entire chat dialog masked as rendered text (not just the input) — same treatment as the optional survey's rating and free-text answer, none of which replay ever shows even though the event data does. <strong>Chat message text, and the AI's responses, are never sent to PostHog</strong> — only the four fixed events above.</p>
       <div class="event-log" data-event-log>
         <p class="event-log-title">Live — what this session has had accepted for delivery</p>
         <ul class="event-log-list" data-event-log-list>
@@ -624,10 +624,22 @@
        benlive repo's docs/CHAT_ARCHITECTURE.md, not a fork of it. Reuses
        this file's own openPanelModal/closePanelModal pair via
        window.__prehogPanelModal (see prehog.js); chat.js owns everything
-       inside this markup. -->
+       inside this markup.
+
+       data-ph-mask on the whole dialog: session replay's maskAllInputs
+       only covers <input>/<textarea> elements while they're being typed
+       into — it does NOT mask ordinary rendered DOM text, which is
+       exactly what chat.js renders both the visitor's question and the
+       AI's response as (via chat-transcript.js's .content elements).
+       window.__BL_ANALYTICS_CONFIG__.sessionRecording.maskTextSelector
+       is already configured to '[data-ph-mask]' (see index.html's
+       <head>), so this attribute is the actual mechanism, not a no-op —
+       masking the whole dialog rather than just .chat-messages also
+       covers the starter-question buttons and any transient error text,
+       which are privacy-sensitive for the same reason. -->
   <div class="panel-overlay" data-chat-panel hidden>
     <div class="panel-backdrop" data-chat-close></div>
-    <div class="panel-dialog panel-dialog-chat" role="dialog" aria-modal="true" aria-labelledby="chat-heading">
+    <div class="panel-dialog panel-dialog-chat" role="dialog" aria-modal="true" aria-labelledby="chat-heading" data-ph-mask>
       <button type="button" class="panel-close" data-chat-close aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -641,7 +653,10 @@
       </div>
       <div class="chat-messages" data-chat-messages tabindex="0" role="log" aria-live="polite" aria-label="Chat messages"></div>
       <form class="chat-form" data-chat-form>
-        <input type="text" data-chat-input placeholder="Ask a question..." autocomplete="off" required aria-label="Message">
+        <!-- maxlength matches functions/index.js's MAX_MESSAGE_LENGTH —
+             this is UX feedback only; the server enforces the
+             authoritative limit regardless of what the client sends. -->
+        <input type="text" data-chat-input placeholder="Ask a question..." autocomplete="off" required aria-label="Message" maxlength="4000">
         <button type="submit" data-chat-send aria-label="Send">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
         </button>
@@ -660,18 +675,26 @@
   <script src="/js/analytics/consent.js" defer></script>
   <script src="/js/analytics/events.js" defer></script>
   <script src="/js/analytics/index.js" defer></script>
-  <script src="/prehog/prehog.js" defer></script>
-  <script src="/prehog/analytics.js" defer></script>
+  <script src="/prehog/prehog.js?v=prehog-chat-20260814" defer></script>
+  <script src="/prehog/analytics.js?v=prehog-chat-20260814" defer></script>
   <!-- Shared chat foundation (see docs/CHAT_ARCHITECTURE.md in the
        benlive repo) — chat.js is the only prehog-specific file; the rest
        are the same modules every AI Lab chat app uses, configured not
        forked. No chat-storage.js: this instance has no tier switcher, so
-       nothing needs persisting. -->
+       nothing needs persisting.
+
+       Every changed asset here shares one version query, prehog.js
+       included — a returning visitor combining a stale-cached prehog.js
+       (predating window.__prehogPanelModal) with fresh HTML/chat.js
+       would otherwise throw when chat.js calls that bridge. firebase.json
+       gives JS/CSS a 1-hour freshness lifetime plus stale-while-revalidate,
+       so this isn't a theoretical gap. Bump this one string on every
+       future change to any file in this list, together. -->
   <script src="/js/api/openrouter-client.js?v=chat-foundation-20260814" defer></script>
   <script src="/js/api/chat-config.js?v=chat-foundation-20260814" defer></script>
   <script src="/js/api/chat-errors.js?v=chat-foundation-20260814" defer></script>
   <script src="/js/utils/markdown-parser.js" defer></script>
   <script src="/js/components/chat-transcript.js?v=chat-foundation-20260814" defer></script>
-  <script src="/prehog/chat.js" defer></script>
+  <script src="/prehog/chat.js?v=prehog-chat-20260814" defer></script>
 </body>
 </html>

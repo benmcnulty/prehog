@@ -204,7 +204,14 @@ question conclusively, replay should be turned off rather than left running
 by default — see `docs/decisions.md`. The masking config is no longer
 theoretical: the survey's free-text `<textarea>` carries `data-ph-mask`
 directly, so an open-ended answer is never visible in a recording even
-though the response text is captured as normal event data.
+though the response text is captured as normal event data. The chat
+panel's entire dialog (`[data-chat-panel] .panel-dialog`) carries the
+same attribute — `maskAllInputs` only masks the `<input>` element itself
+while text is being typed into it; it does not mask ordinary rendered DOM
+text, which is exactly what the chat transcript is once a message
+renders. Masking the whole dialog (not just the transcript container)
+also covers the starter-question buttons and any error text, on the same
+"privacy-sensitive rendered text" reasoning.
 
 ## Survey
 
