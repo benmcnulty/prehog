@@ -122,21 +122,45 @@
           <dt>A short survey</dt>
           <dd>Shown once, after you reach the final slide: a 1–5 rating and one optional open-text question, masked in Session Replay even though the response itself is recorded as normal survey data.</dd>
 
-          <dt>AI chat messages</dt>
+          <dt id="ai-chat-messages">AI chat messages</dt>
           <dd>
             Typing a question into the "Ask about PostHog fit" chat sends that text to my own
             Firebase Functions backend, which forwards it to
             <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter</a>'s
-            free tier and the specific model it routes to for this feature (NVIDIA's Nemotron 3
-            Super, or a local-only Ollama model during my own development — never in production).
-            Free-tier OpenRouter requests may be logged and retained by OpenRouter or the model
-            provider for service improvement; see OpenRouter's own
-            <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
-            for their retention terms. <strong>This content never reaches PostHog</strong> — it's a
-            separate destination entirely, not something PostHog's SDK transmits. This app itself
-            doesn't persist your questions or the AI's answers anywhere beyond your own browser tab
-            (refreshing clears the conversation); Firebase Functions logs requests for
-            debugging/rate-limiting, retained 30 days. This is the same data-handling model as
+            free tier. This feature normally requests NVIDIA's Nemotron 3 Super first, but if that
+            model is unavailable the backend automatically retries with a different free model —
+            in order, Google's Gemma 4, OpenAI's GPT-OSS 20B, then OpenRouter's own zero-cost
+            router — so your message may end up routed to any one of these, not only Nemotron.
+            (During my own local development a self-hosted Ollama model is used instead — never in
+            production.) Each of these is a different provider with its own retention and training
+            policy, not one uniform set of terms:
+            <ul>
+              <li>
+                NVIDIA's free Nemotron endpoint currently states that usage "is logged for
+                security purposes and to improve NVIDIA products and services" — see
+                <a href="https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free/pricing" target="_blank" rel="noopener noreferrer">the current OpenRouter/NVIDIA provider policy for this model</a>
+                for the exact current wording, which supersedes this summary if it changes.
+              </li>
+              <li>
+                OpenRouter itself states it does not retain prompts by default for routing traffic,
+                but each downstream provider (NVIDIA, Google, OpenAI, or whichever provider
+                OpenRouter's own free router selects) sets its own separate logging and training
+                policy that OpenRouter does not control — see
+                <a href="https://openrouter.ai/docs/guides/privacy/provider-logging/" target="_blank" rel="noopener noreferrer">OpenRouter's provider-logging documentation</a>
+                for how that works, and OpenRouter's own
+                <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
+                for OpenRouter's own terms.
+              </li>
+            </ul>
+            In short: on the free tier used here, assume a message you send may be logged and used
+            to improve a provider's own products, by whichever provider ends up serving it.
+            <strong>This content never
+            reaches PostHog</strong> — it's a separate destination entirely, not something
+            PostHog's SDK transmits. This app itself doesn't persist your questions or the AI's
+            answers anywhere beyond your own browser tab (refreshing clears the conversation);
+            Firebase Functions additionally logs request metadata (timestamps, status codes, a
+            hashed IP for rate-limiting) for debugging, retained 30 days — those logs do not
+            contain your chat message text. This is the same data-handling model as
             <a href="/ai-lab/chat/">benlive.tv/ai-lab/chat</a>'s own chat feature.
           </dd>
 

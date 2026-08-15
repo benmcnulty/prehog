@@ -775,6 +775,8 @@ body.js-paged {
   max-height: 88vh;
 }
 .chat-panel-intro { color: var(--fg-muted); font-size: 0.92rem; }
+.chat-panel-privacy-note { color: var(--fg-muted); font-size: 0.78rem; margin-top: -0.35rem; }
+.chat-panel-privacy-note a { color: inherit; text-decoration: underline; }
 .chat-starters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: var(--space-sm); }
 .chat-starter {
   display: inline-flex; align-items: center; min-height: var(--touch);
