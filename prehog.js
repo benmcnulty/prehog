@@ -116,7 +116,14 @@
 
     root.setAttribute('data-slide', id);
 
-    if (location.hash !== '#' + id) {
+    // Skipped on 'load': writing a hash that matches a real element id
+    // triggers the browser's own async "scroll to fragment" behavior,
+    // independent of any explicit JS scroll call — on a fresh, hash-less
+    // visit that silently scrolled the page down on load (see the
+    // hadHashOnLoad handling below setActive()'s call site). A real deep
+    // link's hash is already in the URL at load and needs no write here;
+    // every later navigation (click, scroll, key) still syncs normally.
+    if (method !== 'load' && location.hash !== '#' + id) {
       history.replaceState(null, '', '#' + id);
     }
 
@@ -535,6 +542,13 @@
     root.classList.remove('js-paged');
   }
 
+  // Captured before setActive() below, which unconditionally rewrites
+  // location.hash to the current slide's id via history.replaceState (even
+  // on a fresh, hash-less load) — reading location.hash after that call
+  // could never tell a real deep link apart from the page's own default,
+  // so every fresh visit was wrongly treated as a deep link to #intro.
+  var hadHashOnLoad = !!location.hash;
+
   setActive(indexFromHash(), 'load');
 
   // In reference mode there's no paging to land the deep-linked slide in
@@ -543,7 +557,7 @@
   // navigation (or every browser) reliably replicates. Doing it explicitly
   // makes deep links deterministic in reference mode instead of assuming
   // native behavior always fires.
-  if (viewMode === 'reference' && location.hash) {
+  if (viewMode === 'reference' && hadHashOnLoad) {
     var deepLinkSlide = slides[indexFromHash()];
     if (deepLinkSlide) deepLinkSlide.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
