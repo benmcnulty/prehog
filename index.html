@@ -162,7 +162,7 @@
 
     <section class="slide" id="intro" data-slide="intro" aria-labelledby="intro-heading">
       <div class="slide-inner">
-        <p class="eyebrow">01 · A shipped demo, not another résumé</p>
+        <p class="eyebrow">01 · A working demo as the application</p>
         <h1 id="intro-heading" class="slide-title slide-title-hero">PREHOG</h1>
         <p class="slide-lede">Context before credentials.</p>
         <p class="slide-body">I built this presentation for the Context Engineer role on PostHog's Wizard &amp; Docs team. It is also my first production implementation of PostHog.</p>
@@ -179,10 +179,10 @@
           <h2 id="posthog-heading" class="slide-title">Why PostHog</h2>
           <p class="slide-body">I value teams that write decisions down, ship useful work, and learn from real usage. That is the engineering culture I see in PostHog.</p>
           <ul class="trait-list">
-            <li>Autonomy, not process theater</li>
-            <li>Context that's written down, not tribal</li>
+            <li>Autonomy over process theater</li>
+            <li>Written-down context over tribal knowledge</li>
             <li>Small teams where writing and code are the same job</li>
-            <li>Shipped and observed, not polished in private</li>
+            <li>Shipped and observed over polished in private</li>
           </ul>
         </div>
         <figure class="slide-figure art-card art-card-product" aria-hidden="true">
@@ -431,7 +431,7 @@
           <div class="qa-row" role="row"><span role="cell">Do reviewers inspect the repository?</span><span role="cell"><code>prehog_outbound_clicked</code></span></div>
           <div class="qa-row" role="row"><span role="cell">Does anyone let it auto-play, or take control?</span><span role="cell"><code>prehog_autoplay_toggled</code></span></div>
         </div>
-        <p class="slide-body">That question-first approach didn't stay contained to this page. Building it properly here exposed what a real analytics architecture needs: a shared consent layer, not a page-local one-off. That generalized into a small library now used across the site's primary public surfaces, applying the same kind of specific, meaningful interactions instead of blanket tracking, with visitor control built in from the start rather than added later.</p>
+        <p class="slide-body">That question-first approach spread beyond this one page. Building it properly here showed what a real analytics architecture actually needs: a shared consent layer, generalized into a small library now used across the site's primary public surfaces. It carries the same discipline everywhere: specific, meaningful interactions, with visitor control designed in from the start.</p>
         <div class="slide-actions">
           <button type="button" class="btn btn-secondary" data-action="open-transparency">What does this page measure?<span aria-hidden="true"> →</span></button>
           <a class="btn btn-secondary" href="/privacy/">See what it covers<span aria-hidden="true"> →</span></a>
@@ -504,7 +504,7 @@
       <div class="slide-inner">
         <p class="eyebrow">08 · Why this role, why now</p>
         <h2 id="why-now-heading" class="slide-title">How PostHog actually runs remote</h2>
-        <p class="slide-body">Ten-plus years building full-stack products, QA automation, documentation systems, and AI-assisted workflows point at this role. What pulled me toward PostHog specifically is <em>how</em> they say they work. I checked that against their own public handbook rather than taking it on faith.</p>
+        <p class="slide-body">Ten-plus years building full-stack products, QA automation, documentation systems, and AI-assisted workflows point at this role. What pulled me toward PostHog specifically is <em>how</em> they say they work. I verified that against their own public handbook.</p>
         <ul class="trait-list">
           <li><strong><a href="https://posthog.com/handbook/company/culture" target="_blank" rel="noopener" data-outbound="handbook-culture">PostHog's culture handbook</a>:</strong> fully remote across 20+ countries, Tuesdays and Thursdays kept free of internal meetings, and a default to "not asking for permission" if you're acting in the company's interest, a bias toward shipping.</li>
           <li><strong><a href="https://posthog.com/handbook/company/communication#email" target="_blank" rel="noopener" data-outbound="handbook-communication">PostHog's communication handbook</a>:</strong> async-first, with internal email avoided "in nearly all cases," with exceptions carved out for legal approvals, official company documents, and communication with external partners.</li>
@@ -598,7 +598,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <h2 id="transparency-heading">What does this page measure?</h2>
-      <p>Twelve custom events, plus PostHog's standard pageview. Eleven are listed below; the twelfth is a hidden easter-egg event, intentionally not detailed here so as not to spoil it. See <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a> for the full spec, including that one.</p>
+      <p>Twelve custom events, plus PostHog's standard pageview. Eleven are listed below; the twelfth is a hidden easter-egg event, left undetailed here to avoid spoiling it. See <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener">docs/analytics.md</a> for the full spec, including that one.</p>
       <ul class="transparency-list">
         <li><strong>prehog_slide_viewed</strong>: which sections hold attention, deduplicated per session.</li>
         <li><strong>prehog_navigation_used</strong>: whether controls are discoverable, especially on mobile.</li>
@@ -608,11 +608,11 @@
         <li><strong>prehog_outbound_clicked</strong>: which evidence links and CTAs get followed.</li>
         <li><strong>prehog_completed</strong>: whether the deck gets finished.</li>
         <li><strong>prehog_chat_opened</strong>: whether anyone opens the "Ask about PostHog fit" chat.</li>
-        <li><strong>prehog_chat_starter_selected</strong>: which suggested question gets used, by a fixed short label, never your own typed question.</li>
+        <li><strong>prehog_chat_starter_selected</strong>: which suggested question gets used, recorded only as a fixed short label.</li>
         <li><strong>prehog_chat_conversation_initiated</strong>: whether the chat actually gets used (once per session), separate from just opening it.</li>
         <li><strong>prehog_chat_reset</strong>: whether anyone starts the conversation over.</li>
       </ul>
-      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked, and the entire chat dialog masked as rendered text (not just the input), the same treatment as the optional survey's rating and free-text answer, none of which replay ever shows even though the event data does. <strong>Chat message text, and the AI's responses, are never sent to PostHog</strong>, only the four fixed events above.</p>
+      <p class="transparency-excluded"><strong>Deliberately not collected:</strong> names, emails, precise location, or any cross-site identity. Session replay is on for this page only, with every form input masked, and the entire chat dialog masked as rendered text (beyond just the input), the same treatment as the optional survey's rating and free-text answer, none of which replay ever shows even though the event data does. <strong>Chat message text, and the AI's responses, are never sent to PostHog</strong>, only the four fixed events above.</p>
       <div class="event-log" data-event-log>
         <p class="event-log-title">Live: what this session has had accepted for delivery</p>
         <ul class="event-log-list" data-event-log-list>
@@ -668,7 +668,7 @@
       <h2 id="chat-heading">Ask about PostHog fit</h2>
       <p class="chat-panel-intro">Answers from this page's own content: Ben's approach to context, working style, and why PostHog specifically.</p>
       <p class="chat-panel-privacy-note">
-        Messages go to a third-party AI model, not PostHog, and may be logged by that provider.
+        Messages go to a third-party AI model, a separate destination from PostHog entirely, and may be logged by that provider.
         See <a href="/prehog/privacy/#ai-chat-messages" target="_blank" rel="noopener noreferrer">what's collected</a>.
       </p>
       <div class="chat-starters" data-chat-starters>

@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <title>Privacy on /prehog | Ben McNulty × PostHog Context Engineering</title>
-  <meta name="description" content="What benlive.tv/prehog collects with PostHog, why, and what it deliberately doesn't.">
+  <meta name="description" content="What benlive.tv/prehog collects with PostHog, why, and what stays deliberately excluded.">
   <meta name="author" content="Ben McNulty">
   <link rel="canonical" href="https://benlive.tv/prehog/privacy/">
   <meta name="robots" content="noindex, follow">
@@ -20,7 +20,7 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://benlive.tv/prehog/privacy/">
   <meta property="og:title" content="Privacy on /prehog">
-  <meta property="og:description" content="What benlive.tv/prehog collects with PostHog, why, and what it deliberately doesn't.">
+  <meta property="og:description" content="What benlive.tv/prehog collects with PostHog, why, and what stays deliberately excluded.">
   <meta property="og:site_name" content="Ben McNulty Portfolio">
   <meta property="og:locale" content="en_US">
 
@@ -94,20 +94,20 @@
       <h1 class="privacy-page-title">Privacy on /prehog</h1>
       <p class="privacy-page-lede">
         This page is a supplement to <a href="/privacy/">benlive.tv's site-wide privacy page</a>.
-        It covers only what's <em>additionally</em> true here that isn't true site-wide.
+        It covers only what's true here <em>in addition to</em> the site-wide page.
       </p>
 
       <section class="privacy-page-section">
         <h2>Why this page is different</h2>
         <p>
           <a href="/prehog/">benlive.tv/prehog</a> is a working PostHog implementation, built to
-          demonstrate PostHog competence for a job application, so it runs a few things the rest
-          of the site doesn't: Session Replay (masked, scoped to this page only), a short
-          post-completion survey, and, as of this page's "Ask about PostHog fit" chat, an AI
-          chat feature whose message content is sent to a different third party than PostHog
-          entirely (see "AI chat messages" below). The shared analytics layer covering the rest of
-          the site (see <a href="/privacy/">the site-wide privacy page</a> for what that collects)
-          doesn't run any of those.
+          demonstrate PostHog competence for a job application, so it runs a few things unique to
+          this page: Session Replay (masked, scoped to this page only), a short post-completion
+          survey, and, as of this page's "Ask about PostHog fit" chat, an AI chat feature whose
+          message content is sent to a different third party than PostHog entirely (see "AI chat
+          messages" below). The shared analytics layer covering the rest of the site (see
+          <a href="/privacy/">the site-wide privacy page</a> for what that collects) skips all
+          three.
         </p>
       </section>
 
@@ -118,13 +118,13 @@
           <dd>PostHog's standard <code>$pageview</code> autocapture, fired once on load. Answers "did anyone open the page."</dd>
 
           <dt>Slide progress</dt>
-          <dd>Eight small events tied to the deck's own nine sections: which section is active (in either view mode, see below), how you navigated (click, arrow key, swipe, dot, Contents panel, scrolling), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, which evidence links you clicked through to, and whether you switched between the guided and browsable layouts. The eighth is hidden, rewarding reading closely enough to find something not advertised on the page. Each exists to answer a specific, stated question about whether the presentation itself works, not to build a profile. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
+          <dd>Eight small events tied to the deck's own nine sections: which section is active (in either view mode, see below), how you navigated (click, arrow key, swipe, dot, Contents panel, scrolling), whether you reached the end, whether the auto-advance timer is playing or paused, whether you opened the "what does this page measure" panel, which evidence links you clicked through to, and whether you switched between the guided and browsable layouts. The eighth is hidden, rewarding close reading: it's left for a visitor to find on their own. Each exists to answer one specific, stated question about whether the presentation itself works, kept narrow and single-purpose by design. The full list, with the exact question each answers, is in this repo's own <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
 
           <dt>Chat engagement (product-level only)</dt>
-          <dd>Four more small events for the "Ask about PostHog fit" chat: whether you opened it, which preset starter question you used (by a fixed label like <code>culture</code> or <code>throughline</code>, never your own typed question), whether you actually sent a message (once per session), and whether you reset the conversation. <strong>None of these ever carry your message text or the AI's response.</strong> See "AI chat messages" below for what happens to that content instead. Documented alongside the slide-progress events in <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
+          <dd>Four more small events for the "Ask about PostHog fit" chat: whether you opened it, which preset starter question you used, recorded only as a fixed label like <code>culture</code> or <code>throughline</code>, whether you actually sent a message (once per session), and whether you reset the conversation. <strong>These events always carry only their own name and that label — your message text and the AI's response stay off them entirely.</strong> See "AI chat messages" below for where that content actually goes. Documented alongside the slide-progress events in <a href="https://github.com/benmcnulty/prehog/blob/main/docs/analytics.md" target="_blank" rel="noopener noreferrer">analytics.md</a>.</dd>
 
           <dt>Session Replay</dt>
-          <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question: is the slide navigation discoverable on a phone? It's meant to come off once that's answered, not run indefinitely by default. The entire chat dialog is additionally masked as rendered text (not just its input field), the same treatment the survey's free-text answer gets: <code>maskAllInputs</code> alone only covers text while it's being typed into an input, not the message bubbles the chat renders afterward.</dd>
+          <dd>Turned on for this page only, with <code>maskAllInputs: true</code>. It exists to answer one specific question: is the slide navigation discoverable on a phone? It's meant to come off once that's answered: temporary by design. The entire chat dialog is additionally masked as rendered text (beyond its input field), the same treatment the survey's free-text answer gets: <code>maskAllInputs</code> alone only covers text while it's being typed into an input, so the message bubbles the chat renders afterward need that extra masking to be covered too.</dd>
 
           <dt>A short survey</dt>
           <dd>Shown once, after you reach the final slide: a 1–5 rating and one optional open-text question, masked in Session Replay even though the response itself is recorded as normal survey data.</dd>
@@ -137,10 +137,11 @@
             free tier. This feature normally requests NVIDIA's Nemotron 3 Super first, but if that
             model is unavailable the backend automatically retries with a different free model,
             in order: Google's Gemma 4, OpenAI's GPT-OSS 20B, then OpenRouter's own zero-cost
-            router. Your message may end up routed to any one of these, not only Nemotron.
-            (During my own local development a self-hosted Ollama model is used instead, never in
-            production.) Each of these is a different provider with its own retention and training
-            policy, not one uniform set of terms:
+            router. Which model actually handles your message depends on availability — Nemotron
+            is only the first choice, and it could end up being any of these.
+            (During my own local development a self-hosted Ollama model is used instead; production
+            always uses the chain above.) Each of these is a separate provider, each with its own
+            retention and training policy:
             <ul>
               <li>
                 NVIDIA's free Nemotron endpoint currently states that usage "is logged for
@@ -149,10 +150,10 @@
                 for the exact current wording, which supersedes this summary if it changes.
               </li>
               <li>
-                OpenRouter itself states it does not retain prompts by default for routing traffic,
-                but each downstream provider (NVIDIA, Google, OpenAI, or whichever provider
-                OpenRouter's own free router selects) sets its own separate logging and training
-                policy that OpenRouter does not control. See
+                OpenRouter itself states that prompt retention is off by default for routing
+                traffic, but each downstream provider (NVIDIA, Google, OpenAI, or whichever
+                provider OpenRouter's own free router selects) sets its own separate logging and
+                training policy, outside OpenRouter's control. See
                 <a href="https://openrouter.ai/docs/guides/privacy/provider-logging/" target="_blank" rel="noopener noreferrer">OpenRouter's provider-logging documentation</a>
                 for how that works, and OpenRouter's own
                 <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
@@ -161,27 +162,27 @@
             </ul>
             In short: on the free tier used here, assume a message you send may be logged and used
             to improve a provider's own products, by whichever provider ends up serving it.
-            <strong>This content never
-            reaches PostHog.</strong> It's a separate destination entirely, not something
-            PostHog's SDK transmits. This app itself doesn't persist your questions or the AI's
-            answers anywhere beyond your own browser tab (refreshing clears the conversation);
-            Firebase Functions additionally logs request metadata (timestamps, status codes, a
-            hashed IP for rate-limiting) for debugging, retained 30 days. Those logs do not
-            contain your chat message text. This is the same data-handling model as
+            <strong>This content always stays off PostHog.</strong> It's a separate destination
+            entirely, handled outside PostHog's SDK altogether. This app itself keeps your
+            questions and the AI's answers only in your own browser tab (refreshing clears the
+            conversation); Firebase Functions additionally logs request metadata (timestamps,
+            status codes, a hashed IP for rate-limiting) for debugging, retained 30 days. Those
+            logs are limited to that metadata and exclude your chat message text entirely. This is
+            the same data-handling model as
             <a href="/ai-lab/chat/">benlive.tv/ai-lab/chat</a>'s own chat feature.
           </dd>
 
           <dt>One feature flag</dt>
-          <dd>Controls whether a live, self-referential event-log panel is visible to a given visitor: a real rollout control, not a fake A/B test with no branch to measure.</dd>
+          <dd>Controls whether a live, self-referential event-log panel is visible to a given visitor: a genuine rollout control, exactly the kind of on/off switch feature flags are meant for.</dd>
 
           <dt>JavaScript errors</dt>
-          <dd>Unhandled exceptions and unhandled promise rejections only, so a bug that only shows up on someone's actual phone in production doesn't go unnoticed. Nothing else in the console is captured.</dd>
+          <dd>Unhandled exceptions and unhandled promise rejections only, so a bug that only shows up on someone's actual phone in production still gets caught. Nothing else in the console is captured.</dd>
 
           <dt>Two <code>sessionStorage</code> keys</dt>
-          <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it doesn't restart if you navigate within the same tab. <code>bl:prehog-chat-initiated</code> remembers whether you've already sent a chat message this session, so the "chat engagement" event above fires only once. Neither ever leaves your browser.</dd>
+          <dd><code>prehog:autoplay</code> remembers whether you paused the auto-advancing slideshow, so it stays paused across navigation within the same tab. <code>bl:prehog-chat-initiated</code> remembers whether you've already sent a chat message this session, so the "chat engagement" event above fires only once. Both stay entirely within your browser.</dd>
 
           <dt>One <code>localStorage</code> key</dt>
-          <dd><code>prehog:viewmode</code> remembers whether you last chose the guided (present) or browsable (reference) layout, so it doesn't reset every visit. It uses the same durable-preference pattern the site's own dark/light theme choice already relies on. It never leaves your browser.</dd>
+          <dd><code>prehog:viewmode</code> remembers whether you last chose the guided (present) or browsable (reference) layout, so your choice persists across visits. It uses the same durable-preference pattern the site's own dark/light theme choice already relies on. It stays entirely within your browser.</dd>
         </dl>
       </section>
 
@@ -192,8 +193,8 @@
           country-level estimate, and no cross-site identity linking. There's no <code>identify()</code>
           call anywhere in this page's code, so every visitor stays anonymous to it. The only free
           text <em>PostHog</em> ever collects is the survey's optional open answer, described
-          above, and only if you choose to type one. Chat questions are free text too, but as
-          described above they go to Firebase/OpenRouter, never to PostHog.
+          above, and only if you choose to type one. Chat questions are free text too, but they stay
+          entirely within Firebase/OpenRouter, away from PostHog, as described above.
         </p>
       </section>
 
@@ -201,14 +202,13 @@
         <h2>Where it goes</h2>
         <p>
           PostHog events are sent through <code>t.benlive.tv</code>, a first-party reverse-proxy
-          subdomain that forwards ingestion traffic to my own PostHog project, not directly to a
-          third-party domain. See PostHog's own
+          subdomain that forwards ingestion traffic straight to my own PostHog project. See PostHog's own
           <a href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
           for how they handle it on their end once it arrives. Nothing is sold, shared with third
           parties for advertising, or used for anything beyond understanding whether this
           presentation works. Persisted via <code>localStorage+cookie</code>, scoped to this site.
           Chat messages follow a completely separate path (see "AI chat messages" above) through
-          Firebase Functions to OpenRouter, never through <code>t.benlive.tv</code> or PostHog at all.
+          Firebase Functions to OpenRouter, entirely bypassing <code>t.benlive.tv</code> and PostHog.
         </p>
       </section>
 
@@ -230,7 +230,7 @@
             <a href="/privacy/">the site-wide privacy page</a> for the rest of the site, and
             <a href="/ai-lab/chat/">AI Lab</a>'s own "Privacy &amp; Data Handling" panel for how
             that product handles conversation data specifically (chat message content and
-            responses are never sent to analytics, on this page or site-wide). Questions go to
+            responses stay off analytics entirely, on this page and site-wide). Questions go to
             Ben McNulty via <a href="/hire-me/">Hire Me</a>.
           </small>
         </p>

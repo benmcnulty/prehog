@@ -550,6 +550,17 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .qa-row:first-child { border-top: none; }
 .qa-row-head { background: var(--light-subtle); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
+/* Slide 6's five-row table plus a closing paragraph was enough content to
+   push it past the paged viewport on ordinary desktop heights (same class
+   of issue as #why-now above). Tighten this slide's own rhythm rather than
+   cutting a row or the closing paragraph's content. */
+.js-paged #learning .eyebrow { margin-bottom: 0.3rem; }
+.js-paged #learning .slide-title { margin-bottom: 0.3rem; }
+.js-paged #learning .qa-table { margin-top: var(--space-xs); }
+.js-paged #learning .qa-row { padding: 0.35rem var(--space-sm); font-size: 0.85rem; }
+.js-paged #learning .slide-body { margin-bottom: 0.25rem; line-height: 1.28; }
+.js-paged #learning .slide-actions { margin-top: 0.4rem; }
+
 .inspect-grid { display: grid; gap: var(--space-sm); margin-top: var(--space-lg); grid-template-columns: 1fr; }
 @media (min-width: 640px) { .inspect-grid { grid-template-columns: repeat(2, 1fr); } }
 .inspect-card {
