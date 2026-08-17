@@ -305,6 +305,17 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .trait-list li { padding-left: 1.4rem; position: relative; }
 .trait-list li::before { content: '—'; position: absolute; left: 0; color: var(--accent-text); }
 
+/* Slide 8 carries more citations than the rest of the deck (accuracy over
+   brevity was the explicit call after review), which was enough extra
+   content to push it past the paged viewport on ordinary desktop heights,
+   not just short/mobile ones the rules above already handle. Tighten its
+   own rhythm instead of thinning out the sourcing to make it fit. */
+.js-paged #why-now .eyebrow { margin-bottom: 0.3rem; }
+.js-paged #why-now .slide-title { margin-bottom: 0.4rem; font-size: clamp(1.6rem, 3.6vw, 2.4rem); }
+.js-paged #why-now .slide-body { margin-bottom: 0.5rem; line-height: 1.35; }
+.js-paged #why-now .trait-list { margin-top: var(--space-xs); gap: 0.3rem; }
+.js-paged #why-now .trait-list li { line-height: 1.3; padding-left: 1.2rem; }
+
 /* ---------- Buttons ---------- */
 .slide-actions { margin-top: var(--space-md); display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
 .btn {
