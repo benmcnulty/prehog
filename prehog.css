@@ -743,7 +743,21 @@ body.js-paged {
    rules apply here since this page never becomes paged.
    ========================================================================== */
 .privacy-page { padding-top: var(--nav-shell-height); }
-.privacy-page-inner { max-width: 72ch; padding-block: var(--space-xl) var(--space-xl); }
+/* .privacy-page-inner also carries the shared .container class (same one
+   nav/footer use) — no max-width override here, or it independently
+   re-centers at a narrower width than nav/footer's shared 1180px
+   container, breaking left-edge alignment across the page. The 72ch
+   reading-width cap lives on the nested .privacy-page-prose instead,
+   which inherits this element's left edge rather than re-centering. */
+.privacy-page-inner { padding-block: var(--space-xl) var(--space-xl); }
+.privacy-page-prose { max-width: 72ch; }
+/* The deck's h1/h2/h3 rule (above) sets --font-display (serif) — an
+   intentional editorial contrast for the presentation itself. This is a
+   supplementary legal/utility page, not the deck, so its headings match
+   the rest of the site's uniform sans-serif system instead. */
+.privacy-page h1,
+.privacy-page h2,
+.privacy-page h3 { font-family: var(--font-ui); }
 .privacy-page-title { font-size: clamp(2rem, 5vw, 3rem); margin-top: var(--space-sm); }
 .privacy-page-lede { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--fg-muted); margin-bottom: var(--space-lg); }
 .privacy-page-section { margin-top: var(--space-xl); padding-top: var(--space-lg); border-top: 1px solid var(--border); }

@@ -43,7 +43,7 @@
   <link rel="stylesheet" href="/css/core/_utilities.css">
   <link rel="stylesheet" href="/css/components/_navigation.css">
   <link rel="stylesheet" href="/css/components/_analytics-consent.css">
-  <link rel="stylesheet" href="/prehog/prehog.css">
+  <link rel="stylesheet" href="/prehog/prehog.css?v=prehog-css-20260817">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -83,6 +83,13 @@
 
   <main id="main-content" class="privacy-page">
     <div class="container privacy-page-inner">
+    <!-- The 72ch reading-width cap lives on this inner wrapper, not on
+         .privacy-page-inner itself — that element also carries the shared
+         .container class (same one nav/footer use), and a max-width
+         override on it independently re-centered a narrower box, so this
+         column's left edge landed ~200px right of the nav and footer
+         instead of sharing their edge. -->
+    <div class="privacy-page-prose">
       <p class="eyebrow"><a href="/prehog/">&larr; Back to prehog</a></p>
       <h1 class="privacy-page-title">Privacy on /prehog</h1>
       <p class="privacy-page-lede">
@@ -228,6 +235,7 @@
           </small>
         </p>
       </section>
+    </div>
     </div>
   </main>
 
