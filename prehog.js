@@ -180,6 +180,7 @@
   var autoplayDurationMs = 0;
   var autoplayStartedAt = null;
   var autoplayRemainingMs = null; // set by pauseAutoplay when it stops mid-countdown; consumed once by the next resumeAutoplay
+  var imminentTimerId = null; // fires shortly before auto-advance so the timer bar can pulse instead of relying on a fill visitors have to notice
 
   function wordCount(el) {
     if (!el) return 40;
@@ -208,15 +209,26 @@
     if (autoplayTimerId) { window.clearTimeout(autoplayTimerId); autoplayTimerId = null; }
   }
 
+  function clearImminentTimer() {
+    if (imminentTimerId) { window.clearTimeout(imminentTimerId); imminentTimerId = null; }
+  }
+
   function resetProgressTimer() {
-    if (progressTimer) { progressTimer.style.transition = 'none'; progressTimer.style.transform = 'scaleX(0)'; }
+    clearImminentTimer();
+    if (progressTimer) {
+      progressTimer.removeAttribute('data-imminent');
+      progressTimer.style.transition = 'none';
+      progressTimer.style.transform = 'scaleX(0)';
+    }
   }
 
   // Freezes the progress bar at its current visual fill instead of snapping
   // it back to empty — used on manual pause so the bar holds still rather
   // than glitching to zero while paused.
   function freezeProgressTimer() {
+    clearImminentTimer();
     if (!progressTimer) return;
+    progressTimer.removeAttribute('data-imminent');
     var computed = window.getComputedStyle(progressTimer).transform;
     progressTimer.style.transition = 'none';
     progressTimer.style.transform = (computed && computed !== 'none') ? computed : 'scaleX(0)';
@@ -237,6 +249,17 @@
       progressTimer.style.transition = 'transform ' + ms + 'ms linear';
       progressTimer.style.transform = 'scaleX(1)';
     }
+    // The fill alone was easy to miss — a low-contrast bar creeping across
+    // the same strip as the bold overall-progress bar gave no clear cue
+    // that a slide change was close. data-imminent triggers a CSS pulse
+    // (opacity/glow, not transform, so it doesn't fight the fill's own
+    // transition) for a window scaled to the slide's own duration: short
+    // enough not to overstay on a long slide, long enough to register on
+    // the 8s floor.
+    var imminentMs = Math.min(2200, Math.round(ms * 0.25));
+    imminentTimerId = window.setTimeout(function () {
+      if (progressTimer) progressTimer.setAttribute('data-imminent', 'true');
+    }, Math.max(0, ms - imminentMs));
     autoplayTimerId = window.setTimeout(function () {
       go(1, 'auto');
     }, ms);

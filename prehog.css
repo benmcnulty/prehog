@@ -174,11 +174,34 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   transform: scaleX(0.1111); transform-origin: left center;
   transition: transform 420ms var(--ease-enter); will-change: transform;
 }
-.deck-progress-timer {
+
+/* Auto-advance countdown: a separate track from .deck-progress on purpose.
+   It used to share that same 4px strip as a low-opacity overlay, which
+   made it read as noise on the overall progress bar rather than a
+   distinct "time until next slide" cue — nothing signaled an advance was
+   close. A dedicated track with a solid accent fill fixes the visibility;
+   the [data-imminent] pulse in its final stretch (set by
+   scheduleAutoAdvance in prehog.js) is the actual "about to change" cue. */
+.deck-autoadvance-track {
+  position: relative; height: 3px; margin-top: 0.4rem; border-radius: 999px;
+  background: color-mix(in oklch, var(--border) 65%, transparent);
+  overflow: hidden;
+}
+.deck-autoadvance-timer {
   position: absolute; inset: 0; height: 100%; width: 100%;
-  background: color-mix(in oklch, var(--fg) 30%, transparent);
-  transform: scaleX(0); transform-origin: right center; transition: transform linear;
-  will-change: transform;
+  background: var(--accent);
+  transform: scaleX(0); transform-origin: left center; transition: transform linear;
+  will-change: transform; border-radius: inherit;
+}
+/* Opacity/box-shadow only — transform is already owned by the linear fill
+   transition above, so animating it here would fight that transition
+   instead of layering on top of it. */
+.deck-autoadvance-timer[data-imminent='true'] {
+  animation: deck-autoadvance-pulse 420ms ease-in-out infinite;
+}
+@keyframes deck-autoadvance-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 color-mix(in oklch, var(--accent) 55%, transparent); }
+  50% { opacity: 0.5; box-shadow: 0 0 9px 1px color-mix(in oklch, var(--accent) 55%, transparent); }
 }
 .deck-dots {
   display: flex; gap: 0.35rem; list-style: none; margin: var(--space-xs) auto 0; padding: 0;
