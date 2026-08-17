@@ -48,7 +48,7 @@
   var currentIndex = 0;
   var seenSlideIds = {}; // used only to decide 'entry_method' framing locally; analytics.js does its own dedup
   var completedEmitted = false; // 'prehog:completed' fires at most once per session, landing on the last slide repeatedly must not re-fire it
-  var viewMode = 'present'; // 'present' (paged, default) | 'reference' (scrollable, reuses the no-JS fallback CSS) — see setViewMode()
+  var viewMode = 'reference'; // 'reference' (scrollable, default — reuses the no-JS fallback CSS) | 'present' (paged slide show, opt-in) — see setViewMode()
 
   // analytics.js is a deferred script that runs *after* prehog.js, so the
   // very first slidechange (fired synchronously on load, before analytics.js
@@ -284,10 +284,11 @@
   }
 
   // ---------- View mode (present / reference) ----------
-  // 'present' is today's paged deck (unchanged, default). 'reference' turns
-  // off paging and reuses the existing no-JS fallback CSS — every slide
-  // already renders as a normal scrollable document without .js-paged, since
-  // that's exactly what a visitor with JS disabled sees today. Persisted in
+  // 'reference' is the default landing experience: a normal scrollable
+  // document, reusing the existing no-JS fallback CSS — every slide
+  // already renders this way without .js-paged, since that's exactly what
+  // a visitor with JS disabled sees today. 'present' is the opt-in paged
+  // slide show. Persisted in
   // localStorage (a durable preference, like the site's own 'theme' key) —
   // not sessionStorage like autoplay's pause state, which is deliberately
   // per-visit.
@@ -369,15 +370,17 @@
     slide.scrollIntoView({ behavior: behavior, block: 'start' });
   }
 
-  // The button's own label ("Reference view") stays fixed — aria-pressed
-  // alone communicates state, per the W3C toggle-button pattern. An
-  // earlier draft changed the label text between "Switch to reference
-  // view"/"Switch to present view" alongside aria-pressed, which a review
-  // flagged as conflicting: if the label already names the action and its
-  // inverse, aria-pressed is redundant at best and confusing at worst.
+  // The button's own label ("Slide show") stays fixed — aria-pressed alone
+  // communicates state, per the W3C toggle-button pattern. An earlier
+  // draft changed the label text between two directional strings
+  // alongside aria-pressed, which a review flagged as conflicting: if the
+  // label already names the action and its inverse, aria-pressed is
+  // redundant at best and confusing at worst. Reference view is now the
+  // default landing experience, so the button represents opting *into*
+  // the slide show — pressed means present/paged mode is active.
   function updateViewToggleUI() {
-    var isReference = viewMode === 'reference';
-    if (toolbarToggleBtn) toolbarToggleBtn.setAttribute('aria-pressed', String(isReference));
+    var isPresent = viewMode === 'present';
+    if (toolbarToggleBtn) toolbarToggleBtn.setAttribute('aria-pressed', String(isPresent));
     root.setAttribute('data-view-mode', viewMode);
   }
 
@@ -392,6 +395,14 @@
       root.classList.remove('js-paged');
       document.body && document.body.classList.remove('js-paged');
       clearPagedSlideState();
+      // data-view-mode drives [data-view-mode='reference'] .slide's
+      // shorter, content-sized layout — it must be set *before* the scroll
+      // below is calculated, not just before updateViewToggleUI() runs
+      // later. Getting this backwards was a real bug: scrollIntoView ran
+      // against the still-tall paged-mode slide heights, then the page
+      // collapsed to its shorter reference layout immediately after,
+      // leaving the scroll position overshooting well past the target.
+      root.setAttribute('data-view-mode', mode);
       // Land on the section that was open in present mode, not the top of
       // the document — without this the reader's place is silently lost.
       // Instant, not smooth: a smooth scroll takes time, and the scrollspy
@@ -445,6 +456,19 @@
       if (focusTarget) { focusTarget.setAttribute('tabindex', '-1'); focusTarget.focus({ preventScroll: true }); }
     }
     if (location.hash !== '#' + id) history.replaceState(null, '', '#' + id);
+    // Confirmed via a live trace (not guessed): on WebKit, updating the URL
+    // fragment via history.replaceState() here can still trigger the
+    // browser's own async native "scroll to element with this ID"
+    // correction shortly after this function returns — even though the
+    // originating click already called preventDefault(), and even though
+    // this correction runs on a delay, not synchronously. It landed on
+    // whatever the page's OWN scroll position happened to be right before
+    // this call (in one measured case, snapping a correct scrollY of 4539
+    // back down to 153). Re-asserting the scroll one frame later wins that
+    // race instead of trying to prevent it.
+    if (slide) {
+      requestAnimationFrame(function () { slide.scrollIntoView({ behavior: 'auto', block: 'start' }); });
+    }
     if (before !== idx) {
       emit('prehog:navused', { method: method, direction: idx > before ? 'next' : 'prev', to: id });
     }
@@ -486,9 +510,10 @@
   tocCloseTriggers.forEach(function (btn) { btn.addEventListener('click', closeToc); });
   buildToc();
 
-  // Enable paged mode only once JS confirms it can drive the deck, and only
-  // if the stored view-mode preference (if any) doesn't say otherwise.
-  var storedViewMode = 'present';
+  // Reference view is the default landing experience (a normal scrollable
+  // page) — paged slide-show mode is opt-in, enabled only by an explicit
+  // stored preference from a previous visit.
+  var storedViewMode = 'reference';
   try {
     var storedVM = localStorage.getItem(VIEWMODE_STORAGE_KEY);
     if (storedVM === 'reference' || storedVM === 'present') storedViewMode = storedVM;
@@ -641,7 +666,17 @@
     if (!openPanels.length) {
       document.querySelectorAll(INERT_BACKGROUND_SELECTOR).forEach(function (el) { el.inert = false; });
     }
-    if (lastFocused) lastFocused.focus();
+    // preventScroll: true — a TOC link's handler calls closeToc()
+    // immediately before jumpTo(), which does its own deliberate
+    // scrollIntoView() to the target section. Without this, refocusing
+    // lastFocused (typically the toolbar button that opened the panel,
+    // near the top of the page) could trigger the browser's own
+    // implicit scroll-into-view for the refocused element, landing at a
+    // scroll offset jumpTo()'s later, real scroll doesn't fully correct
+    // for on every engine — confirmed via bounding-rect measurement:
+    // window.scrollY ended up stuck around 150px instead of the several
+    // thousand needed to reach a section near the end of the page.
+    if (lastFocused) lastFocused.focus({ preventScroll: true });
   }
 
   // Exposed so a separate chat controller (chat.js) can reuse this exact

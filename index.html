@@ -57,7 +57,7 @@
        (rather than defaulting to paged and having prehog.js correct it
        later) so a returning reference-mode visitor never sees a flash of
        the paged layout before their deferred script runs. -->
-  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');var vm=localStorage.getItem('prehog:viewmode');document.documentElement.setAttribute('data-view-mode',vm==='reference'?'reference':'present');if(vm!=='reference')document.documentElement.classList.add('js-paged')}catch(e){document.documentElement.classList.add('js-paged')}})()</script>
+  <script>(function(){try{var ids=['intro','posthog','context','how','evidence','learning','humans-agents','why-now','inspect'];var h=(location.hash||'').replace('#','');document.documentElement.setAttribute('data-slide',ids.indexOf(h)!==-1?h:'intro');var vm=localStorage.getItem('prehog:viewmode');document.documentElement.setAttribute('data-view-mode',vm==='present'?'present':'reference');if(vm==='present')document.documentElement.classList.add('js-paged')}catch(e){document.documentElement.setAttribute('data-view-mode','reference')}})()</script>
   <!-- PostHog project config: read by the shared js/analytics/index.js.
        Not a secret — PostHog project API keys are client-side, write-only
        identifiers by design. See docs/architecture.md for why this is set
@@ -84,7 +84,7 @@
   <link rel="stylesheet" href="/css/core/_utilities.css">
   <link rel="stylesheet" href="/css/components/_navigation.css">
   <link rel="stylesheet" href="/css/components/_analytics-consent.css">
-  <link rel="stylesheet" href="/prehog/prehog.css?v=prehog-css-20260817">
+  <link rel="stylesheet" href="/prehog/prehog.css?v=prehog-chat-20260817j">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -122,9 +122,9 @@
     </div>
   </nav>
 
-  <!-- View toolbar: switches between the guided, paged narrative (default)
-       and a scrollable reference layout that reuses the existing no-JS
-       fallback CSS — see prehog.js's setViewMode(). Normal document flow,
+  <!-- View toolbar: switches between the scrollable reference layout
+       (default — reuses the existing no-JS fallback CSS) and the guided,
+       paged slide show — see prehog.js's setViewMode(). Normal document flow,
        not fixed-position, so it can't collide with any page's own fixed
        content the way three earlier consent-UI designs did (see
        docs/ARCHITECTURE.md's Session C section). Starts hidden: without
@@ -133,9 +133,29 @@
        showing these controls would just be dead UI. prehog.js reveals it
        once it confirms it can actually drive the page. -->
   <div class="deck-toolbar" role="group" aria-label="View controls" hidden>
-    <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">Reference view</button>
-    <button type="button" class="btn btn-secondary" data-action="open-toc" aria-haspopup="dialog">Contents</button>
-    <button type="button" class="btn btn-secondary" data-action="open-chat" aria-haspopup="dialog">Chat</button>
+    <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">
+      <svg class="toolbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="13" rx="2"/>
+        <path d="M10.5 8.7v4.6l4-2.3-4-2.3z" fill="currentColor" stroke="none"/>
+        <path d="M8 21h8M12 17v4"/>
+      </svg>
+      Slide show
+    </button>
+    <button type="button" class="btn btn-secondary" data-action="open-toc" aria-haspopup="dialog">
+      <svg class="toolbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 6h13M8 12h13M8 18h13"/>
+        <circle cx="3.5" cy="6" r="1.1" fill="currentColor" stroke="none"/>
+        <circle cx="3.5" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+        <circle cx="3.5" cy="18" r="1.1" fill="currentColor" stroke="none"/>
+      </svg>
+      Contents
+    </button>
+    <button type="button" class="btn btn-secondary" data-action="open-chat" aria-haspopup="dialog">
+      <svg class="toolbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 11.5a8.4 8.4 0 0 1-8.4 8.4 8.3 8.3 0 0 1-3.8-.9L3 21l1.9-5.8a8.3 8.3 0 0 1-.9-3.7A8.4 8.4 0 0 1 12.5 3a8.4 8.4 0 0 1 8.5 8.5z"/>
+      </svg>
+      Chat
+    </button>
   </div>
 
   <main id="main-content" class="deck" data-role="deck">
@@ -644,7 +664,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
       <h2 id="chat-heading">Ask about PostHog fit</h2>
-      <p class="chat-panel-intro">Answers from this page's own content — Ben's approach to context, working style, and why PostHog specifically. It won't guess at PostHog's internal policies or this application's status.</p>
+      <p class="chat-panel-intro">Answers from this page's own content — Ben's approach to context, working style, and why PostHog specifically.</p>
       <p class="chat-panel-privacy-note">
         Messages go to a third-party AI model, not PostHog, and may be logged by that provider —
         see <a href="/prehog/privacy/#ai-chat-messages" target="_blank" rel="noopener noreferrer">what's collected</a>.
@@ -671,6 +691,40 @@
     </div>
   </div>
 
+  <!-- The standard site footer, same component every other page uses.
+       In present/paged mode (body.js-paged) this becomes an unplaced
+       grid item, clipped by the page's own overflow:hidden — invisible
+       until the visitor switches to reference mode, where it sits at
+       the true end of the (now normally scrollable) document, matching
+       how /ai-lab/chat/ keeps its footer off-screen until scrolled to.
+       Its presence also gives analytics/index.js's injectFooterLink()
+       a `.site-footer .footer-links` to use instead of falling back to
+       cramming the "Analytics: On · Privacy settings" link into nav. -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/ai-lab/">AI Lab</a>
+        <a href="/hire-me/">Hire Me</a>
+      </div>
+      <button class="theme-toggle" type="button" aria-pressed="false" data-theme-toggle>
+        <span class="theme-toggle-icon" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8"/>
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="container footer-meta">
+      <p class="footer-copy">&copy; 2026 Ben McNulty</p>
+    </div>
+  </footer>
+
+  <script src="/js/theme-toggle.js" defer></script>
   <script src="/js/nav-toggle.js" defer></script>
   <script src="/js/animation-observer.js" defer></script>
   <!-- Shared analytics layer first (deferred scripts run in source order),
@@ -679,8 +733,8 @@
   <script src="/js/analytics/consent.js" defer></script>
   <script src="/js/analytics/events.js" defer></script>
   <script src="/js/analytics/index.js" defer></script>
-  <script src="/prehog/prehog.js?v=prehog-chat-20260814" defer></script>
-  <script src="/prehog/analytics.js?v=prehog-chat-20260814" defer></script>
+  <script src="/prehog/prehog.js?v=prehog-chat-20260817j" defer></script>
+  <script src="/prehog/analytics.js?v=prehog-chat-20260817j" defer></script>
   <!-- Shared chat foundation (see docs/CHAT_ARCHITECTURE.md in the
        benlive repo) — chat.js is the only prehog-specific file; the rest
        are the same modules every AI Lab chat app uses, configured not
@@ -699,6 +753,6 @@
   <script src="/js/api/chat-errors.js?v=chat-foundation-20260814" defer></script>
   <script src="/js/utils/markdown-parser.js" defer></script>
   <script src="/js/components/chat-transcript.js?v=chat-foundation-20260814" defer></script>
-  <script src="/prehog/chat.js?v=prehog-chat-20260814" defer></script>
+  <script src="/prehog/chat.js?v=prehog-chat-20260817j" defer></script>
 </body>
 </html>

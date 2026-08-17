@@ -147,12 +147,17 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
    this has to be explicit rather than relying on the attribute alone. */
 .deck-toolbar[hidden] { display: none; }
 .view-toggle {
-  display: inline-flex; align-items: center; min-height: var(--touch);
+  display: inline-flex; align-items: center; gap: 0.4rem; min-height: var(--touch);
   padding: 0.4rem 0.9rem; border-radius: 999px; border: 1px solid var(--border);
   background: transparent; color: var(--fg); font-size: 0.85rem; cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
 .view-toggle:hover, .view-toggle[aria-pressed='true'] { border-color: var(--accent); color: var(--accent-text); }
+
+/* Toolbar button icons: same 24x24/stroke-width:2 convention as this
+   file's other icons (panel-close, chat send). Sized down to sit
+   comfortably next to a text label in a pill button. */
+.toolbar-icon { width: 1.05rem; height: 1.05rem; flex-shrink: 0; }
 
 /* ---------- Deck chrome: progress + dots ---------- */
 .deck-chrome {
@@ -208,6 +213,16 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
   display: flex; align-items: center; padding-block: var(--space-xl);
   border-bottom: 1px solid var(--border);
   scroll-margin-top: calc(var(--nav-shell-height) + 3rem);
+}
+/* Reference mode is a normal document, not one-section-per-viewport
+   paging — full-viewport min-height (needed so present mode's paging
+   looks right) left most sections floating in a mostly-empty box here,
+   since actual slide content is rarely a full screen tall. Content sizes
+   to itself and top-aligns instead, closing that gap. */
+[data-view-mode='reference'] .slide {
+  min-height: 0;
+  align-items: flex-start;
+  padding-block: var(--space-lg);
 }
 .slide-inner { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--space-md); }
 .slide-inner-split { display: grid; gap: var(--space-lg); align-items: center; }
@@ -545,7 +560,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .panel-overlay[hidden] { display: none; }
 .panel-overlay { position: fixed; inset: 0; z-index: var(--z-modal, 60); display: flex; align-items: flex-end; }
 @media (min-width: 640px) { .panel-overlay { align-items: center; justify-content: center; } }
-.panel-backdrop { position: absolute; inset: 0; background: rgba(4,6,12,0.6); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.panel-backdrop { position: absolute; inset: 0; background: rgba(4,6,12,0.85); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .panel-dialog {
   position: relative; z-index: 1; background: var(--bg-raised); border: 2px solid var(--border-panel);
   border-radius: 16px 16px 0 0; padding: var(--space-lg) var(--space-md) var(--space-md);
@@ -676,6 +691,15 @@ body.js-paged {
   grid-template-rows: var(--nav-shell-height) auto minmax(0, 1fr) auto;
   height: 100dvh; min-height: 100svh; overflow: hidden;
 }
+/* The footer is a 5th in-flow body child with no explicit grid-row —
+   relying on it auto-placing into an implicit row 5 (and getting
+   clipped by the overflow:hidden above) turned out to be unreliable in
+   practice, landing it back in row 1 instead. Hide it outright in
+   paged mode instead of depending on that; reference mode drops
+   .js-paged entirely, so the footer returns to normal flow and shows
+   at the true end of the (now scrollable) document — the ai-lab/chat
+   pattern this is matching only ever needs it reachable there. */
+.js-paged .site-footer { display: none; }
 .js-paged nav { grid-row: 1; }
 /* Zero margin here — row 2's height is the toolbar's own content box only
    (its buttons already carry the required 44px touch target, see AGENTS.md
@@ -773,6 +797,41 @@ body.js-paged {
 .privacy-page-footer { padding-block: var(--space-lg); border-top: 1px solid var(--border); }
 .privacy-page-footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm); }
 .privacy-page-footer .footer-copy { color: var(--fg-faint); font-size: 0.85rem; margin: 0; }
+
+/* ---------- Standard site footer (same component every other page
+   uses — see hire-me.css/blog.css for the pattern this is adapted
+   from, using this file's own --fg/--bg/--border aliases instead of
+   redeclaring the underlying tokens). In present/paged mode this
+   becomes an unplaced grid item under body.js-paged's overflow:hidden
+   (see the grid-template-rows rule below) — invisible until reference
+   mode's normal scrollable flow reaches it. ---------- */
+.site-footer { padding: 2rem 0; border-top: 1px solid var(--border); }
+.site-footer .footer-content {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);
+}
+.site-footer .footer-links { display: flex; flex-wrap: wrap; gap: var(--space-md); }
+.site-footer .footer-links a { color: var(--fg-muted); text-decoration: none; font-size: 0.85rem; }
+.site-footer .footer-links a:hover { color: var(--accent-text); }
+.site-footer .footer-meta { text-align: center; }
+.site-footer .footer-copy { color: var(--fg-faint); font-size: 0.8rem; margin: 0; }
+
+.theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center; position: relative;
+  width: 2.625rem; height: 2.625rem; padding: 0; border-radius: 999px;
+  border: 1px solid var(--border); background: rgba(15, 23, 42, 0.35);
+  color: var(--fg-muted); cursor: pointer;
+}
+html[data-theme="light"] .theme-toggle { background: rgba(255, 255, 255, 0.8); }
+.theme-toggle:hover { color: var(--fg); border-color: var(--accent-text); }
+.theme-toggle-icon { display: inline-flex; position: relative; width: 1.125rem; height: 1.125rem; }
+.theme-toggle-icon svg {
+  position: absolute; inset: 0; width: 1.125rem; height: 1.125rem;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.theme-toggle-icon .icon-sun { opacity: 0; transform: rotate(-90deg); }
+html[data-theme="light"] .theme-toggle-icon .icon-sun { opacity: 1; transform: rotate(0deg); }
+html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: rotate(90deg); }
 
 /* ---------- Chat panel ("Ask about PostHog fit") ----------
    Styles the DOM public/js/components/chat-transcript.js renders
