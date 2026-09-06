@@ -991,3 +991,26 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
   .chat-messages .typing span { animation: none; opacity: 0.6; }
 }
 
+/* ── Archive notice (page is kept as submitted; Context First supersedes it) ── */
+.archive-note {
+  margin: 0;
+  padding: 0.6rem clamp(1rem, 3vw, 2rem);
+  background: color-mix(in oklch, var(--bg-raised) 85%, var(--accent-text) 15%);
+  border-bottom: 1px solid var(--border-panel);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.archive-note strong {
+  color: var(--text-primary);
+}
+
+.archive-note a {
+  color: var(--accent-text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
