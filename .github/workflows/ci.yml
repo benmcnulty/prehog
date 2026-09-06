@@ -21,7 +21,7 @@ jobs:
       - name: ESLint (browser globals, no config file needed)
         run: npx --yes eslint@8 --no-eslintrc --env browser,es2021 --parser-options=ecmaVersion:2022 --rule '{"no-undef":"error","no-unused-vars":["error",{"argsIgnorePattern":"^_"}]}' "*.js"
       - name: Stylelint
-        run: npx --yes -p stylelint@16 -p stylelint-config-recommended@14 stylelint "*.css"
+        run: npm install --no-save --no-package-lock stylelint@16 stylelint-config-recommended@14 && npx stylelint "*.css"
       - name: Secret scan (tracked files)
         run: |
           if git grep -nE 'sk-or-v1-|sk-ant-|AIza[0-9A-Za-z_-]{30,}|ghp_[0-9A-Za-z]{30,}' -- . ':!.github/workflows/ci.yml'; then
