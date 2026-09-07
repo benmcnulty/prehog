@@ -110,10 +110,8 @@ code {
 nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 
 /* ---------- View toolbar (mode toggle + Contents) ----------
-   Deliberately normal document flow, not position:fixed or grid-pinned to
-   an edge — three earlier consent-UI designs this session each collided
-   with some page's own fixed content (see docs/ARCHITECTURE.md's Session C
-   section); this sits between <nav> and <main> instead, so it can't. */
+   Paged mode uses the original second grid row. Reference mode places
+   this same toolbar at the deck's end, sticky to the viewport bottom. */
 .deck-toolbar {
   display: flex; flex-wrap: wrap; gap: var(--space-sm);
   max-width: 1180px; padding-inline: var(--space-md);
@@ -125,20 +123,20 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
      row 1 already reserves that space. */
   margin: calc(var(--nav-shell-height) + var(--space-sm)) auto 0;
 }
-/* Reference mode's document can be nine viewports tall — without this, the
-   toolbar (the only way back to present mode, or to open Contents) scrolls
-   out of reach after the first section, and reaching it again means
-   scrolling all the way back to the top first, which silently changes
-   "the section being read" before the toggle is even clicked. position:
-   sticky (not fixed) keeps it reachable everywhere while still
-   contributing to normal document flow — no new class of collision risk,
-   since it never leaves the flow the way position:fixed does. */
+/* Bottom sticky controls stay within the normal-flow deck. The deck's
+   lower boundary releases them above the footer without scroll listeners. */
 [data-view-mode='reference'] .deck-toolbar {
-  position: sticky; top: var(--nav-shell-height); z-index: 5;
-  background: color-mix(in oklch, var(--bg) 92%, transparent);
+  position: sticky; top: auto;
+  bottom: max(0.75rem, env(safe-area-inset-bottom)); z-index: 5;
+  width: fit-content; max-width: calc(100% - 1.5rem);
+  margin: var(--space-sm) auto 0.75rem;
+  justify-content: center;
+  background: color-mix(in oklch, var(--bg) 96%, transparent);
   -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-  border-radius: 0 0 var(--radius) var(--radius);
-  padding-block: var(--space-xs);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+  border-radius: var(--radius);
+  padding: var(--space-xs) var(--space-sm);
 }
 /* Author display:flex above would otherwise beat the UA stylesheet's
    [hidden]{display:none} (author origin always wins over user-agent

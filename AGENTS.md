@@ -54,13 +54,13 @@ specifically; where reference mode's contract differs, it's called out
    never actually true once the shared nav was introduced; the repo already
    depended on host-only scripts (`nav-toggle.js`, `animation-observer.js`)
    with documented degradation, so extending that same acknowledged
-   coupling to CSS is consistent, not new. This presentation deliberately
-   has no site footer. In present (paged) mode the persistent deck
-   controller is the bottom edge of the interface; in reference mode
-   (see invariant 11) the deck controller is hidden and `.deck-toolbar`
-   — `position: sticky`, not the site's usual pattern — is the thing that
-   stays reachable instead, since that mode's document can run several
-   viewports long.
+   coupling to CSS is consistent, not new. The site footer is visible in reference mode and hidden in present mode.
+   In present mode the deck controller remains the bottom grid row.
+   In reference mode `.deck-toolbar` is moved to the end of `main.deck`
+   and sticks to the viewport bottom. Its parent boundary releases it
+   above the footer. This avoids stacking a second floating toolbar
+   beneath the standard site navigation. No scroll handler is needed.
+
 5. **No meaning may depend solely on motion.** Every `[data-animate-draw]`
    SVG has a paired `<figcaption class="sr-only">` describing what the
    diagram shows. `prefers-reduced-motion: reduce` must disable all

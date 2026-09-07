@@ -408,6 +408,18 @@
   // redundant at best and confusing at worst. Reference view is now the
   // default landing experience, so the button represents opting *into*
   // the slide show — pressed means present/paged mode is active.
+  // Reference controls stick within the deck, so its end releases them
+  // naturally before the footer. Paged mode retains its original grid row.
+  function placeToolbar() {
+    if (!toolbar) return;
+    var deck = document.querySelector('main.deck');
+    if (!deck) return;
+    var focused = toolbar.contains(document.activeElement) ? document.activeElement : null;
+    if (viewMode === 'reference') deck.appendChild(toolbar);
+    else deck.before(toolbar);
+    if (focused) focused.focus({ preventScroll: true });
+  }
+
   function updateViewToggleUI() {
     var isPresent = viewMode === 'present';
     if (toolbarToggleBtn) toolbarToggleBtn.setAttribute('aria-pressed', String(isPresent));
@@ -418,6 +430,7 @@
     if (mode !== 'present' && mode !== 'reference') return; // public API — reject anything but the two real states
     if (mode === viewMode) return;
     viewMode = mode;
+    placeToolbar();
     try { localStorage.setItem(VIEWMODE_STORAGE_KEY, mode); } catch (e) { /* ignore */ }
     if (mode === 'reference') {
       pauseAutoplay('mode');
@@ -549,6 +562,7 @@
     if (storedVM === 'reference' || storedVM === 'present') storedViewMode = storedVM;
   } catch (e) { /* ignore */ }
   viewMode = storedViewMode;
+  placeToolbar();
 
   if (viewMode === 'present') {
     root.classList.add('js-paged');
@@ -664,7 +678,7 @@
   // modal-dialog pattern requires Tab to stay inside the dialog and the
   // rest of the page to be inert while it's open. One implementation here
   // rather than three separately-maintained copies.
-  var INERT_BACKGROUND_SELECTOR = 'nav, .deck-toolbar, main.deck, .deck-chrome';
+  var INERT_BACKGROUND_SELECTOR = 'nav, [data-header-controls], .deck-toolbar, main.deck, .deck-chrome';
   var openPanels = []; // stack — supports the (unlikely) case of one panel opening while another is still open
   function getFocusableIn(container) {
     var nodes = container.querySelectorAll(

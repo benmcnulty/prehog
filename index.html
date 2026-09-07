@@ -125,16 +125,9 @@
     </div>
   </nav>
 
-  <!-- View toolbar: switches between the scrollable reference layout
-       (default — reuses the existing no-JS fallback CSS) and the guided,
-       paged slide show — see prehog.js's setViewMode(). Normal document flow,
-       not fixed-position, so it can't collide with any page's own fixed
-       content the way three earlier consent-UI designs did (see
-       docs/ARCHITECTURE.md's Session C section). Starts hidden: without
-       JS there is no controller to drive the toggle or populate Contents,
-       and the page is already the reference-style long-form document, so
-       showing these controls would just be dead UI. prehog.js reveals it
-       once it confirms it can actually drive the page. -->
+  <!-- The controller places this shared toolbar in the paged grid or at
+       the reference deck's end, where bottom sticky positioning releases
+       it before the footer. Hidden until JS can drive its controls. -->
   <div class="deck-toolbar" role="group" aria-label="View controls" hidden>
     <button type="button" class="view-toggle" data-action="toggle-view" aria-pressed="false">
       <svg class="toolbar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
