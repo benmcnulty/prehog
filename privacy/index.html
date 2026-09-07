@@ -101,13 +101,12 @@
         <h2>Why this page is different</h2>
         <p>
           <a href="/prehog/">benlive.tv/prehog</a> is a working PostHog implementation, built to
-          demonstrate PostHog competence for a job application, so it runs a few things unique to
-          this page: Session Replay (masked, scoped to this page only), a short post-completion
-          survey, and, as of this page's "Ask about PostHog fit" chat, an AI chat feature whose
-          message content is sent to a different third party than PostHog entirely (see "AI chat
-          messages" below). The shared analytics layer covering the rest of the site (see
-          <a href="/privacy/">the site-wide privacy page</a> for what that collects) skips all
-          three.
+          demonstrate PostHog competence for a job application. It enables Session Replay
+          with input and marked-text masking, a post-completion survey, feature flags and
+          exception reporting. Its AI chat sends conversation content through a separate
+          service path, described below. <a href="/context-first/">Context First</a> uses a similar
+          presentation-specific setup. The shared analytics layer disables replay on other pages;
+          see <a href="/privacy/">the site-wide privacy page</a> for the broader disclosures.
         </p>
       </section>
 
@@ -131,45 +130,22 @@
 
           <dt id="ai-chat-messages">AI chat messages</dt>
           <dd>
-            Typing a question into the "Ask about PostHog fit" chat sends that text to my own
+            Submitting a question in the "Ask about PostHog fit" chat sends that text to my own
             Firebase Functions backend, which forwards it to
-            <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter</a>'s
-            free tier. This feature normally requests NVIDIA's Nemotron 3 Super first, but if that
-            model is unavailable the backend automatically retries with a different free model,
-            in order: Google's Gemma 4, OpenAI's GPT-OSS 20B, then OpenRouter's own zero-cost
-            router. Which model actually handles your message depends on availability — Nemotron
-            is only the first choice, and it could end up being any of these.
-            (During my own local development a self-hosted Ollama model is used instead; production
-            always uses the chain above.) Each of these is a separate provider, each with its own
-            retention and training policy:
-            <ul>
-              <li>
-                NVIDIA's free Nemotron endpoint currently states that usage "is logged for
-                security purposes and to improve NVIDIA products and services." See
-                <a href="https://openrouter.ai/nvidia/nemotron-3-super-120b-a12b:free/pricing" target="_blank" rel="noopener noreferrer">the current OpenRouter/NVIDIA provider policy for this model</a>
-                for the exact current wording, which supersedes this summary if it changes.
-              </li>
-              <li>
-                OpenRouter itself states that prompt retention is off by default for routing
-                traffic, but each downstream provider (NVIDIA, Google, OpenAI, or whichever
-                provider OpenRouter's own free router selects) sets its own separate logging and
-                training policy, outside OpenRouter's control. See
-                <a href="https://openrouter.ai/docs/guides/privacy/provider-logging/" target="_blank" rel="noopener noreferrer">OpenRouter's provider-logging documentation</a>
-                for how that works, and OpenRouter's own
-                <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>
-                for OpenRouter's own terms.
-              </li>
-            </ul>
-            In short: on the free tier used here, assume a message you send may be logged and used
-            to improve a provider's own products, by whichever provider ends up serving it.
-            <strong>This content always stays off PostHog.</strong> It's a separate destination
-            entirely, handled outside PostHog's SDK altogether. This app itself keeps your
+            <a href="https://openrouter.ai/privacy" target="_blank" rel="noopener noreferrer">OpenRouter</a>
+            and the model provider serving the request, with relevant conversation context.
+            A fallback model may handle a request if the first choice is unavailable.
+            Provider retention and use of content depend on the service and account settings;
+            this page does not promise zero retention or exclusion from model training.
+            See <a href="https://openrouter.ai/docs/guides/privacy/provider-logging/" target="_blank" rel="noopener noreferrer">OpenRouter's provider-logging information</a>.
+            Chat text is excluded from this page's custom analytics events, and the chat dialog
+            is masked in Session Replay. The app itself keeps your
             questions and the AI's answers only in your own browser tab (refreshing clears the
-            conversation); Firebase Functions additionally logs request metadata (timestamps,
-            status codes, a hashed IP for rate-limiting) for debugging, retained 30 days. Those
-            logs are limited to that metadata and exclude your chat message text entirely. This is
-            the same data-handling model as
-            <a href="/ai-lab/chat/">benlive.tv/ai-lab/chat</a>'s own chat feature.
+            conversation). Firebase Functions records request, model, timing and error details;
+            upstream error responses can enter diagnostic logs. Rate limiting uses a keyed IP
+            hash and counters. Retention depends on service settings, and resetting a chat
+            does not delete provider or infrastructure records. See
+            <a href="/privacy/#ai-data">the site-wide AI data policy</a> for more detail.
           </dd>
 
           <dt>One feature flag</dt>
@@ -187,14 +163,14 @@
       </section>
 
       <section class="privacy-page-section">
-        <h2>What's deliberately not collected</h2>
+        <h2>Identity &amp; message privacy</h2>
         <p>
-          No names, no email addresses, no precise or IP-derived location beyond PostHog's default
-          country-level estimate, and no cross-site identity linking. There's no <code>identify()</code>
-          call anywhere in this page's code, so every visitor stays anonymous to it. The only free
-          text <em>PostHog</em> ever collects is the survey's optional open answer, described
-          above, and only if you choose to type one. Chat questions are free text too, but they stay
-          entirely within Firebase/OpenRouter, away from PostHog, as described above.
+          This presentation does not deliberately attach names or email addresses to analytics.
+          PostHog uses persistent browser identifiers, so visits are pseudonymous rather than fully
+          anonymous. IP-derived location may be more specific than a country. The page does not
+          call <code>identify()</code>, but that does not prevent visits from being linked by a browser
+          identifier. Chat text is excluded from custom analytics events and the chat dialog is
+          masked in replay. Optional written survey answers are submitted to PostHog as survey data.
         </p>
       </section>
 
@@ -217,7 +193,7 @@
         <p>
           The "what does this page measure?" panel on <a href="/prehog/#humans-agents">slide 6 of
           the deck</a> shows a live log of every event your own session has actually sent, including
-          your anonymous <code>distinct_id</code> when enabled. The event taxonomy, the reasoning
+          your pseudonymous <code>distinct_id</code> when enabled. The event taxonomy, the reasoning
           behind every product turned on or deliberately left off, and the full source are public in
           the <a href="https://github.com/benmcnulty/prehog" target="_blank" rel="noopener noreferrer">prehog repository</a>.
         </p>
@@ -226,7 +202,7 @@
       <section class="privacy-page-section privacy-page-footnote">
         <p>
           <small>
-            Last updated: August 2026. This page describes <em>/prehog</em> specifically. See
+            Last updated: September 7, 2026. This page describes <em>/prehog</em> specifically. See
             <a href="/privacy/">the site-wide privacy page</a> for the rest of the site, and
             <a href="/ai-lab/chat/">AI Lab</a>'s own "Privacy &amp; Data Handling" panel for how
             that product handles conversation data specifically (chat message content and
