@@ -242,6 +242,18 @@
   <footer class="privacy-page-footer">
     <div class="container privacy-page-footer-inner">
       <a href="/" class="btn btn-secondary">&larr; Back to benlive.tv</a>
+      <button class="theme-toggle" type="button" aria-pressed="false" data-theme-toggle>
+        <span class="theme-toggle-icon" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="4.2"/>
+            <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8l1.8-1.8M18 6l1.8-1.8"/>
+          </svg>
+        </span>
+        <span class="theme-toggle-label">Light mode</span>
+      </button>
       <p class="footer-copy">&copy; 2026 Ben McNulty</p>
     </div>
   </footer>
@@ -249,6 +261,7 @@
   <script src="/js/analytics/consent.js" defer></script>
   <script src="/js/analytics/events.js" defer></script>
   <script src="/js/analytics/index.js" defer></script>
+  <script src="/js/theme-toggle.js" defer></script>
   <script src="/js/nav-toggle.js" defer></script>
 </body>
 </html>
