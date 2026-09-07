@@ -2,40 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" content="#22252b" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
-  <meta name="application-name" content="prehog">
-  <meta name="apple-mobile-web-app-title" content="prehog">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
+  <!-- Site metadata: generated from scripts/seo/seo-pages.json -->
   <title>prehog (2026 PostHog application, archived) | Ben Live</title>
   <meta name="description" content="Archived: the original presentation Ben McNulty shipped as his 2026 application for PostHog's Context Engineer role. The generalized, maintained version lives at /context-first/.">
   <meta name="author" content="Ben McNulty">
+  <meta name="robots" content="index,follow,max-image-preview:large">
   <link rel="canonical" href="https://benlive.tv/prehog/">
-
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#22252b" media="(prefers-color-scheme: dark)" data-browser-theme="dark">
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" data-browser-theme="light">
+  <meta name="application-name" content="Ben Live">
+  <meta name="apple-mobile-web-app-title" content="Ben Live">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+  <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+  <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#167b8a">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-120.png" sizes="120x120">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-152.png" sizes="152x152">
+  <link rel="apple-touch-icon" href="/apple-touch-icon-167.png" sizes="167x167">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="msapplication-TileColor" content="#22252b">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://benlive.tv/prehog/">
-  <meta property="og:title" content="prehog | Ben McNulty × PostHog Context Engineering">
-  <meta property="og:description" content="A shipped analytics case study, originally built as a concise application for PostHog's Context Engineer role, with a working PostHog implementation and attributed sourcing.">
-  <meta property="og:image" content="https://benlive.tv/img/social/og-prehog.jpg">
   <meta property="og:site_name" content="Ben Live">
   <meta property="og:locale" content="en_US">
-
+  <meta property="og:url" content="https://benlive.tv/prehog/">
+  <meta property="og:title" content="prehog (2026 PostHog application, archived) | Ben Live">
+  <meta property="og:description" content="Archived: the original presentation Ben McNulty shipped as his 2026 application for PostHog's Context Engineer role. The generalized, maintained version lives at /context-first/.">
+  <meta property="og:image" content="https://benlive.tv/img/social/og-prehog.jpg?v=8c3d7a30f0bf">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ben Live — prehog (2026 PostHog application, archived). Branded title card with prismatic geometric artwork.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:url" content="https://benlive.tv/prehog/">
-  <meta name="twitter:title" content="prehog | Ben McNulty × PostHog Context Engineering">
-  <meta name="twitter:description" content="A shipped analytics case study, originally built as a concise application for PostHog's Context Engineer role, with a working PostHog implementation and attributed sourcing.">
-  <meta name="twitter:image" content="https://benlive.tv/img/social/og-prehog.jpg">
+  <meta name="twitter:title" content="prehog (2026 PostHog application, archived) | Ben Live">
+  <meta name="twitter:description" content="Archived: the original presentation Ben McNulty shipped as his 2026 application for PostHog's Context Engineer role. The generalized, maintained version lives at /context-first/.">
+  <meta name="twitter:image" content="https://benlive.tv/img/social/og-prehog.jpg?v=8c3d7a30f0bf">
+  <meta name="twitter:image:alt" content="Ben Live — prehog (2026 PostHog application, archived). Branded title card with prismatic geometric artwork.">
+  <link rel="help" href="/llms.txt" type="text/plain" title="Site guide for readers and AI agents">
+  <script data-browser-appearance>
+/** Early browser chrome hints; appearance controls remain the theme authority. */
+(() => {
+  const root = document.documentElement;
+  const hints = Array.from(document.querySelectorAll('meta[data-browser-theme]'));
+  const colors = Object.fromEntries(hints.map(node => [node.dataset.browserTheme, node.content]));
+  const scheme = document.querySelector('meta[name="color-scheme"]');
+  const preferred = matchMedia('(prefers-color-scheme: dark)');
+  const valid = value => value === 'light' || value === 'dark';
+  let stored;
+  try { stored = localStorage.getItem('theme'); } catch { /* Browser storage is optional. */ }
+  if (valid(stored)) root.dataset.theme = stored;
+  else if (!valid(root.dataset.theme)) root.dataset.theme = preferred.matches ? 'dark' : 'light';
 
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/site.webmanifest">
+  const sync = () => {
+    const theme = valid(root.dataset.theme) ? root.dataset.theme : preferred.matches ? 'dark' : 'light';
+    // Keep media fallbacks for script-free loads; both hints follow manual choices.
+    if (!document.querySelector('meta[data-role="theme-color"]')) {
+      hints.forEach(node => { node.content = colors[theme]; });
+    }
+    if (scheme) scheme.content = theme;
+  };
+  sync();
+  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+  window.addEventListener('pageshow', sync);
+})();
+  </script>
+  <script type="application/ld+json" data-page-schema>{"@context":"https://schema.org","@type":"WebPage","@id":"https://benlive.tv/prehog/#webpage","url":"https://benlive.tv/prehog/","name":"prehog (2026 PostHog application, archived) | Ben Live","description":"Archived: the original presentation Ben McNulty shipped as his 2026 application for PostHog's Context Engineer role. The generalized, maintained version lives at /context-first/.","inLanguage":"en-US","isPartOf":{"@id":"https://benlive.tv/#website"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://benlive.tv/img/social/og-prehog.jpg?v=8c3d7a30f0bf","width":1200,"height":630}}</script>
+  <!-- End site metadata -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script type="application/ld+json">
   {
