@@ -2,14 +2,11 @@
 
 **Context before employment.**
 
-A responsive, PostHog-instrumented presentation that began as my application
-to the **Context Engineer** role on PostHog's **Wizard & Docs** team, and is
-now also a shipped analytics case study in its own right. Both are true at
-once, stated as such on the page itself, not one quietly replacing the
-other. Live at [benlive.tv/prehog](https://benlive.tv/prehog); this repo is
-the inspectable source behind it, mounted into the host site as a git
-submodule so the deployed page and this reviewed repository are provably the
-same tree.
+A maintained context-engineering and PostHog analytics case study, originally
+built while exploring a Context Engineer opportunity. That application is complete;
+I am now considering other opportunities centered on clear context, autonomy and
+thoughtful delivery. The generalized companion is [Context First](https://benlive.tv/context-first/).
+Live at [benlive.tv/prehog](https://benlive.tv/prehog).
 
 ## Results
 

@@ -989,26 +989,26 @@ html[data-theme="light"] .theme-toggle-icon .icon-moon { opacity: 0; transform: 
   .chat-messages .typing span { animation: none; opacity: 0.6; }
 }
 
-/* ── Archive notice (page is kept as submitted; Context First supersedes it) ── */
-.archive-note {
-  margin: 0;
-  padding: 0.6rem clamp(1rem, 3vw, 2rem);
-  background: color-mix(in oklch, var(--bg-raised) 85%, var(--accent-text) 15%);
-  border-bottom: 1px solid var(--border-panel);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  text-align: center;
+/* Editorial rhythm shared by both case-study decks. No layout-mode changes. */
+.slide-title { text-wrap: balance; letter-spacing: -0.025em; }
+.slide-body, .slide-lede { text-wrap: pretty; overflow-wrap: break-word; }
+.eyebrow { line-height: 1.5; max-width: 70ch; }
+.trait-list { max-width: 72ch; }
+[data-view-mode='reference'] .slide-body,
+[data-view-mode='reference'] .trait-list li { line-height: 1.65; }
+[data-view-mode='reference'] .slide-inner { padding-block: clamp(0.5rem, 1.5vw, 1.25rem); }
+.art-card .illo { overflow: visible; }
+.art-card .illo :is(path, polyline, line) { stroke-linecap: round; stroke-linejoin: round; }
+.art-card { outline: 1px solid color-mix(in oklch, var(--fg) 6%, transparent); outline-offset: -5px; }
+.case-study-note {
+  max-width: 65ch;
+  padding: 0.8rem 1rem;
+  margin-block: 0.75rem 1rem;
+  border-inline-start: 3px solid var(--accent-text);
+  border-radius: 0 0.65rem 0.65rem 0;
+  background: color-mix(in oklch, var(--bg-raised) 92%, var(--accent-text) 8%);
+  color: var(--fg-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
-
-.archive-note strong {
-  color: var(--text-primary);
-}
-
-.archive-note a {
-  color: var(--accent-text);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
+.case-study-note a { color: var(--accent-text); text-underline-offset: 0.2em; }

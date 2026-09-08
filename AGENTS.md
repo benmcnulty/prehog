@@ -5,15 +5,11 @@ prefer `README.md` — this file trades narrative for density.
 
 ## Mission
 
-`prehog` is a static, single-page presentation deployed at
-`benlive.tv/prehog`, instrumented with PostHog. It began as a
-job-application artifact for a Context Engineer role and is now also a
-shipped analytics case study in its own right — both framings are true
-and stated explicitly (see the page's own metadata and the "why now"
-slide), not one silently replacing the other. It is meant to be a
-genuinely good small system on its own terms. Optimize changes for
-**small surface area × correctness × explainability**, not feature
-growth.
+`prehog` is a maintained context-engineering and analytics case study. The
+original PostHog application is complete. Ben is now exploring other opportunities
+with similar principles and values. Preserve that history without implying an
+active candidacy, endorsement, or knowledge of private hiring decisions. Both
+decks share usability improvements; their analytics event namespaces remain separate.
 
 The page works two ways: **present** mode (default) is the original
 guided, paged narrative; **reference** mode is the same content as a
