@@ -283,7 +283,8 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 }
 .slide-title { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 600; }
 .slide-title-hero {
-  font-size: clamp(3.5rem, 14vw, 8rem); letter-spacing: -0.02em; font-weight: 800;
+  overflow-wrap: anywhere;
+  font-size: clamp(2rem, 14vw, 8rem); letter-spacing: -0.02em; font-weight: 800;
   background: var(--prism-gradient-118); background-size: var(--prism-size); background-repeat: var(--prism-repeat);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   animation: hero-breathe 8s var(--ease) infinite alternate; will-change: filter;
@@ -544,7 +545,8 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .evidence-link:hover { gap: 0.5rem; }
 
 .qa-table { margin-top: var(--space-lg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.qa-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); padding: 0.85rem var(--space-sm); border-top: 1px solid var(--border); font-size: 0.92rem; }
+.qa-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-sm); padding: 0.85rem var(--space-sm); border-top: 1px solid var(--border); font-size: 0.92rem; }
+.qa-row > * { min-width: 0; overflow-wrap: anywhere; }
 .qa-row:first-child { border-top: none; }
 .qa-row-head { background: var(--light-subtle); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
@@ -562,6 +564,7 @@ nav { --nav-extra-offset: clamp(0.75rem, 2vh, 1.5rem); }
 .inspect-grid { display: grid; gap: var(--space-sm); margin-top: var(--space-lg); grid-template-columns: 1fr; }
 @media (min-width: 640px) { .inspect-grid { grid-template-columns: repeat(2, 1fr); } }
 .inspect-card {
+  min-width: 0; overflow-wrap: anywhere;
   display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none;
   border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-sm) var(--space-md);
   min-height: var(--touch); justify-content: center;

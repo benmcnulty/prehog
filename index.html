@@ -73,7 +73,7 @@
   window.addEventListener('pageshow', sync);
 })();
   </script>
-  <script type="application/ld+json" data-page-schema>{"@context":"https://schema.org","@type":"WebPage","@id":"https://benlive.tv/prehog/#webpage","url":"https://benlive.tv/prehog/","name":"prehog | Context Engineering Case Study | Ben Live","description":"A maintained context-engineering and PostHog analytics case study by Ben McNulty, originally developed while exploring a Context Engineer opportunity.","inLanguage":"en-US","isPartOf":{"@id":"https://benlive.tv/#website"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://benlive.tv/img/social/og-prehog.jpg?v=1dd41a962d6e","width":1200,"height":630}}</script>
+  <script type="application/ld+json" data-page-schema>{"@context":"https://schema.org","@type":"WebPage","@id":"https://benlive.tv/prehog/#webpage","url":"https://benlive.tv/prehog/","name":"prehog | Context Engineering Case Study | Ben Live","description":"A maintained context-engineering and PostHog analytics case study by Ben McNulty, originally developed while exploring a Context Engineer opportunity.","inLanguage":"en-US","isPartOf":{"@id":"https://benlive.tv/#website"},"about":{"@id":"https://benlive.tv/#person"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://benlive.tv/img/social/og-prehog.jpg?v=1dd41a962d6e","width":1200,"height":630}}</script>
   <!-- End site metadata -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -90,7 +90,7 @@
   </script>
 
   <!-- Inline theme init: runs synchronously before CSS to prevent FOUC -->
-  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}})()</script>
+
   <!-- Inline deck init: establish the opening slide and view mode before CSS
        paints. With JS disabled this never runs, so the document remains a
        readable long-form page. Reads the stored view-mode preference itself
@@ -122,9 +122,12 @@
   <link rel="stylesheet" href="/css/core/_gradients.css">
   <link rel="stylesheet" href="/css/core/_animations.css">
   <link rel="stylesheet" href="/css/core/_utilities.css">
-  <link rel="stylesheet" href="/css/components/_navigation.css?v=flyout-4">
+  <link rel="stylesheet" href="/css/components/_navigation.css?v=brand-swarm-1">
   <link rel="stylesheet" href="/css/components/_analytics-consent.css">
   <link rel="stylesheet" href="/prehog/prehog.css?v=deck-polish-20260908">
+
+
+  <link rel="stylesheet" href="/css/components/_brand.css?v=42410a8e54bb">
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -133,23 +136,10 @@
     <div class="container nav-content">
       <a class="logo" href="/" aria-label="Ben Live Human in the Loop">
         <span class="logo-text">Ben Live</span>
-        <span class="logo-divider" aria-hidden="true">
-          <svg class="logo-divider-icon" viewBox="0 0 32 32" fill="none">
-            <defs>
-              <linearGradient id="logo-divider-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="oklch(75% 0.18 195)" />
-                <stop offset="100%" stop-color="oklch(65% 0.22 245)" />
-              </linearGradient>
-            </defs>
-            <rect x="4" y="6" width="24" height="20" rx="6" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
-            <circle cx="12" cy="15" r="2" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
-            <circle cx="20" cy="15" r="2" stroke="url(#logo-divider-gradient)" stroke-width="2"/>
-            <path d="M12 20h8" stroke="url(#logo-divider-gradient)" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </span>
+        <span class="logo-divider brand-swarm" data-geometry-src="/img/brand/swarm-geometry.json?v=3ba079cdf8aa" aria-hidden="true"><img class="brand-swarm__still" src="/img/brand/intelligence-swarm.svg?v=ab8aee2a602d" alt="" width="128" height="128"><canvas class="brand-swarm__canvas" width="128" height="128"></canvas></span>
         <span class="logo-tagline">Human in the Loop</span>
       </a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="prehog-nav" aria-label="Toggle menu" aria-haspopup="menu" data-nav-toggle>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="prehog-nav" aria-label="Toggle menu" data-nav-toggle>
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
         <span class="nav-toggle-bar"></span>
@@ -764,17 +754,17 @@
     </div>
   </footer>
 
-  <script src="/js/theme-toggle.js" defer></script>
-  <script src="/js/nav-toggle.js?v=flyout-4" defer></script>
-  <script src="/js/animation-observer.js" defer></script>
+  <script src="/js/theme-toggle.js" defer integrity="sha256-jTyyjcjsa399AvpH3AJ3EooQyHF/nR9I/TQE5NiFS+E="></script>
+  <script src="/js/nav-toggle.js?v=flyout-4" defer integrity="sha256-khNRlgPhHayjFavugOenH92hhPged6QMUhd1eB43gtQ="></script>
+  <script src="/js/animation-observer.js" defer integrity="sha256-OTrCo+o4qg+ikEsXMvXDtuJb+Qe5yohRm0v2FQxvWyE="></script>
   <!-- Shared analytics layer first (deferred scripts run in source order),
        so window.BenLiveAnalytics exists before prehog/analytics.js's own
        deferred script runs. -->
-  <script src="/js/analytics/consent.js" defer></script>
-  <script src="/js/analytics/events.js" defer></script>
-  <script src="/js/analytics/index.js" defer></script>
-  <script src="/prehog/prehog.js?v=deck-polish-20260908" defer></script>
-  <script src="/prehog/analytics.js?v=deck-polish-20260908" defer></script>
+  <script src="/js/analytics/consent.js" defer integrity="sha256-hcXg+GQsK6jkiYI9T5D16I0insHlYOyC9zWQxRjONxY="></script>
+  <script src="/js/analytics/events.js" defer integrity="sha256-qbBVLhkmViH8HvgkVJDW2/dvecCnMjYUraa0Uo/uzYE="></script>
+  <script src="/js/analytics/index.js" defer integrity="sha256-Z02JrtT5zgpIR/pddraY0SPWbPA0mfnqaM+TcQ2hTp4="></script>
+  <script src="/prehog/prehog.js?v=deck-polish-20260908" defer integrity="sha256-zygWCT0d1qW9KZM+x7AySmIk1k0KQodv+6KmOmyRMGk="></script>
+  <script src="/prehog/analytics.js?v=deck-polish-20260908" defer integrity="sha256-zWzK/bwLXsSwM1fn79bWTfF5Sos0FPNwmHYWwQgGGsQ="></script>
   <!-- Shared chat foundation (see docs/CHAT_ARCHITECTURE.md in the
        benlive repo) — chat.js is the only prehog-specific file; the rest
        are the same modules every AI Lab chat app uses, configured not
@@ -788,11 +778,12 @@
        gives JS/CSS a 1-hour freshness lifetime plus stale-while-revalidate,
        so this isn't a theoretical gap. Bump this one string on every
        future change to any file in this list, together. -->
-  <script src="/js/api/openrouter-client.js?v=chat-foundation-20260814" defer></script>
-  <script src="/js/api/chat-config.js?v=chat-foundation-20260814" defer></script>
-  <script src="/js/api/chat-errors.js?v=chat-foundation-20260814" defer></script>
-  <script src="/js/utils/markdown-parser.js" defer></script>
-  <script src="/js/components/chat-transcript.js?v=chat-foundation-20260814" defer></script>
-  <script src="/prehog/chat.js?v=deck-polish-20260908" defer></script>
+  <script src="/js/api/openrouter-client.js?v=chat-foundation-20260814" defer integrity="sha256-zptf7wnS2faWNdaAV0EO59ZdS153+fD14UXVFcLHLPo="></script>
+  <script src="/js/api/chat-config.js?v=chat-foundation-20260814" defer integrity="sha256-P+BDZSC1Cm/XEP8y+UL48HWCem7tkRXvfzWr+LJC7RI="></script>
+  <script src="/js/api/chat-errors.js?v=chat-foundation-20260814" defer integrity="sha256-SLhjmQhF4mVMorHBEFMhzmUvby/yzJLLyGpGM60/1YQ="></script>
+  <script src="/js/utils/markdown-parser.js" defer integrity="sha256-1ub7MJKQI0cdvhM8sGXJTLSkSKm8cyvASjHFJ224RQc="></script>
+  <script src="/js/components/chat-transcript.js?v=chat-foundation-20260814" defer integrity="sha256-0+CzjjVOjdXVkve01eu7HB0mYyIqtOUl2VJ1tfCwlCs="></script>
+  <script src="/prehog/chat.js?v=deck-polish-20260908" defer integrity="sha256-hZS530Fb4WNkGwdUR8zyh4D7HM4htGxPq5r4uyIMmKw="></script>
+  <script src="/js/brand-swarm.js?v=daa8083db46f" defer integrity="sha256-2qgIPbRv0NFVCUwSMDc8W6eNOx9Kd1cmXP+F+VoTVic="></script>
 </body>
 </html>
