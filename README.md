@@ -14,8 +14,9 @@ Live at [benlive.tv/prehog](https://benlive.tv/prehog).
   navigation, content-proportional auto-advance) or, toggled and persisted,
   a normal browsable long-form document. Same content, a visitor's choice,
   not two different pages.
-- Full no-JS fallback (every section readable without JavaScript), zero
-  `wcag2a`/`wcag2aa` violations in either view mode.
+- A no-JS document fallback and accessibility-oriented navigation, focus
+  management and reduced-motion handling. Automated accessibility checks are
+  scoped to the host's tested pages/states; they are not a WCAG compliance certification.
 - First production PostHog JS SDK implementation: Product Analytics, masked
   Session Replay, exception tracking, a real custom-rendered Survey, and one
   flag-gated feature, all routed through a PostHog-managed reverse proxy
@@ -67,6 +68,30 @@ analytics.js    Domain adapter onto benlive.tv's shared analytics layer
 docs/           architecture.md, analytics.md, decisions.md
 AGENTS.md       Same project context, structured for a coding agent
 ```
+
+## Historical status and verification
+
+This is a maintained historical case study of a completed application, not an
+active hiring submission, an endorsement by PostHog or evidence of private hiring
+decisions. Shared usability improvements may continue; this is not an untouched
+archive of the original source.
+
+There is no package manifest or build step. `python -m http.server 8000` provides
+a partial source preview at <http://localhost:8000>, but host-absolute shared CSS,
+navigation, analytics and chat resources are absent from this tree. No API key is
+required to inspect the source. Cloning alone does not recreate the hosted behavior.
+
+Public CI checks JavaScript/CSS linting and tracked-content secret patterns. The
+documented Playwright suite belongs to the separate host checkout. It was not
+rerun during the 2026-10-02 portfolio documentation review; current analytics
+delivery, mobile/keyboard journeys, reduced-motion behavior and complete
+accessibility coverage remain unverified by that review. Existing architectural
+descriptions explain the implementation, not a fresh certification of every live service.
+
+Contributions should preserve historical context, stable anchors, event names,
+navigation/analytics separation and the privacy rules in [AGENTS.md](AGENTS.md).
+No standalone license file is present in this snapshot; preserve existing
+authorship and provenance.
 
 ## Documentation
 
