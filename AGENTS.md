@@ -1,5 +1,25 @@
 # AGENTS.md
 
+## Local validation only — Ben's decision, 2026-10-11
+
+GitHub Actions costs money. Run development, lint, tests, browser checks, visual
+baselines, accessibility, Lighthouse, and dependency reviews on local resources.
+Do not add or restore GitHub Actions workflows, dispatch or rerun hosted jobs,
+re-enable Actions, use hosted CI as a workaround for a local failure, or add
+scheduled dependency-update automation without Ben explicitly reversing this
+policy. A push or PR request does not authorize metered CI. GitHub remains a
+source-control/review host; pushes must not trigger remote execution.
+
+Use the existing pinned dependencies and local checks. Preserve failures and
+resource evidence; fix local test strategy rather than moving execution to a
+paid runner. Inference and production deployment still need their own authorization.
+
+Local validation uses the host infrastructure's `bun run check:subprojects`
+(pinned ESLint, Stylelint and tracked-source secret patterns) and the bounded
+browser runner: `bun run test:local -- --files=prehog.spec.js`.
+Do not install floating `npx` lint versions or recreate the removed hosted jobs.
+
+
 Structured context for a coding agent opening this repository. Humans:
 prefer `README.md` — this file trades narrative for density.
 
