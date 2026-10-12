@@ -1,5 +1,19 @@
 # AGENTS.md
 
+## Two-engineer production readiness
+
+Ben requires two distinct engineering sign-offs on the reviewed release: Codex first,
+then an independent Claude review for this release. A passing check or pushed commit
+is not either review. Record candidate commits, evidence, findings and explicit
+decisions in the host infrastructure repository's `docs/RELEASE_READINESS_REVIEW.md`.
+The second engineer must review the actual diffs and run the complete local host
+release gate with Node 22 and key-free emulators; GitHub Actions stays prohibited.
+Code/configuration/pin/test/baseline changes require affected checks and renewed
+sign-offs. Instruction-only updates must be explicitly identified. Ben's device and
+creative acceptance and deployment authorization are separate gates. Do not deploy
+until all are recorded; the current instruction is not to deploy. In Ben's combined
+checkout, the review packet is at `/Users/ben/dev/benlive/docs/RELEASE_READINESS_REVIEW.md`.
+
 ## Local validation only — Ben's decision, 2026-10-11
 
 GitHub Actions costs money. Run development, lint, tests, browser checks, visual
