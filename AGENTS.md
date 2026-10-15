@@ -1,18 +1,25 @@
 # AGENTS.md
 
-## Two-engineer production readiness
+## Risk-based production readiness — Ben's decision, 2026-10-14
 
-Ben requires two distinct engineering sign-offs on the reviewed release: Codex first,
-then an independent Claude review for this release. A passing check or pushed commit
-is not either review. Record candidate commits, evidence, findings and explicit
-decisions in the host infrastructure repository's `docs/RELEASE_READINESS_REVIEW.md`.
-The second engineer must review the actual diffs and run the complete local host
-release gate with Node 22 and key-free emulators; GitHub Actions stays prohibited.
-Code/configuration/pin/test/baseline changes require affected checks and renewed
-sign-offs. Instruction-only updates must be explicitly identified. Ben's device and
-creative acceptance and deployment authorization are separate gates. Do not deploy
-until all are recorded; the current instruction is not to deploy. In Ben's combined
-checkout, the review packet is at `/Users/ben/dev/benlive/docs/RELEASE_READINESS_REVIEW.md`.
+Routine content and low-risk maintenance require one engineering review and affected
+local checks, not a second reviewer or full functional browser batches. Classify the
+actual risk, including bounded helper changes; do not use a blanket code-file rule.
+Record candidate commits, evidence, limitations and APPROVE/HOLD in the host's
+`docs/RELEASE_READINESS_REVIEW.md`. Follow host `docs/CONTENT_RELEASE_CHECKS.md`.
+
+Retain independent two-engineer review for substantial runtime/layout changes,
+auth/security/secrets, APIs/Functions/database/deployment infrastructure, significant
+dependency changes, weaker budgets/baselines or unresolved regressions. Use a full
+local gate for broad cross-site changes. No automatic reviewer dispatch.
+
+Ben's content/creative acceptance and deployment authorization remain separate;
+use existing session authorization and do not ask repeatedly. A publication request
+authorizes its checked publication, not unrelated infrastructure or paid inference.
+Hold only for a specific failed affected check, unresolved material risk or missing
+necessary authorization. Documentation-only updates carry functional approval forward.
+The host guidance is at `/Users/ben/dev/benlive/AGENTS.md` and
+`/Users/ben/dev/benlive/docs/RELEASE_READINESS_REVIEW.md`.
 
 ## Local validation only — Ben's decision, 2026-10-11
 
